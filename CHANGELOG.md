@@ -2,6 +2,10 @@
 
 ## develop
 
+### New
+
+* Added `Pipeline.Exec_()` to help with embedding Pipeline in other structs.
+
 ## v1.0.2
 
 Released Sunday, 15th September 2019.
