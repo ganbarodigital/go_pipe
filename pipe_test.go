@@ -193,6 +193,25 @@ func TestPipeNextCopesWithNilPipePointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
+	var pipe *Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.Next()
+
+	// ----------------------------------------------------------------
+	// test the results
+	//
+	// as long as the code doesn't segfault, it works!
+}
+
+func TestPipeNextCopesWithEmptyPipe(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
 	var pipe Pipe
 
 	// ----------------------------------------------------------------
