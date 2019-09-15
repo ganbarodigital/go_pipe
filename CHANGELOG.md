@@ -2,6 +2,10 @@
 
 ## develop
 
+### Fixes
+
+* `Pipeline.Exec()` returns pointer to self, allows method chaining
+
 ## v1.0.1
 
 Released Sunday, 15th September 2019.
