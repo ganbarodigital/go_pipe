@@ -53,6 +53,6 @@ type ReadBuffer interface {
 	ReadLines() <-chan string
 
 	// ReadWords returns a channel that you can `range` over to get each
-	// word from the pipe's stdin
+	// word from our buffer
 	ReadWords() <-chan string
 }
