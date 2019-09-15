@@ -122,3 +122,23 @@ func TestDestReadWordsIteratesOverBuffer(t *testing.T) {
 
 	assert.Equal(t, expectedResult, actualResult)
 }
+
+func TestDestImplementsReadBuffer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	dest := Dest{}
+	var i interface{} = &dest
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(ReadBuffer)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}

@@ -316,3 +316,23 @@ func TestNewSourceFromStringWrapsGivenString(t *testing.T) {
 
 	assert.Equal(t, expectedResult, actualResult)
 }
+
+func TestSourceImplementsReadBuffer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	source := Source{}
+	var i interface{} = &source
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(ReadBuffer)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
