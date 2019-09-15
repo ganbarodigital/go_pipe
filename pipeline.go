@@ -92,6 +92,12 @@ func (pl *Pipeline) Bytes() ([]byte, error) {
 
 // Exec executes a pipeline
 func (pl *Pipeline) Exec() *Pipeline {
+	return pl.Exec_()
+}
+
+// Exec_ should only be called if you have embedded Pipeline into another
+// struct
+func (pl *Pipeline) Exec_() *Pipeline {
 	// do we have a pipeline to play with?
 	if pl == nil {
 		return pl
