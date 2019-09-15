@@ -2,6 +2,10 @@
 
 ## develop
 
+## v1.0.0
+
+Released Sunday, 15th September 2019.
+
 ### New
 
 * Added `Dest`, a `strings.Builder` with useful helper methods
