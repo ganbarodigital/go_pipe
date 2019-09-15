@@ -91,15 +91,15 @@ func (pl *Pipeline) Bytes() ([]byte, error) {
 }
 
 // Exec executes a pipeline
-func (pl *Pipeline) Exec() {
+func (pl *Pipeline) Exec() *Pipeline {
 	// do we have a pipeline to play with?
 	if pl == nil {
-		return
+		return pl
 	}
 
 	// is the pipeline fit to use?
 	if pl.Pipe == nil {
-		return
+		return pl
 	}
 
 	for _, step := range pl.Steps {
@@ -112,11 +112,12 @@ func (pl *Pipeline) Exec() {
 
 		// we stop executing the moment something goes wrong
 		if pl.Err != nil {
-			return
+			return pl
 		}
 	}
 
 	// all done
+	return pl
 }
 
 // String returns the pipeline's stdout as a single string
