@@ -50,9 +50,6 @@ type Pipe struct {
 	// Pipe operations write to Stdout and/or Stderr
 	Stdout *Dest
 	Stderr *Dest
-
-	// If anything goes wrong, we track the error here
-	Err error
 }
 
 // NewPipe creates a new, empty Pipe.
