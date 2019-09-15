@@ -250,3 +250,41 @@ func TestPipeDrainCopiesStdinToStdout(t *testing.T) {
 
 	assert.Equal(t, expectedResult, actualResult)
 }
+
+func TestPipeDrainStdinCopesWithNilPipePointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe *Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.DrainStdin()
+
+	// ----------------------------------------------------------------
+	// test the results
+	//
+	// as long as the code doesn't segfault, it works!
+}
+
+func TestPipeDrainStdinCopesWithEmptyPipe(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.DrainStdin()
+
+	// ----------------------------------------------------------------
+	// test the results
+	//
+	// as long as the code doesn't segfault, it works!
+}

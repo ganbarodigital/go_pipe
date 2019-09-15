@@ -81,5 +81,11 @@ func (p *Pipe) Next() {
 // DrainStdin will copy everything that's left in the pipe's stdin
 // over to the pipe's stdout
 func (p *Pipe) DrainStdin() {
+	// do we have a pipe to work with?
+	if p == nil || p.Stdin == nil || p.Stdout == nil {
+		return
+	}
+
+	// yes we do
 	io.Copy(p.Stdout, p.Stdin)
 }
