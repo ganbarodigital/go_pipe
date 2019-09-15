@@ -66,3 +66,14 @@ func (d *Dest) ReadLines() <-chan string {
 func (d *Dest) ReadWords() <-chan string {
 	return NewScanReader(d.NewReader(), bufio.ScanWords)
 }
+
+// Strings returns all of the data in our buffer as an array of
+// strings, one line per array entry
+func (d *Dest) Strings() []string {
+	retval := []string{}
+	for line := range d.ReadLines() {
+		retval = append(retval, line)
+	}
+
+	return retval
+}

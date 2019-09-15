@@ -144,6 +144,27 @@ func TestDestStringReturnsBuffer(t *testing.T) {
 	assert.Equal(t, expectedOutput, actualOutput)
 }
 
+func TestDestStringsReturnsBuffer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var dest Dest
+	dest.WriteString("hello world\nhave a nice day\n")
+	expectedOutput := []string{"hello world", "have a nice day"}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualOutput := dest.Strings()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedOutput, actualOutput)
+}
+
 func TestDestImplementsReadBuffer(t *testing.T) {
 	t.Parallel()
 

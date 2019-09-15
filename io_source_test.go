@@ -206,6 +206,26 @@ func TestSourceStringReturnsBuffer(t *testing.T) {
 	assert.Equal(t, expectedOutput, actualOutput)
 }
 
+func TestSourceStringsReturnsBuffer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	source := NewSourceFromString("hello world\nhave a nice day\n")
+	expectedOutput := []string{"hello world", "have a nice day"}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualOutput := source.Strings()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedOutput, actualOutput)
+}
+
 func TestReadWords(t *testing.T) {
 	t.Parallel()
 

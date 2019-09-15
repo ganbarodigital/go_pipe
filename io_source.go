@@ -93,6 +93,17 @@ func (input *Source) String() string {
 	return string(data)
 }
 
+// Strings returns all of the data in our buffer as an array of
+// strings, one line per array entry
+func (input *Source) Strings() []string {
+	retval := []string{}
+	for line := range input.ReadLines() {
+		retval = append(retval, line)
+	}
+
+	return retval
+}
+
 // NewReader returns a `strings.Reader` for the contents of our buffer
 func (input *Source) NewReader() io.Reader {
 	return input

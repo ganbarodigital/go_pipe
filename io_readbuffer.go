@@ -59,4 +59,8 @@ type ReadBuffer interface {
 	// String returns all of the data in our buffer as a single (possibly
 	// multi-line) string
 	String() string
+
+	// Strings returns all of the data in our buffer as an array of
+	// strings, one line per array entry
+	Strings() []string
 }
