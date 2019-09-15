@@ -40,32 +40,24 @@
 package pipe
 
 import (
-	"bufio"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDestNewReaderReturnsReaderForBuffer(t *testing.T) {
+func TestNewPipeCreatesPipeWithEmptyStdin(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var dest Dest
-	dest.WriteString("hello world\nhave a nice day")
-
-	expectedResult := []string{"hello world", "have a nice day"}
+	expectedResult := ""
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	reader := dest.NewReader()
-	scanChn := NewScanReader(reader, bufio.ScanLines)
-	var actualResult []string
-	for line := range scanChn {
-		actualResult = append(actualResult, line)
-	}
+	pipe := NewPipe()
+	actualResult := pipe.Stdin.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -73,26 +65,19 @@ func TestDestNewReaderReturnsReaderForBuffer(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestDestNewSourceReturnsSourceForBuffer(t *testing.T) {
+func TestNewPipeCreatesPipeWithEmptyStdout(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var dest Dest
-	dest.WriteString("hello world\nhave a nice day")
-
-	expectedResult := []string{"hello world", "have a nice day"}
+	expectedResult := ""
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	source := dest.NewSource()
-	scanChn := NewScanReader(source, bufio.ScanLines)
-	var actualResult []string
-	for line := range scanChn {
-		actualResult = append(actualResult, line)
-	}
+	pipe := NewPipe()
+	actualResult := pipe.Stdout.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -100,24 +85,19 @@ func TestDestNewSourceReturnsSourceForBuffer(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestDestReadLinesIteratesOverBuffer(t *testing.T) {
+func TestNewPipeCreatesPipeWithEmptyStderr(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var dest Dest
-	dest.WriteString("hello world\nhave a nice day")
-
-	expectedResult := []string{"hello world", "have a nice day"}
+	expectedResult := ""
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	var actualResult []string
-	for line := range dest.ReadLines() {
-		actualResult = append(actualResult, line)
-	}
+	pipe := NewPipe()
+	actualResult := pipe.Stderr.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -125,24 +105,25 @@ func TestDestReadLinesIteratesOverBuffer(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestDestReadWordsIteratesOverBuffer(t *testing.T) {
+func TestPipeNextMakesStdoutTheNextStdin(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var dest Dest
-	dest.WriteString("hello world\nhave a nice day")
+	expectedResult := "hello world"
 
-	expectedResult := []string{"hello", "world", "have", "a", "nice", "day"}
+	pipe := NewPipe()
+	pipe.Stdout.WriteString("hello world")
+
+	// prove that pipe.Stdin is empty before we call pipe.Next()
+	assert.Equal(t, pipe.Stdin.String(), "")
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	var actualResult []string
-	for word := range dest.ReadWords() {
-		actualResult = append(actualResult, word)
-	}
+	pipe.Next()
+	actualResult := pipe.Stdin.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -150,64 +131,84 @@ func TestDestReadWordsIteratesOverBuffer(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestDestStringReturnsBuffer(t *testing.T) {
+func TestPipeNextUpdatesPipeWithEmptyStdout(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	expectedOutput := "hello world\n"
-	var dest Dest
-	dest.WriteString(expectedOutput)
+	expectedResult := ""
+
+	pipe := NewPipe()
+	pipe.Stdout.WriteString("hello world")
+
+	// make sure that Stdout does have some content first
+	assert.Equal(t, pipe.Stdout.String(), "hello world")
+	// make sure that a call to Stdout.String() doesn't empty the buffer!
+	assert.Equal(t, pipe.Stdout.String(), "hello world")
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualOutput := dest.String()
+	pipe.Next()
+	actualResult := pipe.Stdout.String()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, expectedOutput, actualOutput)
+	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestDestStringsReturnsBuffer(t *testing.T) {
+func TestPipeNextUpdatesPipeWithEmptyStderr(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var dest Dest
-	dest.WriteString("hello world\nhave a nice day\n")
-	expectedOutput := []string{"hello world", "have a nice day"}
+	expectedResult := ""
+
+	pipe := NewPipe()
+	pipe.Stderr.WriteString("hello world")
+
+	// make sure that Stderr does have some content first
+	assert.Equal(t, pipe.Stderr.String(), "hello world")
+	// make sure that a call to Stderr.String() doesn't empty the buffer!
+	assert.Equal(t, pipe.Stderr.String(), "hello world")
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualOutput := dest.Strings()
+	pipe.Next()
+	actualResult := pipe.Stderr.String()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, expectedOutput, actualOutput)
+	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestDestImplementsReadBuffer(t *testing.T) {
+func TestPipeDrainCopiesStdinToStdout(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	dest := Dest{}
-	var i interface{} = &dest
+	expectedResult := "hello world\nhave a nice day\n"
+
+	pipe := NewPipe()
+	pipe.Stdout.WriteString(expectedResult)
+	pipe.Next()
+
+	assert.Equal(t, pipe.Stdout.String(), "")
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(ReadBuffer)
+	pipe.DrainStdin()
+	actualResult := pipe.Stdout.String()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.True(t, ok)
+	assert.Equal(t, expectedResult, actualResult)
 }

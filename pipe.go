@@ -39,46 +39,42 @@
 
 package pipe
 
-import (
-	"bufio"
-	"io"
-	"strings"
-)
+import "io"
 
-// Dest is an output source for our pipe
-type Dest struct {
-	strings.Builder
+// Pipe is our data structure. All user-land functionality either reads from,
+// and/or writes to the pipe.
+type Pipe struct {
+	// Pipe operations read from Stdin
+	Stdin *Source
+
+	// Pipe operations write to Stdout and/or Stderr
+	Stdout *Dest
+	Stderr *Dest
+
+	// If anything goes wrong, we track the error here
+	Err error
 }
 
-// NewReader returns a `strings.Reader` for the contents of our buffer
-func (d *Dest) NewReader() io.Reader {
-	return strings.NewReader(d.String())
-}
-
-// NewSource returns a `Source` for reading the contents of our buffer
-func (d *Dest) NewSource() *Source {
-	return NewSourceFromString(d.String())
-}
-
-// ReadLines returns a channel that you can `range` over to get each
-// line from our buffer
-func (d *Dest) ReadLines() <-chan string {
-	return NewScanReader(d.NewReader(), bufio.ScanLines)
-}
-
-// ReadWords returns a channel that you can `range` over to get each
-// word from our buffer
-func (d *Dest) ReadWords() <-chan string {
-	return NewScanReader(d.NewReader(), bufio.ScanWords)
-}
-
-// Strings returns all of the data in our buffer as an array of
-// strings, one line per array entry
-func (d *Dest) Strings() []string {
-	retval := []string{}
-	for line := range d.ReadLines() {
-		retval = append(retval, line)
+// NewPipe creates a new, empty Pipe.
+//
+// It starts with an empty Stdin.
+func NewPipe() *Pipe {
+	return &Pipe{
+		Stdin:  NewSourceFromString(""),
+		Stdout: new(Dest),
+		Stderr: new(Dest),
 	}
+}
 
-	return retval
+// Next prepares the pipe to be used by the next PipeOperation
+func (p *Pipe) Next() {
+	p.Stdin = p.Stdout.NewSource()
+	p.Stdout = new(Dest)
+	p.Stderr = new(Dest)
+}
+
+// DrainStdin will copy everything that's left in the pipe's stdin
+// over to the pipe's stdout
+func (p *Pipe) DrainStdin() {
+	io.Copy(p.Stdout, p.Stdin)
 }

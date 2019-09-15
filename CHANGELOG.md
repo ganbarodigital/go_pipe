@@ -8,3 +8,4 @@
 * Added `Source`, an `io.ReadCloser` with useful helper methods
 * Added `NewScanReader`, wraps a channel around a scanner and given split function
 * Added `ReadBuffer`, an interface to describe our Source/Dest common helper methods
+* Added `Pipe`, which represents UNIX-like stdin, stdout and stderr
