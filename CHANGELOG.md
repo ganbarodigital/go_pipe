@@ -2,6 +2,14 @@
 
 ## develop
 
+## v1.0.1
+
+Released Sunday, 15th September 2019.
+
+### Fixes
+
+* Fixed typo in Go module name
+
 ## v1.0.0
 
 Released Sunday, 15th September 2019.
