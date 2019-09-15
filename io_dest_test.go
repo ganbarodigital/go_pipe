@@ -123,6 +123,27 @@ func TestDestReadWordsIteratesOverBuffer(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
+func TestDestStringReturnsBuffer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedOutput := "hello world\n"
+	var dest Dest
+	dest.WriteString(expectedOutput)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualOutput := dest.String()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedOutput, actualOutput)
+}
+
 func TestDestImplementsReadBuffer(t *testing.T) {
 	t.Parallel()
 

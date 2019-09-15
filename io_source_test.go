@@ -186,6 +186,26 @@ func TestReadLines(t *testing.T) {
 	assert.Equal(t, expectedOutput, actualOutput, "ReadLines() did not produce what we expect")
 }
 
+func TestSourceStringReturnsBuffer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedOutput := "hello world\n"
+	source := NewSourceFromString(expectedOutput)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualOutput := source.String()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedOutput, actualOutput)
+}
+
 func TestReadWords(t *testing.T) {
 	t.Parallel()
 

@@ -86,6 +86,13 @@ func (input *Source) Close() error {
 	return err
 }
 
+// String returns all of the data in our buffer as a single (possibly
+// multi-line) string
+func (input *Source) String() string {
+	data, _ := ioutil.ReadAll(input.r)
+	return string(data)
+}
+
 // NewReader returns a `strings.Reader` for the contents of our buffer
 func (input *Source) NewReader() io.Reader {
 	return input

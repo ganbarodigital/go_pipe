@@ -55,4 +55,8 @@ type ReadBuffer interface {
 	// ReadWords returns a channel that you can `range` over to get each
 	// word from our buffer
 	ReadWords() <-chan string
+
+	// String returns all of the data in our buffer as a single (possibly
+	// multi-line) string
+	String() string
 }
