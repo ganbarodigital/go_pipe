@@ -1,4 +1,4 @@
-module github.com/ganbarodigial/go_pipe
+module github.com/ganbarodigital/go_pipe
 
 go 1.13
 
