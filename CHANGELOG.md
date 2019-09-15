@@ -10,3 +10,4 @@
 * Added `ReadBuffer`, an interface to describe our Source/Dest common helper methods
 * Added `Pipe`, which represents UNIX-like stdin, stdout and stderr
 * Added `PipelineOperation`, a function signature for a task that supports our `Pipe`
+* Added `Pipeline`, a UNIX-like pipeline ready to execute
