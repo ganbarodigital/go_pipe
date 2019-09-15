@@ -68,6 +68,11 @@ func NewPipe() *Pipe {
 
 // Next prepares the pipe to be used by the next PipeOperation
 func (p *Pipe) Next() {
+	// do we have a pipe to work with?
+	if p == nil || p.Stdin == nil || p.Stdout == nil || p.Stderr == nil {
+		return
+	}
+
 	p.Stdin = p.Stdout.NewSource()
 	p.Stdout = new(Dest)
 	p.Stderr = new(Dest)
