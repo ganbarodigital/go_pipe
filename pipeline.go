@@ -190,3 +190,28 @@ func (pl *Pipeline) Strings() ([]string, error) {
 	// if we get here, then all is well
 	return pl.Pipe.Stdout.Strings(), nil
 }
+
+// TrimmedString returns the pipeline's stdout as a single string.
+// Any leading or trailing whitespace is removed.
+//
+// If an error has occurred, TrimmedString returns the pipeline's
+// stderr instead.
+func (pl *Pipeline) TrimmedString() (string, error) {
+	// do we have a pipeline to play with?
+	if pl == nil {
+		return "", nil
+	}
+
+	// was the pipeline correctly initialised?
+	if pl.Pipe == nil {
+		return "", pl.Err
+	}
+
+	// did an error occur?
+	if pl.Err != nil {
+		return pl.Pipe.Stderr.TrimmedString(), pl.Err
+	}
+
+	// if we get here, then all is well
+	return pl.Pipe.Stdout.TrimmedString(), nil
+}
