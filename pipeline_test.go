@@ -418,6 +418,111 @@ func TestPipelineBytesReturnsContentsOfStderrWhenError(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
+func TestPipelineParseIntCopesWithNilPipelinePointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipeline *Pipeline
+	expectedResult := 0
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, err := pipeline.ParseInt()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestPipelineParseIntCopesWithEmptyPipeline(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipeline Pipeline
+	expectedResult := 0
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, err := pipeline.ParseInt()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestPipelineParseIntConvertsContentsOfStdoutWhenNoError(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedResult := 100
+	op1 := func(p *Pipe) (int, error) {
+		p.Stdout.WriteString("100\n")
+
+		// we don't want to see this in our final output
+		p.Stderr.WriteString("we do not want this")
+
+		// all done
+		return 0, nil
+	}
+
+	pipeline := NewPipeline(op1)
+	pipeline.Exec()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, err := pipeline.ParseInt()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestPipelineParseIntReturnsZeroWhenError(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedResult := 0
+	op1 := func(p *Pipe) (int, error) {
+		// we don't want to see this in our final output
+		p.Stdout.WriteString("we do not want this")
+		p.Stderr.WriteString("not a number")
+
+		// all done
+		return 0, errors.New("an error occurred")
+	}
+
+	pipeline := NewPipeline(op1)
+	pipeline.Exec()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, err := pipeline.ParseInt()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.NotNil(t, err)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
 func TestPipelineStringCopesWithNilPipelinePointer(t *testing.T) {
 	t.Parallel()
 

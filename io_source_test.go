@@ -141,6 +141,28 @@ func TestSourceCloseReturnsWrappedErrOnClose(t *testing.T) {
 	}
 }
 
+func TestSourceParseIntReturnsValueOnSuccess(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := " 100 \n"
+	expectedOutput := 100
+	source := NewSourceFromString(testData)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualOutput, err := source.ParseInt()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedOutput, actualOutput)
+}
+
 func TestNewReader(t *testing.T) {
 	t.Parallel()
 
@@ -219,6 +241,27 @@ func TestSourceStringsReturnsBuffer(t *testing.T) {
 	// perform the change
 
 	actualOutput := source.Strings()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedOutput, actualOutput)
+}
+
+func TestSourceTrimmedStringReturnsBufferWithWhitespaceRemoved(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := " hello world\n"
+	expectedOutput := "hello world"
+	source := NewSourceFromString(testData)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualOutput := source.TrimmedString()
 
 	// ----------------------------------------------------------------
 	// test the results

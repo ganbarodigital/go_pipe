@@ -39,7 +39,9 @@
 
 package pipe
 
-import "io/ioutil"
+import (
+	"io/ioutil"
+)
 
 // Pipeline is a set of pipe operations to be executed
 type Pipeline struct {
@@ -124,6 +126,27 @@ func (pl *Pipeline) Exec_() *Pipeline {
 
 	// all done
 	return pl
+}
+
+// ParseInt returns the pipeline's stdout as an integer
+func (pl *Pipeline) ParseInt() (int, error) {
+	// do we have a pipeline to play with?
+	if pl == nil {
+		return 0, nil
+	}
+
+	// was the pipeline correctly initialised?
+	if pl.Pipe == nil || pl.Pipe.Stdout == nil {
+		return 0, pl.Err
+	}
+
+	// did an error occur?
+	if pl.Err != nil {
+		return 0, pl.Err
+	}
+
+	// if we get here, then all is well
+	return pl.Pipe.Stdout.ParseInt()
 }
 
 // String returns the pipeline's stdout as a single string

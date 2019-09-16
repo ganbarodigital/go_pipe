@@ -48,6 +48,12 @@ type ReadBuffer interface {
 	// NewReader returns an `io.Reader` for the contents of our buffer
 	NewReader() io.Reader
 
+	// ParseInt returns the data in our buffer as an integer.
+	//
+	// If the buffer contains anything other than a valid number, an error
+	// is returned.
+	ParseInt() (int, error)
+
 	// ReadLines returns a channel that you can `range` over to get each
 	// line from our buffer
 	ReadLines() <-chan string
@@ -63,4 +69,8 @@ type ReadBuffer interface {
 	// Strings returns all of the data in our buffer as an array of
 	// strings, one line per array entry
 	Strings() []string
+
+	// String returns all of the data in our buffer as a single (possibly
+	// multi-line) string. Any leading and trailing whitespace is removed.
+	TrimmedString() string
 }

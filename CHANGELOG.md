@@ -2,6 +2,22 @@
 
 ## develop
 
+## v1.2.0
+
+Released Monday, 16th September 2019.
+
+### New
+
+We've been adding some more convenience methods, to help [scriptish](https://github.com/ganbarodigital/go_scriptish).
+
+* Added `Source.ParseInt()`
+* Added `Source.TrimmedString()`
+* Added `Dest.ParseInt()`
+* Added `Dest.TrimmedString()`
+* Added `Pipeline.ParseInt()`
+* Added `ReadBuffer.ParseInt()`
+* Added `ReadBuffer.TrimmedString()`
+
 ## v1.1.0
 
 Released Sunday, 15th September 2019.

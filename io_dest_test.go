@@ -100,6 +100,30 @@ func TestDestNewSourceReturnsSourceForBuffer(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
+func TestDestParseIntReturnsValueOnSuccess(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := " 100 \n"
+	expectedOutput := 100
+
+	var dest Dest
+	dest.WriteString(testData)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualOutput, err := dest.ParseInt()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedOutput, actualOutput)
+}
+
 func TestDestReadLinesIteratesOverBuffer(t *testing.T) {
 	t.Parallel()
 
@@ -185,6 +209,27 @@ func TestDestStringsReturnsBuffer(t *testing.T) {
 	// perform the change
 
 	actualOutput := dest.Strings()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedOutput, actualOutput)
+}
+
+func TestDestTrimmedStringReturnsBufferWithWhitespaceRemoved(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var dest Dest
+	dest.WriteString(" hello world\n")
+	expectedOutput := "hello world"
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualOutput := dest.TrimmedString()
 
 	// ----------------------------------------------------------------
 	// test the results

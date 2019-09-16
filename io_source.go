@@ -43,6 +43,7 @@ import (
 	"bufio"
 	"io"
 	"io/ioutil"
+	"strconv"
 	"strings"
 )
 
@@ -86,6 +87,15 @@ func (input *Source) Close() error {
 	return err
 }
 
+// ParseInt returns the data in our buffer as an integer.
+//
+// If the buffer contains anything other than a valid number, an error
+// is returned.
+func (input *Source) ParseInt() (int, error) {
+	text := input.TrimmedString()
+	return strconv.Atoi(text)
+}
+
 // String returns all of the data in our buffer as a single (possibly
 // multi-line) string
 func (input *Source) String() string {
@@ -119,6 +129,12 @@ func (input *Source) ReadLines() <-chan string {
 // word from our buffer
 func (input *Source) ReadWords() <-chan string {
 	return NewScanReader(input, bufio.ScanWords)
+}
+
+// TrimmedString returns all of the data in our buffer as a string,
+// with any leading or trailing whitespace removed.
+func (input *Source) TrimmedString() string {
+	return strings.TrimSpace(input.String())
 }
 
 // NewSourceFromReader wraps an ordinary io.Reader with our helper methods
