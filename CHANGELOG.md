@@ -6,6 +6,7 @@
 
 * Added `Source.TrimmedString()`
 * Added `Dest.TrimmedString()`
+* Added `ReadBuffer.TrimmedString()`
 
 ## v1.1.0
 
