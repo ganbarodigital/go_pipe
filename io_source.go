@@ -43,6 +43,7 @@ import (
 	"bufio"
 	"io"
 	"io/ioutil"
+	"strconv"
 	"strings"
 )
 
@@ -84,6 +85,15 @@ func (input *Source) Close() error {
 
 	// all done
 	return err
+}
+
+// ParseInt returns the data in our buffer as an integer.
+//
+// If the buffer contains anything other than a valid number, an error
+// is returned.
+func (input *Source) ParseInt() (int, error) {
+	text := input.TrimmedString()
+	return strconv.Atoi(text)
 }
 
 // String returns all of the data in our buffer as a single (possibly

@@ -100,6 +100,30 @@ func TestDestNewSourceReturnsSourceForBuffer(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
+func TestDestParseIntReturnsValueOnSuccess(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := " 100 \n"
+	expectedOutput := 100
+
+	var dest Dest
+	dest.WriteString(testData)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualOutput, err := dest.ParseInt()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedOutput, actualOutput)
+}
+
 func TestDestReadLinesIteratesOverBuffer(t *testing.T) {
 	t.Parallel()
 

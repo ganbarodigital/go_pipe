@@ -42,6 +42,7 @@ package pipe
 import (
 	"bufio"
 	"io"
+	"strconv"
 	"strings"
 )
 
@@ -58,6 +59,15 @@ func (d *Dest) NewReader() io.Reader {
 // NewSource returns a `Source` for reading the contents of our buffer
 func (d *Dest) NewSource() *Source {
 	return NewSourceFromString(d.String())
+}
+
+// ParseInt returns the data in our buffer as an integer.
+//
+// If the buffer contains anything other than a valid number, an error
+// is returned.
+func (d *Dest) ParseInt() (int, error) {
+	text := d.TrimmedString()
+	return strconv.Atoi(text)
 }
 
 // ReadLines returns a channel that you can `range` over to get each

@@ -141,6 +141,28 @@ func TestSourceCloseReturnsWrappedErrOnClose(t *testing.T) {
 	}
 }
 
+func TestSourceParseIntReturnsValueOnSuccess(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := " 100 \n"
+	expectedOutput := 100
+	source := NewSourceFromString(testData)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualOutput, err := source.ParseInt()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedOutput, actualOutput)
+}
+
 func TestNewReader(t *testing.T) {
 	t.Parallel()
 

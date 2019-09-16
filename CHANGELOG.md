@@ -4,7 +4,9 @@
 
 ### New
 
+* Added `Source.ParseInt()`
 * Added `Source.TrimmedString()`
+* Added `Dest.ParseInt()`
 * Added `Dest.TrimmedString()`
 * Added `ReadBuffer.TrimmedString()`
 
