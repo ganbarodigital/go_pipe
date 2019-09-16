@@ -4,10 +4,13 @@
 
 ### New
 
+We've been adding some more convenience methods, to help [scriptish](https://github.com/ganbarodigital/go_scriptish).
+
 * Added `Source.ParseInt()`
 * Added `Source.TrimmedString()`
 * Added `Dest.ParseInt()`
 * Added `Dest.TrimmedString()`
+* Added `ReadBuffer.ParseInt()`
 * Added `ReadBuffer.TrimmedString()`
 
 ## v1.1.0
