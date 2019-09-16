@@ -92,6 +92,17 @@ func (pl *Pipeline) Bytes() ([]byte, error) {
 	return retval, pl.Err
 }
 
+// Error returns the pipeline's error status.
+func (pl *Pipeline) Error() error {
+	// do we have a pipeline to play with?
+	if pl == nil {
+		return nil
+	}
+
+	// if we get here, then all is well
+	return pl.Err
+}
+
 // Exec executes a pipeline
 func (pl *Pipeline) Exec() *Pipeline {
 	return pl.Exec_()
