@@ -10,6 +10,7 @@ We've been adding some more convenience methods, to help [scriptish](https://git
 * Added `Source.TrimmedString()`
 * Added `Dest.ParseInt()`
 * Added `Dest.TrimmedString()`
+* Added `Pipeline.ParseInt()`
 * Added `ReadBuffer.ParseInt()`
 * Added `ReadBuffer.TrimmedString()`
 
