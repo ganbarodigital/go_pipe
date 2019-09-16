@@ -121,6 +121,12 @@ func (input *Source) ReadWords() <-chan string {
 	return NewScanReader(input, bufio.ScanWords)
 }
 
+// TrimmedString returns all of the data in our buffer as a string,
+// with any leading or trailing whitespace removed.
+func (input *Source) TrimmedString() string {
+	return strings.TrimSpace(input.String())
+}
+
 // NewSourceFromReader wraps an ordinary io.Reader with our helper methods
 func NewSourceFromReader(input io.Reader) *Source {
 	return &Source{r: ioutil.NopCloser(input)}

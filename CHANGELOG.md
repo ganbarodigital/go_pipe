@@ -2,6 +2,11 @@
 
 ## develop
 
+### New
+
+* Added `Source.TrimmedString()`
+* Added `Dest.TrimmedString()`
+
 ## v1.1.0
 
 Released Sunday, 15th September 2019.

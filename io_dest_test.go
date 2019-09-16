@@ -192,6 +192,27 @@ func TestDestStringsReturnsBuffer(t *testing.T) {
 	assert.Equal(t, expectedOutput, actualOutput)
 }
 
+func TestDestTrimmedStringReturnsBufferWithWhitespaceRemoved(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var dest Dest
+	dest.WriteString(" hello world\n")
+	expectedOutput := "hello world"
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualOutput := dest.TrimmedString()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedOutput, actualOutput)
+}
+
 func TestDestImplementsReadBuffer(t *testing.T) {
 	t.Parallel()
 

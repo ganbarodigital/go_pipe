@@ -82,3 +82,9 @@ func (d *Dest) Strings() []string {
 
 	return retval
 }
+
+// TrimmedString returns all of the data in our buffer as a string,
+// with any leading or trailing whitespace removed.
+func (d *Dest) TrimmedString() string {
+	return strings.TrimSpace(d.String())
+}

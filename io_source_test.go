@@ -226,6 +226,27 @@ func TestSourceStringsReturnsBuffer(t *testing.T) {
 	assert.Equal(t, expectedOutput, actualOutput)
 }
 
+func TestSourceTrimmedStringReturnsBufferWithWhitespaceRemoved(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := " hello world\n"
+	expectedOutput := "hello world"
+	source := NewSourceFromString(testData)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualOutput := source.TrimmedString()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedOutput, actualOutput)
+}
+
 func TestReadWords(t *testing.T) {
 	t.Parallel()
 
