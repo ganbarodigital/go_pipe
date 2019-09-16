@@ -742,3 +742,114 @@ func TestPipelineStringsReturnsContentsOfStderrWhenError(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, expectedResult, actualResult)
 }
+
+func TestPipelineTrimmedStringCopesWithNilPipelinePointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipeline *Pipeline
+	expectedResult := ""
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, err := pipeline.TrimmedString()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestPipelineTrimmedStringCopesWithEmptyPipeline(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipeline Pipeline
+	expectedResult := ""
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, err := pipeline.TrimmedString()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestPipelineTrimmedStringReturnsContentsOfStdoutWhenNoError(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := "   hello world\nhave a nice day\n\n\n"
+	expectedResult := "hello world\nhave a nice day"
+
+	op1 := func(p *Pipe) (int, error) {
+		// this is the content we want
+		p.Stdout.WriteString(testData)
+
+		// we don't want to see this in our final output
+		p.Stderr.WriteString("we do not want this")
+
+		// all done
+		return 0, nil
+	}
+
+	pipeline := NewPipeline(op1)
+	pipeline.Exec()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, err := pipeline.TrimmedString()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestPipelineTrimmedStringReturnsContentsOfStderrWhenError(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := "   hello world\nhave a nice day\n\n\n"
+	expectedResult := "hello world\nhave a nice day"
+	op1 := func(p *Pipe) (int, error) {
+		// this is the content we want
+		p.Stderr.WriteString(testData)
+
+		// we don't want to see this in our final output
+		p.Stdout.WriteString("we do not want this")
+
+		// all done
+		return 0, errors.New("an error occurred")
+	}
+
+	pipeline := NewPipeline(op1)
+	pipeline.Exec()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, err := pipeline.TrimmedString()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.NotNil(t, err)
+	assert.Equal(t, expectedResult, actualResult)
+}

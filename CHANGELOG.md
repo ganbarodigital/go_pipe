@@ -2,6 +2,16 @@
 
 ## develop
 
+## v1.3.0
+
+Released Monday, 16th September 2019.
+
+### New
+
+We've been adding some more convenience methods, to help [scriptish](https://github.com/ganbarodigital/go_scriptish).
+
+* Added `Pipeline.TrimmedString()`
+
 ## v1.2.0
 
 Released Monday, 16th September 2019.
