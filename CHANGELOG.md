@@ -6,7 +6,7 @@ We've been adding some more convenience methods, to help [scriptish](https://git
 
 ### New
 
-* Added `Pipeline.Bool()`
+* Added `Pipeline.Okay()`
 
 ## v1.4.0
 
