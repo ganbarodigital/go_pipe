@@ -2,6 +2,14 @@
 
 ## develop
 
+## v1.5.1
+
+Released Tuesday, 17th September 2019.
+
+### Fixes
+
+* `Pipeline.Okay()` now returns `(bool, error)`
+
 ## v1.5.0
 
 Released Tuesday, 17th September 2019.
