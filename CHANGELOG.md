@@ -2,6 +2,12 @@
 
 ## develop
 
+We've been adding some more convenience methods, to help [scriptish](https://github.com/ganbarodigital/go_scriptish).
+
+### New
+
+* Added `Pipeline.Bool()`
+
 ## v1.4.0
 
 Released Monday, 16th September 2019.

@@ -69,6 +69,18 @@ func NewPipeline(steps ...PipelineOperation) *Pipeline {
 	return &pipeline
 }
 
+// Bool returns false if a pipeline operation set the StatusCode to
+// anything other than OK. It returns true otherwise.
+func (pl *Pipeline) Bool() bool {
+	// do we have a pipeline to play with?
+	if pl == nil {
+		return true
+	}
+
+	// if we get here, then all is well
+	return (pl.StatusCode == OK)
+}
+
 // Bytes returns the contents of the pipeline's stdout as a byte slice
 func (pl *Pipeline) Bytes() ([]byte, error) {
 	// do we have a pipeline?
