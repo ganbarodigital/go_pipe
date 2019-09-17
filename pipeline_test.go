@@ -306,69 +306,6 @@ func TestPipelineExecStopsWhenAStepReportsAnError(t *testing.T) {
 	assert.Equal(t, expectedStdout, actualStdout)
 }
 
-func TestPipelineBoolCopesWithNilPipelinePointer(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	var pipeline *Pipeline
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	success := pipeline.Bool()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.True(t, success)
-}
-
-func TestPipelineBoolCopesWithEmptyPipeline(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	var pipeline Pipeline
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	success := pipeline.Bool()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.True(t, success)
-}
-
-func TestPipelineBoolReturnsFalseWhenPipelineErrorHappens(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	op1 := func(p *Pipe) (int, error) {
-		// all done
-		return NOT_OK, errors.New("this is an error")
-	}
-
-	pipeline := NewPipeline(op1)
-	pipeline.Exec()
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	success := pipeline.Bool()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.False(t, success)
-}
-
 func TestPipelineBytesCopesWithNilPipelinePointer(t *testing.T) {
 	t.Parallel()
 
@@ -481,7 +418,7 @@ func TestPipelineBytesReturnsContentsOfStderrWhenError(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineErrCopesWithNilPipelinePointer(t *testing.T) {
+func TestPipelineErrorCopesWithNilPipelinePointer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -543,6 +480,69 @@ func TestPipelineErrorReturnsErrorWhenOneHappens(t *testing.T) {
 
 	assert.NotNil(t, err)
 	assert.Error(t, err)
+}
+
+func TestPipelineOkayCopesWithNilPipelinePointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipeline *Pipeline
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	success := pipeline.Okay()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, success)
+}
+
+func TestPipelineOkayCopesWithEmptyPipeline(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipeline Pipeline
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	success := pipeline.Okay()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, success)
+}
+
+func TestPipelineOkayReturnsFalseWhenPipelineErrorHappens(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	op1 := func(p *Pipe) (int, error) {
+		// all done
+		return NOT_OK, errors.New("this is an error")
+	}
+
+	pipeline := NewPipeline(op1)
+	pipeline.Exec()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	success := pipeline.Okay()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.False(t, success)
 }
 
 func TestPipelineParseIntCopesWithNilPipelinePointer(t *testing.T) {
