@@ -493,12 +493,13 @@ func TestPipelineOkayCopesWithNilPipelinePointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	success := pipeline.Okay()
+	success, err := pipeline.Okay()
 
 	// ----------------------------------------------------------------
 	// test the results
 
 	assert.True(t, success)
+	assert.Nil(t, err)
 }
 
 func TestPipelineOkayCopesWithEmptyPipeline(t *testing.T) {
@@ -512,12 +513,13 @@ func TestPipelineOkayCopesWithEmptyPipeline(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	success := pipeline.Okay()
+	success, err := pipeline.Okay()
 
 	// ----------------------------------------------------------------
 	// test the results
 
 	assert.True(t, success)
+	assert.Nil(t, err)
 }
 
 func TestPipelineOkayReturnsFalseWhenPipelineErrorHappens(t *testing.T) {
@@ -537,12 +539,13 @@ func TestPipelineOkayReturnsFalseWhenPipelineErrorHappens(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	success := pipeline.Okay()
+	success, err := pipeline.Okay()
 
 	// ----------------------------------------------------------------
 	// test the results
 
 	assert.False(t, success)
+	assert.Error(t, err)
 }
 
 func TestPipelineParseIntCopesWithNilPipelinePointer(t *testing.T) {
