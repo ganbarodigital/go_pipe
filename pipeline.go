@@ -139,6 +139,18 @@ func (pl *Pipeline) Exec_() *Pipeline {
 	return pl
 }
 
+// Okay returns false if a pipeline operation set the StatusCode to
+// anything other than OK. It returns true otherwise.
+func (pl *Pipeline) Okay() bool {
+	// do we have a pipeline to play with?
+	if pl == nil {
+		return true
+	}
+
+	// if we get here, then all is well
+	return (pl.StatusCode == OK)
+}
+
 // ParseInt returns the pipeline's stdout as an integer
 func (pl *Pipeline) ParseInt() (int, error) {
 	// do we have a pipeline to play with?
