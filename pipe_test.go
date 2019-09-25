@@ -225,6 +225,78 @@ func TestPipeNextCopesWithEmptyPipe(t *testing.T) {
 	// as long as the code doesn't segfault, it works!
 }
 
+func TestPipeResetCopesWithNilPipePointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe *Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.Reset()
+
+	// ----------------------------------------------------------------
+	// test the results
+	//
+	// as long as the code doesn't segfault, it works!
+}
+
+func TestPipeResetCopesWithEmptyPipe(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.Reset()
+
+	// ----------------------------------------------------------------
+	// test the results
+	//
+	// as long as the code doesn't segfault, it works!
+}
+
+func TestPipeResetEmptiesStdinStdoutStderr(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testDataIn := "this is stdin"
+	testDataOut := "this is stdout"
+	testDataErr := "this is stderr"
+
+	// we need to start with a pipe that has data
+	pipe := NewPipe()
+	pipe.Stdout.WriteString(testDataIn)
+	pipe.Next()
+	pipe.Stdout.WriteString(testDataOut)
+	pipe.Stderr.WriteString(testDataErr)
+
+	// normally, I'd use assert.Equal() to prove that the pipe has data
+	// if we did that here, the reads would empty the pipe, making the
+	// rest of the test invalid
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.Reset()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Empty(t, pipe.Stdin.String())
+	assert.Empty(t, pipe.Stdout.String())
+	assert.Empty(t, pipe.Stderr.String())
+}
+
 func TestPipeDrainCopiesStdinToStdout(t *testing.T) {
 	t.Parallel()
 

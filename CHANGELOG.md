@@ -2,6 +2,10 @@
 
 ## develop
 
+### New
+
+* Added `Pipe.Reset()`
+
 ## v1.5.1
 
 Released Tuesday, 17th September 2019.

@@ -75,6 +75,21 @@ func (p *Pipe) Next() {
 	p.Stderr = new(Dest)
 }
 
+// Reset creates new, empty Stdin, Stdout and Stderr.
+//
+// It's useful for pipelines that consist of multiple lists.
+func (p *Pipe) Reset() {
+	// do we have a pipe to work with?
+	if p == nil {
+		return
+	}
+
+	// reset all the things
+	p.Stdin = NewSourceFromString("")
+	p.Stdout = new(Dest)
+	p.Stderr = new(Dest)
+}
+
 // DrainStdin will copy everything that's left in the pipe's stdin
 // over to the pipe's stdout
 func (p *Pipe) DrainStdin() {
