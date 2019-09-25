@@ -7,6 +7,7 @@
 We're making some changes to improve compatibility with UNIX shell terminology and behaviours.
 
 - `PipelineOperation` is now `Command`
+- `Sequence` represents a set of Commands to be executed
 
 ## v2.0.1
 
