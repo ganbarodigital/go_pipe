@@ -2,6 +2,14 @@
 
 ## develop
 
+## v2.0.1
+
+Released Wednesday, 25th September 2019.
+
+### Fixes
+
+* Golang v2+ module compatibility fixes (sigh)
+
 ## v2.0.0
 
 Released Wednesday, 25th September 2019.
