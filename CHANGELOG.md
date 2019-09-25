@@ -2,6 +2,10 @@
 
 ## develop
 
+## v3.0.0
+
+Released Wednesday, 25th September 2019.
+
 ### Breaking Changes
 
 We're making some changes to improve compatibility with UNIX shell terminology and behaviours.
