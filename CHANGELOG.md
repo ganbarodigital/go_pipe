@@ -14,6 +14,7 @@ We're making some changes to improve compatibility with UNIX shell terminology a
 
 ### New
 
+- Added `Env` for a local environment
 - Added `ErrEmptyKey` error
 
 ## v2.0.1
