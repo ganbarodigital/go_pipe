@@ -39,188 +39,51 @@
 
 package pipe
 
-import (
-	"io/ioutil"
-)
-
-// Pipeline is a set of pipe operations to be executed
-type Pipeline struct {
-	Pipe *Pipe
-	// keep track of the steps that belong to this pipeline
-	Steps []PipelineOperation
-
-	// If anything goes wrong, we track the error here
-	Err error
-
-	// The UNIX-like status code from the last executed step
-	StatusCode int
-}
-
 // NewPipeline creates a pipeline that's ready to run
-func NewPipeline(steps ...PipelineOperation) *Pipeline {
-	pipe := NewPipe()
-	pipeline := Pipeline{
-		pipe,
-		steps,
-		nil,
-		0,
-	}
+func NewPipeline(steps ...Command) *Sequence {
+	// build our pipeline
+	retval := NewSequence(steps...)
 
-	return &pipeline
+	// tell the underlying sequence how we want these commands to run
+	retval.Controller = PipelineController(retval)
+
+	// all done
+	return retval
 }
 
-// Bytes returns the contents of the pipeline's stdout as a byte slice
-func (pl *Pipeline) Bytes() ([]byte, error) {
-	// do we have a pipeline?
-	if pl == nil {
-		return []byte{}, nil
-	}
-
-	// was the pipeline initialised correctly?
-	if pl.Pipe == nil {
-		return []byte{}, pl.Err
-	}
-
-	// return what we have
-	retval, _ := ioutil.ReadAll(pl.Pipe.Stdout.NewReader())
-	return retval, pl.Err
-}
-
-// Error returns the pipeline's error status.
-func (pl *Pipeline) Error() error {
-	// do we have a pipeline to play with?
-	if pl == nil {
-		return nil
-	}
-
-	// if we get here, then all is well
-	return pl.Err
-}
-
-// Exec executes a pipeline
-func (pl *Pipeline) Exec() *Pipeline {
-	return pl.Exec_()
-}
-
-// Exec_ should only be called if you have embedded Pipeline into another
-// struct
-func (pl *Pipeline) Exec_() *Pipeline {
-	// do we have a pipeline to play with?
-	if pl == nil {
-		return pl
-	}
-
-	// is the pipeline fit to use?
-	if pl.Pipe == nil {
-		return pl
-	}
-
-	for _, step := range pl.Steps {
-		// at this point, stdout needs to become the next
-		// stdin
-		pl.Pipe.Next()
-
-		// run the next step
-		pl.StatusCode, pl.Err = step(pl.Pipe)
-
-		// we stop executing the moment something goes wrong
-		if pl.Err != nil {
-			return pl
+// PipelineController executes a sequence of commands as if they were
+// a UNIX shell pipeline
+func PipelineController(sq *Sequence) Controller {
+	return func() {
+		// do we have a pipeline to play with?
+		if sq == nil {
+			return
 		}
+
+		// is the pipeline fit to use?
+		if sq.Pipe == nil {
+			return
+		}
+
+		for _, step := range sq.Steps {
+			// at this point, stdout needs to become the next
+			// stdin
+			sq.Pipe.Next()
+
+			// run the next step
+			sq.StatusCode, sq.Err = step(sq.Pipe)
+
+			// we stop executing the moment something goes wrong
+			if sq.Err != nil {
+				return
+			}
+		}
+
+		// special case - do we have a non-zero status code, but no error?
+		if sq.StatusCode != StatusOkay && sq.Err == nil {
+			sq.Err = ErrPipelineNonZeroStatusCode{sq.StatusCode}
+		}
+
+		// all done
 	}
-
-	// special case - do we have a non-zero status code, but no error?
-	if pl.StatusCode != OK && pl.Err == nil {
-		pl.Err = ErrPipelineNonZeroStatusCode{pl.StatusCode}
-	}
-
-	// all done
-	return pl
-}
-
-// Okay returns false if a pipeline operation set the StatusCode to
-// anything other than OK. It returns true otherwise.
-func (pl *Pipeline) Okay() (bool, error) {
-	// do we have a pipeline to play with?
-	if pl == nil {
-		return true, nil
-	}
-
-	// if we get here, then all is well
-	return (pl.StatusCode == OK), pl.Err
-}
-
-// ParseInt returns the pipeline's stdout as an integer
-//
-// If the integer conversion fails, error will be the conversion error.
-// If the integer conversion succeeds, error will be the pipeline's error
-// (which may be nil)
-func (pl *Pipeline) ParseInt() (int, error) {
-	// do we have a pipeline to play with?
-	if pl == nil {
-		return 0, nil
-	}
-
-	// was the pipeline correctly initialised?
-	if pl.Pipe == nil || pl.Pipe.Stdout == nil {
-		return 0, pl.Err
-	}
-
-	// do we have an integer to return?
-	retval, err := pl.Pipe.Stdout.ParseInt()
-	if err != nil {
-		return retval, err
-	}
-
-	// all done
-	return retval, pl.Err
-}
-
-// String returns the pipeline's stdout as a single string
-func (pl *Pipeline) String() (string, error) {
-	// do we have a pipeline to play with?
-	if pl == nil {
-		return "", nil
-	}
-
-	// was the pipeline correctly initialised?
-	if pl.Pipe == nil {
-		return "", pl.Err
-	}
-
-	// return what we have
-	return pl.Pipe.Stdout.String(), pl.Err
-}
-
-// Strings returns the pipeline's stdout, one string per line
-func (pl *Pipeline) Strings() ([]string, error) {
-	// do we have a pipeline to play with?
-	if pl == nil {
-		return []string{}, nil
-	}
-
-	// was the pipeline correctly initialised?
-	if pl.Pipe == nil {
-		return []string{}, pl.Err
-	}
-
-	// return what we have
-	return pl.Pipe.Stdout.Strings(), pl.Err
-}
-
-// TrimmedString returns the pipeline's stdout as a single string.
-// Any leading or trailing whitespace is removed.
-func (pl *Pipeline) TrimmedString() (string, error) {
-	// do we have a pipeline to play with?
-	if pl == nil {
-		return "", nil
-	}
-
-	// was the pipeline correctly initialised?
-	if pl.Pipe == nil {
-		return "", pl.Err
-	}
-
-	// return what we have
-	return pl.Pipe.Stdout.TrimmedString(), pl.Err
 }

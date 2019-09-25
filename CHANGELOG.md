@@ -8,6 +8,7 @@ We're making some changes to improve compatibility with UNIX shell terminology a
 
 - `PipelineOperation` is now `Command`
 - `Sequence` represents a set of Commands to be executed
+- `NewPipeline()` now returns a `Sequence` (used to return a `*Pipeline`)
 
 ## v2.0.1
 
