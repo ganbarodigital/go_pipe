@@ -2,6 +2,27 @@
 
 ## develop
 
+## v3.0.0
+
+Released Wednesday, 25th September 2019.
+
+### Breaking Changes
+
+We're making some changes to improve compatibility with UNIX shell terminology and behaviours.
+
+- `PipelineOperation` is now `Command`
+- `Sequence` represents a set of Commands to be executed
+- `NewPipeline()` now returns a `Sequence` (used to return a `*Pipeline`)
+- `NewList()` creates a `Sequence` that executes like a UNIX shell list
+- `ErrPipelineNonZeroStatusCode` is now `ErrNonZeroStatusCode`
+
+### New
+
+- Added `Env` for a local environment
+- Added `ErrEmptyKey` error
+- Added local environment support to Sequences
+- Added `Sequence.Expand()` to mimic `os.Expand()`
+
 ## v2.0.1
 
 Released Wednesday, 25th September 2019.

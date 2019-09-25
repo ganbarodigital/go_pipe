@@ -39,14 +39,51 @@
 
 package pipe
 
-// PipelineOperation is the signature of any function that will work with
-// our Pipe
-type PipelineOperation = func(*Pipe) (int, error)
+// NewPipeline creates a pipeline that's ready to run
+func NewPipeline(steps ...Command) *Sequence {
+	// build our pipeline
+	retval := NewSequence(steps...)
 
-const (
-	// OK is what a PipelineOperation returns when everything worked
-	OK = iota
+	// tell the underlying sequence how we want these commands to run
+	retval.Controller = PipelineController(retval)
 
-	// NOT_OK is what a PipelineOperation returns when it did not work
-	NOT_OK
-)
+	// all done
+	return retval
+}
+
+// PipelineController executes a sequence of commands as if they were
+// a UNIX shell pipeline
+func PipelineController(sq *Sequence) Controller {
+	return func() {
+		// do we have a pipeline to play with?
+		if sq == nil {
+			return
+		}
+
+		// is the pipeline fit to use?
+		if sq.Pipe == nil {
+			return
+		}
+
+		for _, step := range sq.Steps {
+			// at this point, stdout needs to become the next
+			// stdin
+			sq.Pipe.Next()
+
+			// run the next step
+			sq.StatusCode, sq.Err = step(sq.Pipe)
+
+			// we stop executing the moment something goes wrong
+			if sq.Err != nil {
+				return
+			}
+		}
+
+		// special case - do we have a non-zero status code, but no error?
+		if sq.StatusCode != StatusOkay && sq.Err == nil {
+			sq.Err = ErrNonZeroStatusCode{"pipeline", sq.StatusCode}
+		}
+
+		// all done
+	}
+}

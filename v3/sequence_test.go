@@ -1,4 +1,4 @@
-// pipe is a library to help you write UNIX-like pipelines of operations
+// pipe is a library to help you write UNIX-like sequences of operations
 //
 // inspired by:
 //
@@ -41,12 +41,13 @@ package pipe
 
 import (
 	"errors"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewPipelineCreatesPipeWithEmptyStdin(t *testing.T) {
+func TestNewSequenceCreatesPipeWithEmptyStdin(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -57,8 +58,8 @@ func TestNewPipelineCreatesPipeWithEmptyStdin(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipeline := NewPipeline()
-	actualResult := pipeline.Pipe.Stdin.String()
+	sequence := NewSequence()
+	actualResult := sequence.Pipe.Stdin.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -66,7 +67,7 @@ func TestNewPipelineCreatesPipeWithEmptyStdin(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestNewPipelineCreatesPipeWithEmptyStdout(t *testing.T) {
+func TestNewSequenceCreatesPipeWithEmptyStdout(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -77,8 +78,8 @@ func TestNewPipelineCreatesPipeWithEmptyStdout(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipeline := NewPipeline()
-	actualResult := pipeline.Pipe.Stdout.String()
+	sequence := NewSequence()
+	actualResult := sequence.Pipe.Stdout.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -86,7 +87,7 @@ func TestNewPipelineCreatesPipeWithEmptyStdout(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestNewPipelineCreatesPipeWithEmptyStderr(t *testing.T) {
+func TestNewSequenceCreatesPipeWithEmptyStderr(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -97,8 +98,8 @@ func TestNewPipelineCreatesPipeWithEmptyStderr(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipeline := NewPipeline()
-	actualResult := pipeline.Pipe.Stderr.String()
+	sequence := NewSequence()
+	actualResult := sequence.Pipe.Stderr.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -106,7 +107,7 @@ func TestNewPipelineCreatesPipeWithEmptyStderr(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestNewPipelineCreatesPipelineWithNilErrSet(t *testing.T) {
+func TestNewSequenceCreatesSequenceWithNilErrSet(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -115,15 +116,15 @@ func TestNewPipelineCreatesPipelineWithNilErrSet(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipeline := NewPipeline()
+	sequence := NewSequence()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Nil(t, pipeline.Err)
+	assert.Nil(t, sequence.Err)
 }
 
-func TestNewPipelineCreatesPipelineWithZeroStatusCode(t *testing.T) {
+func TestNewSequenceCreatesSequenceWithZeroStatusCode(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -132,21 +133,21 @@ func TestNewPipelineCreatesPipelineWithZeroStatusCode(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipeline := NewPipeline()
+	sequence := NewSequence()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, 0, pipeline.StatusCode)
+	assert.Equal(t, 0, sequence.StatusCode)
 }
 
-// helper for testing our pipeline behaviour
+// helper for testing our sequence behaviour
 type testOpResult struct {
 	StatusCode int
 	Err        error
 }
 
-func TestNewPipelineCreatesPipelineWithGivenPipelineOperations(t *testing.T) {
+func TestNewSequenceCreatesSequenceWithGivenSequenceOperations(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -164,9 +165,9 @@ func TestNewPipelineCreatesPipelineWithGivenPipelineOperations(t *testing.T) {
 
 	var actualResult []testOpResult
 
-	pipeline := NewPipeline(op1, op2)
-	for _, step := range pipeline.Steps {
-		statusCode, err := step(pipeline.Pipe)
+	sequence := NewSequence(op1, op2)
+	for _, step := range sequence.Steps {
+		statusCode, err := step(sequence.Pipe)
 		actualResult = append(actualResult, testOpResult{statusCode, err})
 	}
 
@@ -176,18 +177,18 @@ func TestNewPipelineCreatesPipelineWithGivenPipelineOperations(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineExecCopesWithNilPipelinePointer(t *testing.T) {
+func TestSequenceExecCopesWithNilSequencePointer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipeline *Pipeline
+	var sequence *Sequence
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipeline.Exec()
+	sequence.Exec()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -195,18 +196,18 @@ func TestPipelineExecCopesWithNilPipelinePointer(t *testing.T) {
 	// as long as it didn't crash, we're good
 }
 
-func TestPipelineExecCopesWithEmptyPipeline(t *testing.T) {
+func TestSequenceExecCopesWithEmptySequence(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipeline Pipeline
+	var sequence Sequence
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipeline.Exec()
+	sequence.Exec()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -214,138 +215,109 @@ func TestPipelineExecCopesWithEmptyPipeline(t *testing.T) {
 	// as long as it didn't crash, we're good
 }
 
-func TestPipelineExecRunsAllStepsInOrder(t *testing.T) {
+func TestSequenceExpandCopesWithNilSequencePointer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	expectedResult := "hello world\nhave a nice day\n"
-	op1 := func(p *Pipe) (int, error) {
-		p.Stdout.WriteString("hello world")
-		p.Stdout.WriteRune('\n')
-
-		// all done
-		return 0, nil
-	}
-	op2 := func(p *Pipe) (int, error) {
-		// copy what op1 did first
-		p.DrainStdin()
-
-		// add our own content
-		p.Stdout.WriteString("have a nice day")
-		p.Stdout.WriteRune('\n')
-
-		// all done
-		return 0, nil
-	}
-
-	pipeline := NewPipeline(op1, op2)
-	pipeline.Exec()
+	var sequence *Sequence
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := pipeline.String()
+	sequence.Expand("hello ${HOME}")
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Nil(t, err)
+	// as long as it didn't crash, we're good
+}
+
+func TestSequenceExpandCopesWithEmptySequence(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var sequence Sequence
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	sequence.Expand("hello ${HOME}")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	// as long as it didn't crash, we're good
+}
+
+func TestSequenceExpandUsesTheProgramEnvironmentByDefault(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestSequenceKey"
+	testValue := "this is a test"
+	os.Setenv(testKey, testValue)
+
+	expectedResult := "hello this is a test"
+	sequence := NewSequence()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := sequence.Expand("hello ${TestSequenceKey}")
+
+	// ----------------------------------------------------------------
+	// test the results
+
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineExecStopsWhenAStepReportsAnError(t *testing.T) {
+func TestSequenceExpandUsesTheSequenceEnvironmentIfAvailable(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	expectedStdout := "hello world\n"
-	expectedStderr := "alfred the great\n"
-	op1 := func(p *Pipe) (int, error) {
-		p.Stdout.WriteString(expectedStdout)
-		p.Stderr.WriteString(expectedStderr)
+	testKey := "TestSequenceKey"
+	testValue1 := "this is a test"
+	testValue2 := "this is another test"
+	os.Setenv(testKey, testValue1)
 
-		// all done
-		return 0, errors.New("stop at step 1")
-	}
-	op2 := func(p *Pipe) (int, error) {
-		// copy what op1 did first
-		p.DrainStdin()
+	expectedResult := "hello this is another test"
 
-		// add our own content
-		p.Stdout.WriteString("have a nice day")
-		p.Stdout.WriteRune('\n')
-
-		// all done
-		return 0, nil
-	}
-
-	pipeline := NewPipeline(op1, op2)
-	pipeline.Exec()
+	sequence := NewSequence()
+	sequence.Env = NewEnv()
+	sequence.Env.Setenv(testKey, testValue2)
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	finalOutput, err := pipeline.String()
-	actualStderr := pipeline.Pipe.Stderr.String()
+	actualResult := sequence.Expand("hello ${TestSequenceKey}")
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	// pipeline.String() should have returned an error
-	assert.NotNil(t, err)
-
-	// pipeline.String() should have returned the contents of our
-	// Pipe.Stdout buffer
-	assert.Equal(t, expectedStdout, finalOutput)
-
-	// our pipeline's Stderr should still contain what the first step
-	// did ... and only the first step
-	assert.Equal(t, expectedStderr, actualStderr)
+	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineExecSetsErrWhenOpReturnsNonZeroStatusCodeAndNilErr(t *testing.T) {
+func TestSequenceBytesCopesWithNilSequencePointer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	op1 := func(p *Pipe) (int, error) {
-		// fail, but without an error to say why
-		return NOT_OK, nil
-	}
-
-	pipeline := NewPipeline(op1)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	pipeline.Exec()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	// pipeline.Err should have been set by Exec()
-	assert.NotNil(t, pipeline.Err)
-	_, ok := pipeline.Err.(ErrPipelineNonZeroStatusCode)
-	assert.True(t, ok)
-}
-
-func TestPipelineBytesCopesWithNilPipelinePointer(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	var pipeline *Pipeline
+	var sequence *Sequence
 	expectedResult := ""
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualBytes, err := pipeline.Bytes()
+	actualBytes, err := sequence.Bytes()
 	actualResult := string(actualBytes)
 
 	// ----------------------------------------------------------------
@@ -355,19 +327,19 @@ func TestPipelineBytesCopesWithNilPipelinePointer(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineBytesCopesWithEmptyPipeline(t *testing.T) {
+func TestSequenceBytesCopesWithEmptySequence(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipeline Pipeline
+	var sequence Sequence
 	expectedResult := ""
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualBytes, err := pipeline.Bytes()
+	actualBytes, err := sequence.Bytes()
 	actualResult := string(actualBytes)
 
 	// ----------------------------------------------------------------
@@ -377,7 +349,7 @@ func TestPipelineBytesCopesWithEmptyPipeline(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineBytesReturnsContentsOfStdoutWhenNoError(t *testing.T) {
+func TestSequenceBytesReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -395,13 +367,13 @@ func TestPipelineBytesReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 		return 0, nil
 	}
 
-	pipeline := NewPipeline(op1)
-	pipeline.Exec()
+	sequence := NewSequence(op1)
+	op1(sequence.Pipe)
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualBytes, err := pipeline.Bytes()
+	actualBytes, err := sequence.Bytes()
 	actualResult := string(actualBytes)
 
 	// ----------------------------------------------------------------
@@ -411,7 +383,7 @@ func TestPipelineBytesReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineBytesReturnsContentsOfStdoutWhenError(t *testing.T) {
+func TestSequenceBytesReturnsContentsOfStdoutWhenError(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -429,13 +401,13 @@ func TestPipelineBytesReturnsContentsOfStdoutWhenError(t *testing.T) {
 		return 0, errors.New("an error occurred")
 	}
 
-	pipeline := NewPipeline(op1)
-	pipeline.Exec()
+	sequence := NewSequence(op1)
+	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualBytes, err := pipeline.Bytes()
+	actualBytes, err := sequence.Bytes()
 	actualResult := string(actualBytes)
 
 	// ----------------------------------------------------------------
@@ -445,18 +417,18 @@ func TestPipelineBytesReturnsContentsOfStdoutWhenError(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineErrorCopesWithNilPipelinePointer(t *testing.T) {
+func TestSequenceErrorCopesWithNilSequencePointer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipeline *Pipeline
+	var sequence *Sequence
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	err := pipeline.Error()
+	err := sequence.Error()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -464,18 +436,18 @@ func TestPipelineErrorCopesWithNilPipelinePointer(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestPipelineErrorCopesWithEmptyPipeline(t *testing.T) {
+func TestSequenceErrorCopesWithEmptySequence(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipeline Pipeline
+	var sequence Sequence
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	err := pipeline.Error()
+	err := sequence.Error()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -483,7 +455,7 @@ func TestPipelineErrorCopesWithEmptyPipeline(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestPipelineErrorReturnsErrorWhenOneHappens(t *testing.T) {
+func TestSequenceErrorReturnsErrProperty(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -493,34 +465,36 @@ func TestPipelineErrorReturnsErrorWhenOneHappens(t *testing.T) {
 		// all done
 		return 0, errors.New("this is an error")
 	}
+	expectedResult := errors.New("this is an error")
 
-	pipeline := NewPipeline(op1)
-	pipeline.Exec()
+	sequence := NewSequence(op1)
+	sequence.Err = expectedResult
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	err := pipeline.Error()
+	err := sequence.Error()
 
 	// ----------------------------------------------------------------
 	// test the results
 
 	assert.NotNil(t, err)
 	assert.Error(t, err)
+	assert.Equal(t, expectedResult, err)
 }
 
-func TestPipelineOkayCopesWithNilPipelinePointer(t *testing.T) {
+func TestSequenceOkayCopesWithNilSequencePointer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipeline *Pipeline
+	var sequence *Sequence
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	success, err := pipeline.Okay()
+	success, err := sequence.Okay()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -529,18 +503,18 @@ func TestPipelineOkayCopesWithNilPipelinePointer(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestPipelineOkayCopesWithEmptyPipeline(t *testing.T) {
+func TestSequenceOkayCopesWithEmptySequence(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipeline Pipeline
+	var sequence Sequence
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	success, err := pipeline.Okay()
+	success, err := sequence.Okay()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -549,7 +523,7 @@ func TestPipelineOkayCopesWithEmptyPipeline(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestPipelineOkayReturnsFalseWhenPipelineErrorHappens(t *testing.T) {
+func TestSequenceOkayReturnsFalseWhenSequenceErrorHappens(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -557,16 +531,16 @@ func TestPipelineOkayReturnsFalseWhenPipelineErrorHappens(t *testing.T) {
 
 	op1 := func(p *Pipe) (int, error) {
 		// all done
-		return NOT_OK, errors.New("this is an error")
+		return StatusNotOkay, errors.New("this is an error")
 	}
 
-	pipeline := NewPipeline(op1)
-	pipeline.Exec()
+	sequence := NewSequence(op1)
+	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	success, err := pipeline.Okay()
+	success, err := sequence.Okay()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -575,19 +549,19 @@ func TestPipelineOkayReturnsFalseWhenPipelineErrorHappens(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestPipelineParseIntCopesWithNilPipelinePointer(t *testing.T) {
+func TestSequenceParseIntCopesWithNilSequencePointer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipeline *Pipeline
+	var sequence *Sequence
 	expectedResult := 0
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := pipeline.ParseInt()
+	actualResult, err := sequence.ParseInt()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -596,19 +570,19 @@ func TestPipelineParseIntCopesWithNilPipelinePointer(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineParseIntCopesWithEmptyPipeline(t *testing.T) {
+func TestSequenceParseIntCopesWithEmptySequence(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipeline Pipeline
+	var sequence Sequence
 	expectedResult := 0
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := pipeline.ParseInt()
+	actualResult, err := sequence.ParseInt()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -617,7 +591,7 @@ func TestPipelineParseIntCopesWithEmptyPipeline(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineParseIntConvertsContentsOfStdoutWhenNoError(t *testing.T) {
+func TestSequenceParseIntConvertsContentsOfStdoutWhenNoError(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -634,13 +608,13 @@ func TestPipelineParseIntConvertsContentsOfStdoutWhenNoError(t *testing.T) {
 		return 0, nil
 	}
 
-	pipeline := NewPipeline(op1)
-	pipeline.Exec()
+	sequence := NewSequence(op1)
+	op1(sequence.Pipe)
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := pipeline.ParseInt()
+	actualResult, err := sequence.ParseInt()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -649,7 +623,7 @@ func TestPipelineParseIntConvertsContentsOfStdoutWhenNoError(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineParseIntReturnsZeroWhenError(t *testing.T) {
+func TestSequenceParseIntReturnsZeroWhenError(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -665,13 +639,13 @@ func TestPipelineParseIntReturnsZeroWhenError(t *testing.T) {
 		return 0, errors.New("an error occurred")
 	}
 
-	pipeline := NewPipeline(op1)
-	pipeline.Exec()
+	sequence := NewSequence(op1)
+	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := pipeline.ParseInt()
+	actualResult, err := sequence.ParseInt()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -680,19 +654,19 @@ func TestPipelineParseIntReturnsZeroWhenError(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineStringCopesWithNilPipelinePointer(t *testing.T) {
+func TestSequenceStringCopesWithNilSequencePointer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipeline *Pipeline
+	var sequence *Sequence
 	expectedResult := ""
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := pipeline.String()
+	actualResult, err := sequence.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -701,19 +675,19 @@ func TestPipelineStringCopesWithNilPipelinePointer(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineStringCopesWithEmptyPipeline(t *testing.T) {
+func TestSequenceStringCopesWithEmptySequence(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipeline Pipeline
+	var sequence Sequence
 	expectedResult := ""
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := pipeline.String()
+	actualResult, err := sequence.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -722,7 +696,7 @@ func TestPipelineStringCopesWithEmptyPipeline(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineStringReturnsContentsOfStdoutWhenNoError(t *testing.T) {
+func TestSequenceStringReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -740,13 +714,13 @@ func TestPipelineStringReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 		return 0, nil
 	}
 
-	pipeline := NewPipeline(op1)
-	pipeline.Exec()
+	sequence := NewSequence(op1)
+	op1(sequence.Pipe)
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := pipeline.String()
+	actualResult, err := sequence.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -755,7 +729,7 @@ func TestPipelineStringReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineStringReturnsContentsOfStdoutWhenError(t *testing.T) {
+func TestSequenceStringReturnsContentsOfStdoutWhenError(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -773,13 +747,13 @@ func TestPipelineStringReturnsContentsOfStdoutWhenError(t *testing.T) {
 		return 0, errors.New("an eccor occurred")
 	}
 
-	pipeline := NewPipeline(op1)
-	pipeline.Exec()
+	sequence := NewSequence(op1)
+	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := pipeline.String()
+	actualResult, err := sequence.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -788,19 +762,19 @@ func TestPipelineStringReturnsContentsOfStdoutWhenError(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineStringsCopesWithNilPipelinePointer(t *testing.T) {
+func TestSequenceStringsCopesWithNilSequencePointer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipeline *Pipeline
+	var sequence *Sequence
 	expectedResult := []string{}
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := pipeline.Strings()
+	actualResult, err := sequence.Strings()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -809,19 +783,19 @@ func TestPipelineStringsCopesWithNilPipelinePointer(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineStringsCopesWithEmptyPipeline(t *testing.T) {
+func TestSequenceStringsCopesWithEmptySequence(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipeline Pipeline
+	var sequence Sequence
 	expectedResult := []string{}
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := pipeline.Strings()
+	actualResult, err := sequence.Strings()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -830,7 +804,7 @@ func TestPipelineStringsCopesWithEmptyPipeline(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineStringsReturnsContentsOfStdoutWhenNoError(t *testing.T) {
+func TestSequenceStringsReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -850,13 +824,13 @@ func TestPipelineStringsReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 		return 0, nil
 	}
 
-	pipeline := NewPipeline(op1)
-	pipeline.Exec()
+	sequence := NewSequence(op1)
+	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := pipeline.Strings()
+	actualResult, err := sequence.Strings()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -865,7 +839,7 @@ func TestPipelineStringsReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineStringsReturnsContentsOfStdoutWhenError(t *testing.T) {
+func TestSequenceStringsReturnsContentsOfStdoutWhenError(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -885,13 +859,13 @@ func TestPipelineStringsReturnsContentsOfStdoutWhenError(t *testing.T) {
 		return 0, errors.New("an error occurred")
 	}
 
-	pipeline := NewPipeline(op1)
-	pipeline.Exec()
+	sequence := NewSequence(op1)
+	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := pipeline.Strings()
+	actualResult, err := sequence.Strings()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -900,19 +874,19 @@ func TestPipelineStringsReturnsContentsOfStdoutWhenError(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineTrimmedStringCopesWithNilPipelinePointer(t *testing.T) {
+func TestSequenceTrimmedStringCopesWithNilSequencePointer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipeline *Pipeline
+	var sequence *Sequence
 	expectedResult := ""
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := pipeline.TrimmedString()
+	actualResult, err := sequence.TrimmedString()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -921,19 +895,19 @@ func TestPipelineTrimmedStringCopesWithNilPipelinePointer(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineTrimmedStringCopesWithEmptyPipeline(t *testing.T) {
+func TestSequenceTrimmedStringCopesWithEmptySequence(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipeline Pipeline
+	var sequence Sequence
 	expectedResult := ""
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := pipeline.TrimmedString()
+	actualResult, err := sequence.TrimmedString()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -942,7 +916,7 @@ func TestPipelineTrimmedStringCopesWithEmptyPipeline(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineTrimmedStringReturnsContentsOfStdoutWhenNoError(t *testing.T) {
+func TestSequenceTrimmedStringReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -962,13 +936,13 @@ func TestPipelineTrimmedStringReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 		return 0, nil
 	}
 
-	pipeline := NewPipeline(op1)
-	pipeline.Exec()
+	sequence := NewSequence(op1)
+	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := pipeline.TrimmedString()
+	actualResult, err := sequence.TrimmedString()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -977,7 +951,7 @@ func TestPipelineTrimmedStringReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineTrimmedStringReturnsContentsOfStdoutWhenError(t *testing.T) {
+func TestSequenceTrimmedStringReturnsContentsOfStdoutWhenError(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -996,13 +970,13 @@ func TestPipelineTrimmedStringReturnsContentsOfStdoutWhenError(t *testing.T) {
 		return 0, errors.New("an error occurred")
 	}
 
-	pipeline := NewPipeline(op1)
-	pipeline.Exec()
+	sequence := NewSequence(op1)
+	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := pipeline.TrimmedString()
+	actualResult, err := sequence.TrimmedString()
 
 	// ----------------------------------------------------------------
 	// test the results

@@ -39,28 +39,42 @@
 
 package pipe
 
-import (
-	"testing"
+// NewList creates a list that's ready to run
+func NewList(steps ...Command) *Sequence {
+	// build our list
+	retval := NewSequence(steps...)
 
-	"github.com/stretchr/testify/assert"
-)
+	// tell the underlying sequence how we want these commands to run
+	retval.Controller = ListController(retval)
 
-func TestErrPipelineNonZeroStatusCode(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
+	// all done
+	return retval
+}
 
-	testData := ErrPipelineNonZeroStatusCode{
-		127,
+// ListController executes a sequence of commands as if they were
+// a UNIX shell list
+func ListController(sq *Sequence) Controller {
+	return func() {
+		// do we have a pipeline to play with?
+		if sq == nil {
+			return
+		}
+
+		// is the pipeline fit to use?
+		if sq.Pipe == nil {
+			return
+		}
+
+		for _, step := range sq.Steps {
+			// run the next step
+			sq.StatusCode, sq.Err = step(sq.Pipe)
+		}
+
+		// special case - do we have a non-zero status code, but no error?
+		if sq.StatusCode != StatusOkay && sq.Err == nil {
+			sq.Err = ErrNonZeroStatusCode{"list", sq.StatusCode}
+		}
+
+		// all done
 	}
-	expectedResult := "pipeline exited with non-zero status code 127"
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := testData.Error()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
 }
