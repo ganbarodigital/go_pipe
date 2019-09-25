@@ -16,6 +16,8 @@ We're making some changes to improve compatibility with UNIX shell terminology a
 
 - Added `Env` for a local environment
 - Added `ErrEmptyKey` error
+- Added local environment support to Sequences
+- Added `Sequence.Expand()` to mimic `os.Expand()`
 
 ## v2.0.1
 

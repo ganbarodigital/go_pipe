@@ -41,6 +41,7 @@ package pipe
 
 import (
 	"io/ioutil"
+	"os"
 )
 
 // Controller is a function that executes a given sequence
@@ -62,6 +63,9 @@ type Sequence struct {
 	// The UNIX-like status code from the last executed step
 	StatusCode int
 
+	// Every sequence can have its own environment, if it wants one
+	Env *Env
+
 	// How we will run the sequence
 	Controller func()
 }
@@ -74,6 +78,7 @@ func NewSequence(steps ...Command) *Sequence {
 		steps,
 		nil,
 		StatusOkay,
+		nil,
 		nil,
 	}
 
@@ -128,6 +133,25 @@ func (sq *Sequence) Exec() *Sequence {
 
 	// all done
 	return sq
+}
+
+// Expand replaces ${var} or $var in the input string.
+//
+// It uses the sequence's private environment (if the sequence has one),
+// or the program's environment otherwise.
+func (sq *Sequence) Expand(fmt string) string {
+	// do we have a sequence to work with?
+	if sq == nil {
+		return os.Expand(fmt, os.Getenv)
+	}
+
+	// do we have an environment of our own?
+	if sq.Env == nil {
+		return os.Expand(fmt, os.Getenv)
+	}
+
+	// yes we do
+	return os.Expand(fmt, sq.Env.Getenv)
 }
 
 // Okay returns false if a sequence operation set the StatusCode to

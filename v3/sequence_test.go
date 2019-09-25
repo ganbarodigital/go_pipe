@@ -41,6 +41,7 @@ package pipe
 
 import (
 	"errors"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -212,6 +213,96 @@ func TestSequenceExecCopesWithEmptySequence(t *testing.T) {
 	// test the results
 
 	// as long as it didn't crash, we're good
+}
+
+func TestSequenceExpandCopesWithNilSequencePointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var sequence *Sequence
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	sequence.Expand("hello ${HOME}")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	// as long as it didn't crash, we're good
+}
+
+func TestSequenceExpandCopesWithEmptySequence(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var sequence Sequence
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	sequence.Expand("hello ${HOME}")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	// as long as it didn't crash, we're good
+}
+
+func TestSequenceExpandUsesTheProgramEnvironmentByDefault(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestSequenceKey"
+	testValue := "this is a test"
+	os.Setenv(testKey, testValue)
+
+	expectedResult := "hello this is a test"
+	sequence := NewSequence()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := sequence.Expand("hello ${TestSequenceKey}")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestSequenceExpandUsesTheSequenceEnvironmentIfAvailable(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestSequenceKey"
+	testValue1 := "this is a test"
+	testValue2 := "this is another test"
+	os.Setenv(testKey, testValue1)
+
+	expectedResult := "hello this is another test"
+
+	sequence := NewSequence()
+	sequence.Env = NewEnv()
+	sequence.Env.Setenv(testKey, testValue2)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := sequence.Expand("hello ${TestSequenceKey}")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
 }
 
 func TestSequenceBytesCopesWithNilSequencePointer(t *testing.T) {
