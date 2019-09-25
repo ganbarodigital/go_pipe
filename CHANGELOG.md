@@ -2,6 +2,10 @@
 
 ## develop
 
+## v1.7.0
+
+Released Wednesday, 25th September 2019.
+
 ### New
 
 * Added `ErrPipelineNonZeroStatusCode`
