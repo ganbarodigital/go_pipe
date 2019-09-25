@@ -41,6 +41,14 @@ package pipe
 
 import "fmt"
 
+// ErrEmptyKey is returned whenever we're given a key that is zero-length
+// or only contains whitespace
+type ErrEmptyKey struct{}
+
+func (e ErrEmptyKey) Error() string {
+	return "zero-length key, or key only contains whitespace"
+}
+
 // ErrNonZeroStatusCode is the error we return when a sequence has finished
 // with a non-zero status code and no error of its own
 type ErrNonZeroStatusCode struct {

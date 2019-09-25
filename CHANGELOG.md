@@ -12,6 +12,10 @@ We're making some changes to improve compatibility with UNIX shell terminology a
 - `NewList()` creates a `Sequence` that executes like a UNIX shell list
 - `ErrPipelineNonZeroStatusCode` is now `ErrNonZeroStatusCode`
 
+### New
+
+- Added `ErrEmptyKey` error
+
 ## v2.0.1
 
 Released Wednesday, 25th September 2019.

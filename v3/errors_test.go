@@ -45,6 +45,24 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestErrEmptyKey(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := ErrEmptyKey{}
+	expectedResult := "zero-length key, or key only contains whitespace"
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := testData.Error()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
 func TestErrNonZeroStatusCode(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
