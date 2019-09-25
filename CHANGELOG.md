@@ -2,6 +2,15 @@
 
 ## develop
 
+## v2.0.0
+
+Released Wednesday, 25th September 2019.
+
+### Breaking Changes
+
+* Pipeline capture methods now *always* return the pipeline's Stdout's contents, regardless of the pipeline's error status.
+  - this change improves compatibility with UNIX behaviour
+
 ## v1.7.0
 
 Released Wednesday, 25th September 2019.

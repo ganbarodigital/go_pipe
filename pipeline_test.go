@@ -289,7 +289,7 @@ func TestPipelineExecStopsWhenAStepReportsAnError(t *testing.T) {
 	// perform the change
 
 	finalOutput, err := pipeline.String()
-	actualStdout := pipeline.Pipe.Stdout.String()
+	actualStderr := pipeline.Pipe.Stderr.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -298,12 +298,12 @@ func TestPipelineExecStopsWhenAStepReportsAnError(t *testing.T) {
 	assert.NotNil(t, err)
 
 	// pipeline.String() should have returned the contents of our
-	// Pipe.Stderr buffer
-	assert.Equal(t, expectedStderr, finalOutput)
+	// Pipe.Stdout buffer
+	assert.Equal(t, expectedStdout, finalOutput)
 
-	// our pipeline's Stdout should still contain what the first step
+	// our pipeline's Stderr should still contain what the first step
 	// did ... and only the first step
-	assert.Equal(t, expectedStdout, actualStdout)
+	assert.Equal(t, expectedStderr, actualStderr)
 }
 
 func TestPipelineExecSetsErrWhenOpReturnsNonZeroStatusCodeAndNilErr(t *testing.T) {
@@ -411,7 +411,7 @@ func TestPipelineBytesReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineBytesReturnsContentsOfStderrWhenError(t *testing.T) {
+func TestPipelineBytesReturnsContentsOfStdoutWhenError(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -419,11 +419,11 @@ func TestPipelineBytesReturnsContentsOfStderrWhenError(t *testing.T) {
 
 	expectedResult := "hello world\nhave a nice day\n"
 	op1 := func(p *Pipe) (int, error) {
-		// we don't want to see this in our final output
-		p.Stdout.WriteString("we do not want this")
-
 		// this is the content we want
-		p.Stderr.WriteString(expectedResult)
+		p.Stdout.WriteString(expectedResult)
+
+		// we don't want to see this in our final output
+		p.Stderr.WriteString("we do not want this")
 
 		// all done
 		return 0, errors.New("an error occurred")
@@ -755,7 +755,7 @@ func TestPipelineStringReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineStringReturnsContentsOfStderrWhenError(t *testing.T) {
+func TestPipelineStringReturnsContentsOfStdoutWhenError(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -764,10 +764,10 @@ func TestPipelineStringReturnsContentsOfStderrWhenError(t *testing.T) {
 	expectedResult := "hello world\nhave a nice day\n"
 	op1 := func(p *Pipe) (int, error) {
 		// this is the content we want
-		p.Stderr.WriteString(expectedResult)
+		p.Stdout.WriteString(expectedResult)
 
 		// we don't want to see this in our final output
-		p.Stdout.WriteString("we do not want this")
+		p.Stderr.WriteString("we do not want this")
 
 		// all done
 		return 0, errors.New("an eccor occurred")
@@ -865,7 +865,7 @@ func TestPipelineStringsReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineStringsReturnsContentsOfStderrWhenError(t *testing.T) {
+func TestPipelineStringsReturnsContentsOfStdoutWhenError(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -874,12 +874,12 @@ func TestPipelineStringsReturnsContentsOfStderrWhenError(t *testing.T) {
 	expectedResult := []string{"hello world", "have a nice day"}
 	op1 := func(p *Pipe) (int, error) {
 		for _, line := range expectedResult {
-			p.Stderr.WriteString(line)
-			p.Stderr.WriteRune('\n')
+			p.Stdout.WriteString(line)
+			p.Stdout.WriteRune('\n')
 		}
 
 		// we don't want to see this in our final output
-		p.Stdout.WriteString("we do not want this")
+		p.Stderr.WriteString("we do not want this")
 
 		// all done
 		return 0, errors.New("an error occurred")
@@ -977,7 +977,7 @@ func TestPipelineTrimmedStringReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestPipelineTrimmedStringReturnsContentsOfStderrWhenError(t *testing.T) {
+func TestPipelineTrimmedStringReturnsContentsOfStdoutWhenError(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -987,10 +987,10 @@ func TestPipelineTrimmedStringReturnsContentsOfStderrWhenError(t *testing.T) {
 	expectedResult := "hello world\nhave a nice day"
 	op1 := func(p *Pipe) (int, error) {
 		// this is the content we want
-		p.Stderr.WriteString(testData)
+		p.Stdout.WriteString(testData)
 
 		// we don't want to see this in our final output
-		p.Stdout.WriteString("we do not want this")
+		p.Stderr.WriteString("we do not want this")
 
 		// all done
 		return 0, errors.New("an error occurred")

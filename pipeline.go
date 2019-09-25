@@ -81,13 +81,7 @@ func (pl *Pipeline) Bytes() ([]byte, error) {
 		return []byte{}, pl.Err
 	}
 
-	// did an error occur?
-	if pl.Err != nil {
-		retval, _ := ioutil.ReadAll(pl.Pipe.Stderr.NewReader())
-		return retval, pl.Err
-	}
-
-	// if we get here, then all is well
+	// return what we have
 	retval, _ := ioutil.ReadAll(pl.Pipe.Stdout.NewReader())
 	return retval, pl.Err
 }
@@ -157,6 +151,10 @@ func (pl *Pipeline) Okay() (bool, error) {
 }
 
 // ParseInt returns the pipeline's stdout as an integer
+//
+// If the integer conversion fails, error will be the conversion error.
+// If the integer conversion succeeds, error will be the pipeline's error
+// (which may be nil)
 func (pl *Pipeline) ParseInt() (int, error) {
 	// do we have a pipeline to play with?
 	if pl == nil {
@@ -168,13 +166,14 @@ func (pl *Pipeline) ParseInt() (int, error) {
 		return 0, pl.Err
 	}
 
-	// did an error occur?
-	if pl.Err != nil {
-		return 0, pl.Err
+	// do we have an integer to return?
+	retval, err := pl.Pipe.Stdout.ParseInt()
+	if err != nil {
+		return retval, err
 	}
 
-	// if we get here, then all is well
-	return pl.Pipe.Stdout.ParseInt()
+	// all done
+	return retval, pl.Err
 }
 
 // String returns the pipeline's stdout as a single string
@@ -189,13 +188,8 @@ func (pl *Pipeline) String() (string, error) {
 		return "", pl.Err
 	}
 
-	// did an error occur?
-	if pl.Err != nil {
-		return pl.Pipe.Stderr.String(), pl.Err
-	}
-
-	// if we get here, then all is well
-	return pl.Pipe.Stdout.String(), nil
+	// return what we have
+	return pl.Pipe.Stdout.String(), pl.Err
 }
 
 // Strings returns the pipeline's stdout, one string per line
@@ -210,20 +204,12 @@ func (pl *Pipeline) Strings() ([]string, error) {
 		return []string{}, pl.Err
 	}
 
-	// did an error occur?
-	if pl.Err != nil {
-		return pl.Pipe.Stderr.Strings(), pl.Err
-	}
-
-	// if we get here, then all is well
-	return pl.Pipe.Stdout.Strings(), nil
+	// return what we have
+	return pl.Pipe.Stdout.Strings(), pl.Err
 }
 
 // TrimmedString returns the pipeline's stdout as a single string.
 // Any leading or trailing whitespace is removed.
-//
-// If an error has occurred, TrimmedString returns the pipeline's
-// stderr instead.
 func (pl *Pipeline) TrimmedString() (string, error) {
 	// do we have a pipeline to play with?
 	if pl == nil {
@@ -235,11 +221,6 @@ func (pl *Pipeline) TrimmedString() (string, error) {
 		return "", pl.Err
 	}
 
-	// did an error occur?
-	if pl.Err != nil {
-		return pl.Pipe.Stderr.TrimmedString(), pl.Err
-	}
-
-	// if we get here, then all is well
-	return pl.Pipe.Stdout.TrimmedString(), nil
+	// return what we have
+	return pl.Pipe.Stdout.TrimmedString(), pl.Err
 }
