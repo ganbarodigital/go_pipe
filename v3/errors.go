@@ -41,15 +41,17 @@ package pipe
 
 import "fmt"
 
-// ErrPipelineNonZeroStatusCode is the error we return when a pipeline
-// step returns a non-zero status code AND a nil error
-type ErrPipelineNonZeroStatusCode struct {
-	statusCode int
+// ErrNonZeroStatusCode is the error we return when a sequence has finished
+// with a non-zero status code and no error of its own
+type ErrNonZeroStatusCode struct {
+	sequenceType string
+	statusCode   int
 }
 
-func (e ErrPipelineNonZeroStatusCode) Error() string {
+func (e ErrNonZeroStatusCode) Error() string {
 	return fmt.Sprintf(
-		"pipeline exited with non-zero status code %d",
+		"%s exited with non-zero status code %d",
+		e.sequenceType,
 		e.statusCode,
 	)
 }

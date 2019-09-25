@@ -10,6 +10,7 @@ We're making some changes to improve compatibility with UNIX shell terminology a
 - `Sequence` represents a set of Commands to be executed
 - `NewPipeline()` now returns a `Sequence` (used to return a `*Pipeline`)
 - `NewList()` creates a `Sequence` that executes like a UNIX shell list
+- `ErrPipelineNonZeroStatusCode` is now `ErrNonZeroStatusCode`
 
 ## v2.0.1
 

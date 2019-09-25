@@ -45,14 +45,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestErrPipelineNonZeroStatusCode(t *testing.T) {
+func TestErrNonZeroStatusCode(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	testData := ErrPipelineNonZeroStatusCode{
+	testData := ErrNonZeroStatusCode{
+		"sequence",
 		127,
 	}
-	expectedResult := "pipeline exited with non-zero status code 127"
+	expectedResult := "sequence exited with non-zero status code 127"
 
 	// ----------------------------------------------------------------
 	// perform the change

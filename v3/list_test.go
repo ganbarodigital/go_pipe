@@ -291,6 +291,6 @@ func TestListExecSetsErrWhenOpReturnsNonZeroStatusCodeAndNilErr(t *testing.T) {
 
 	// list.Err should have been set by Exec()
 	assert.NotNil(t, list.Err)
-	_, ok := list.Err.(ErrPipelineNonZeroStatusCode)
+	_, ok := list.Err.(ErrNonZeroStatusCode)
 	assert.True(t, ok)
 }

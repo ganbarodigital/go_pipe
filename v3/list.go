@@ -72,7 +72,7 @@ func ListController(sq *Sequence) Controller {
 
 		// special case - do we have a non-zero status code, but no error?
 		if sq.StatusCode != StatusOkay && sq.Err == nil {
-			sq.Err = ErrPipelineNonZeroStatusCode{sq.StatusCode}
+			sq.Err = ErrNonZeroStatusCode{"list", sq.StatusCode}
 		}
 
 		// all done

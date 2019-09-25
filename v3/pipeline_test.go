@@ -296,6 +296,6 @@ func TestPipelineExecSetsErrWhenOpReturnsNonZeroStatusCodeAndNilErr(t *testing.T
 
 	// pipeline.Err should have been set by Exec()
 	assert.NotNil(t, pipeline.Err)
-	_, ok := pipeline.Err.(ErrPipelineNonZeroStatusCode)
+	_, ok := pipeline.Err.(ErrNonZeroStatusCode)
 	assert.True(t, ok)
 }
