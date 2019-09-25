@@ -2,6 +2,11 @@
 
 ## develop
 
+### New
+
+* Added `ErrPipelineNonZeroStatusCode`
+* `Pipeline.Exec_()` now sets `Pipeline.Err` if a step fails with a non-zero status code, but no error of its own
+
 ## v1.6.0
 
 Released Wednesday, 25th September 2019.

@@ -306,6 +306,33 @@ func TestPipelineExecStopsWhenAStepReportsAnError(t *testing.T) {
 	assert.Equal(t, expectedStdout, actualStdout)
 }
 
+func TestPipelineExecSetsErrWhenOpReturnsNonZeroStatusCodeAndNilErr(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	op1 := func(p *Pipe) (int, error) {
+		// fail, but without an error to say why
+		return NOT_OK, nil
+	}
+
+	pipeline := NewPipeline(op1)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipeline.Exec()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	// pipeline.Err should have been set by Exec()
+	assert.NotNil(t, pipeline.Err)
+	_, ok := pipeline.Err.(ErrPipelineNonZeroStatusCode)
+	assert.True(t, ok)
+}
+
 func TestPipelineBytesCopesWithNilPipelinePointer(t *testing.T) {
 	t.Parallel()
 

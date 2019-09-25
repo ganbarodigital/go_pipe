@@ -135,6 +135,11 @@ func (pl *Pipeline) Exec_() *Pipeline {
 		}
 	}
 
+	// special case - do we have a non-zero status code, but no error?
+	if pl.StatusCode != OK && pl.Err == nil {
+		pl.Err = ErrPipelineNonZeroStatusCode{pl.StatusCode}
+	}
+
 	// all done
 	return pl
 }
