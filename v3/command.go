@@ -39,14 +39,14 @@
 
 package pipe
 
-// PipelineOperation is the signature of any function that will work with
+// Command is the signature of any function that will work with
 // our Pipe
-type PipelineOperation = func(*Pipe) (int, error)
+type Command = func(*Pipe) (int, error)
 
 const (
-	// OK is what a PipelineOperation returns when everything worked
-	OK = iota
+	// StatusOkay is what a Command returns when everything worked
+	StatusOkay = iota
 
-	// NOT_OK is what a PipelineOperation returns when it did not work
-	NOT_OK
+	// StatusNotOkay is what a Command returns when it did not work
+	StatusNotOkay
 )

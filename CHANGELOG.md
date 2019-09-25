@@ -2,6 +2,12 @@
 
 ## develop
 
+### Breaking Changes
+
+We're making some changes to improve compatibility with UNIX shell terminology and behaviours.
+
+- `PipelineOperation` is now `Command`
+
 ## v2.0.1
 
 Released Wednesday, 25th September 2019.
