@@ -44,6 +44,7 @@ import (
 	"os"
 	"testing"
 
+	envish "github.com/ganbarodigital/go_envish"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -291,7 +292,7 @@ func TestSequenceExpandUsesTheSequenceEnvironmentIfAvailable(t *testing.T) {
 	expectedResult := "hello this is another test"
 
 	sequence := NewSequence()
-	sequence.Env = NewEnv()
+	sequence.Env = envish.NewEnv()
 	sequence.Env.Setenv(testKey, testValue2)
 
 	// ----------------------------------------------------------------
