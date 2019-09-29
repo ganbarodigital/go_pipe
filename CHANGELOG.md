@@ -2,6 +2,14 @@
 
 ## develop
 
+## v3.1.0
+
+Released Sunday, 29th September 2019.
+
+### New
+
+The `Env` structure added in v3.0.0 has now been spun out into a separate [Envish](https://github.com/ganbarodigital/go_envish) package.
+
 ## v3.0.0
 
 Released Wednesday, 25th September 2019.

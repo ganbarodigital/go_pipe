@@ -42,6 +42,7 @@ package pipe
 import (
 	"io/ioutil"
 	"os"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 // Controller is a function that executes a given sequence
@@ -64,7 +65,7 @@ type Sequence struct {
 	StatusCode int
 
 	// Every sequence can have its own environment, if it wants one
-	Env *Env
+	Env *envish.Env
 
 	// How we will run the sequence
 	Controller func()
@@ -151,7 +152,7 @@ func (sq *Sequence) Expand(fmt string) string {
 	}
 
 	// yes we do
-	return os.Expand(fmt, sq.Env.Getenv)
+	return sq.Env.Expand(fmt)
 }
 
 // Okay returns false if a sequence operation set the StatusCode to
