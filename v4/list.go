@@ -65,14 +65,10 @@ func ListController(sq *Sequence) Controller {
 			return
 		}
 
+		// run the steps
 		for _, step := range sq.Steps {
 			// run the next step
-			sq.StatusCode, sq.Err = step(sq.Pipe)
-		}
-
-		// special case - do we have a non-zero status code, but no error?
-		if sq.StatusCode != StatusOkay && sq.Err == nil {
-			sq.Err = ErrNonZeroStatusCode{"list", sq.StatusCode}
+			sq.Pipe.RunCommand(step)
 		}
 
 		// all done

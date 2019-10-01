@@ -42,6 +42,7 @@ package pipe
 import (
 	"io/ioutil"
 	"os"
+
 	envish "github.com/ganbarodigital/go_envish"
 )
 
@@ -58,12 +59,6 @@ type Sequence struct {
 	// keep track of the steps that belong to this sequence
 	Steps []Command
 
-	// If anything goes wrong, we track the error here
-	Err error
-
-	// The UNIX-like status code from the last executed step
-	StatusCode int
-
 	// Every sequence can have its own environment, if it wants one
 	Env *envish.Env
 
@@ -77,8 +72,6 @@ func NewSequence(steps ...Command) *Sequence {
 	sequence := Sequence{
 		pipe,
 		steps,
-		nil,
-		StatusOkay,
 		nil,
 		nil,
 	}
@@ -95,23 +88,23 @@ func (sq *Sequence) Bytes() ([]byte, error) {
 
 	// was the sequence initialised correctly?
 	if sq.Pipe == nil {
-		return []byte{}, sq.Err
+		return []byte{}, nil
 	}
 
 	// return what we have
 	retval, _ := ioutil.ReadAll(sq.Pipe.Stdout.NewReader())
-	return retval, sq.Err
+	return retval, sq.Pipe.Error()
 }
 
 // Error returns the sequence's error status.
 func (sq *Sequence) Error() error {
 	// do we have a sequence to play with?
-	if sq == nil {
+	if sq == nil || sq.Pipe == nil {
 		return nil
 	}
 
 	// if we get here, then all is well
-	return sq.Err
+	return sq.Pipe.Error()
 }
 
 // Exec executes a sequence
@@ -164,7 +157,7 @@ func (sq *Sequence) Okay() (bool, error) {
 	}
 
 	// if we get here, then all is well
-	return (sq.StatusCode == StatusOkay), sq.Err
+	return (sq.StatusCode() == StatusOkay), sq.Error()
 }
 
 // ParseInt returns the pipe's stdout as an integer
@@ -180,7 +173,7 @@ func (sq *Sequence) ParseInt() (int, error) {
 
 	// was the sequence correctly initialised?
 	if sq.Pipe == nil || sq.Pipe.Stdout == nil {
-		return 0, sq.Err
+		return 0, sq.Error()
 	}
 
 	// do we have an integer to return?
@@ -190,7 +183,18 @@ func (sq *Sequence) ParseInt() (int, error) {
 	}
 
 	// all done
-	return retval, sq.Err
+	return retval, sq.Error()
+}
+
+// StatusCode returns the UNIX-like status code from the last step to execute
+func (sq *Sequence) StatusCode() int {
+	// do we have a sequence to work with?
+	if sq == nil || sq.Pipe == nil {
+		return StatusOkay
+	}
+
+	// yes we do
+	return sq.Pipe.StatusCode
 }
 
 // String returns the pipe's stdout as a single string
@@ -202,11 +206,11 @@ func (sq *Sequence) String() (string, error) {
 
 	// was the sequence correctly initialised?
 	if sq.Pipe == nil {
-		return "", sq.Err
+		return "", sq.Error()
 	}
 
 	// return what we have
-	return sq.Pipe.Stdout.String(), sq.Err
+	return sq.Pipe.Stdout.String(), sq.Error()
 }
 
 // Strings returns the sequence's stdout, one string per line
@@ -218,11 +222,11 @@ func (sq *Sequence) Strings() ([]string, error) {
 
 	// was the sequence correctly initialised?
 	if sq.Pipe == nil {
-		return []string{}, sq.Err
+		return []string{}, sq.Error()
 	}
 
 	// return what we have
-	return sq.Pipe.Stdout.Strings(), sq.Err
+	return sq.Pipe.Stdout.Strings(), sq.Error()
 }
 
 // TrimmedString returns the pipe's stdout as a single string.
@@ -235,9 +239,9 @@ func (sq *Sequence) TrimmedString() (string, error) {
 
 	// was the sequence correctly initialised?
 	if sq.Pipe == nil {
-		return "", sq.Err
+		return "", sq.Error()
 	}
 
 	// return what we have
-	return sq.Pipe.Stdout.TrimmedString(), sq.Err
+	return sq.Pipe.Stdout.TrimmedString(), sq.Error()
 }

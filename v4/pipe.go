@@ -44,12 +44,18 @@ import "io"
 // Pipe is our data structure. All user-land functionality either reads from,
 // and/or writes to the pipe.
 type Pipe struct {
-	// Pipe operations read from Stdin
+	// Pipe commands read from Stdin
 	Stdin *Source
 
-	// Pipe operations write to Stdout and/or Stderr
+	// Pipe commands write to Stdout and/or Stderr
 	Stdout *Dest
 	Stderr *Dest
+
+	// Pipe commands return an error. We store it here.
+	Err error
+
+	// Pipe commands return a UNIX-like status code. We store it here.
+	StatusCode int
 }
 
 // NewPipe creates a new, empty Pipe.
@@ -57,13 +63,19 @@ type Pipe struct {
 // It starts with an empty Stdin.
 func NewPipe() *Pipe {
 	return &Pipe{
-		Stdin:  NewSourceFromString(""),
-		Stdout: new(Dest),
-		Stderr: new(Dest),
+		Stdin:      NewSourceFromString(""),
+		Stdout:     new(Dest),
+		Stderr:     new(Dest),
+		Err:        nil,
+		StatusCode: StatusOkay,
 	}
 }
 
-// Next prepares the pipe to be used by the next PipeOperation
+// Next prepares the pipe to be used by the next Command.
+//
+// NOTE that we DO NOT reset the StatusCode or Err here. Their value may
+// be of interest to the next Command (which is why they were moved here
+// in v4!)
 func (p *Pipe) Next() {
 	// do we have a pipe to work with?
 	if p == nil || p.Stdin == nil || p.Stdout == nil || p.Stderr == nil {
@@ -78,13 +90,17 @@ func (p *Pipe) Next() {
 // Reset creates new, empty Stdin, Stdout and Stderr.
 //
 // It's useful for pipelines that consist of multiple lists.
+//
+// NOTE that we DO NOT reset the StatusCode or Err here. Their value may
+// be of interest to the next Command (which is why they were moved here
+// in v4!)
 func (p *Pipe) Reset() {
 	// do we have a pipe to work with?
 	if p == nil {
 		return
 	}
 
-	// reset all the things
+	// reset most of the things
 	p.Stdin = NewSourceFromString("")
 	p.Stdout = new(Dest)
 	p.Stderr = new(Dest)
@@ -100,4 +116,32 @@ func (p *Pipe) DrainStdin() {
 
 	// yes we do
 	io.Copy(p.Stdout, p.Stdin)
+}
+
+// Error returns any error stored in the Pipe
+func (p *Pipe) Error() error {
+	// do we have a pipe to work with?
+	if p == nil {
+		return nil
+	}
+
+	// yes we do
+	return p.Err
+}
+
+// RunCommand will run a function using this pipe. The function's return
+// values are stored in the pipe's StatusCode and Err fields.
+func (p *Pipe) RunCommand(c Command) {
+	// do we have a pipe to work with?
+	if p == nil || p.Stdin == nil || p.Stdout == nil {
+		return
+	}
+
+	// yes we do
+	p.StatusCode, p.Err = c(p)
+
+	// special case - do we have a non-zero status code, but no error?
+	if p.StatusCode != StatusOkay && p.Err == nil {
+		p.Err = ErrNonZeroStatusCode{"command", p.StatusCode}
+	}
 }

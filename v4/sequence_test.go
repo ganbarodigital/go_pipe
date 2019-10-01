@@ -122,7 +122,7 @@ func TestNewSequenceCreatesSequenceWithNilErrSet(t *testing.T) {
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Nil(t, sequence.Err)
+	assert.Nil(t, sequence.Error())
 }
 
 func TestNewSequenceCreatesSequenceWithZeroStatusCode(t *testing.T) {
@@ -139,7 +139,7 @@ func TestNewSequenceCreatesSequenceWithZeroStatusCode(t *testing.T) {
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, 0, sequence.StatusCode)
+	assert.Equal(t, 0, sequence.StatusCode())
 }
 
 // helper for testing our sequence behaviour
@@ -369,7 +369,7 @@ func TestSequenceBytesReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 	}
 
 	sequence := NewSequence(op1)
-	op1(sequence.Pipe)
+	sequence.Pipe.RunCommand(op1)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -403,7 +403,7 @@ func TestSequenceBytesReturnsContentsOfStdoutWhenError(t *testing.T) {
 	}
 
 	sequence := NewSequence(op1)
-	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
+	sequence.Pipe.RunCommand(op1)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -469,7 +469,7 @@ func TestSequenceErrorReturnsErrProperty(t *testing.T) {
 	expectedResult := errors.New("this is an error")
 
 	sequence := NewSequence(op1)
-	sequence.Err = expectedResult
+	sequence.Pipe.RunCommand(op1)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -536,7 +536,7 @@ func TestSequenceOkayReturnsFalseWhenSequenceErrorHappens(t *testing.T) {
 	}
 
 	sequence := NewSequence(op1)
-	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
+	sequence.Pipe.RunCommand(op1)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -641,7 +641,7 @@ func TestSequenceParseIntReturnsZeroWhenError(t *testing.T) {
 	}
 
 	sequence := NewSequence(op1)
-	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
+	sequence.Pipe.RunCommand(op1)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -749,7 +749,7 @@ func TestSequenceStringReturnsContentsOfStdoutWhenError(t *testing.T) {
 	}
 
 	sequence := NewSequence(op1)
-	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
+	sequence.Pipe.RunCommand(op1)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -826,7 +826,7 @@ func TestSequenceStringsReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 	}
 
 	sequence := NewSequence(op1)
-	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
+	sequence.Pipe.RunCommand(op1)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -861,7 +861,7 @@ func TestSequenceStringsReturnsContentsOfStdoutWhenError(t *testing.T) {
 	}
 
 	sequence := NewSequence(op1)
-	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
+	sequence.Pipe.RunCommand(op1)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -938,7 +938,7 @@ func TestSequenceTrimmedStringReturnsContentsOfStdoutWhenNoError(t *testing.T) {
 	}
 
 	sequence := NewSequence(op1)
-	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
+	sequence.Pipe.RunCommand(op1)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -972,7 +972,7 @@ func TestSequenceTrimmedStringReturnsContentsOfStdoutWhenError(t *testing.T) {
 	}
 
 	sequence := NewSequence(op1)
-	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
+	sequence.Pipe.RunCommand(op1)
 
 	// ----------------------------------------------------------------
 	// perform the change

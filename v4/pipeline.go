@@ -71,17 +71,12 @@ func PipelineController(sq *Sequence) Controller {
 			sq.Pipe.Next()
 
 			// run the next step
-			sq.StatusCode, sq.Err = step(sq.Pipe)
+			sq.Pipe.RunCommand(step)
 
 			// we stop executing the moment something goes wrong
-			if sq.Err != nil {
+			if sq.Pipe.Err != nil {
 				return
 			}
-		}
-
-		// special case - do we have a non-zero status code, but no error?
-		if sq.StatusCode != StatusOkay && sq.Err == nil {
-			sq.Err = ErrNonZeroStatusCode{"pipeline", sq.StatusCode}
 		}
 
 		// all done

@@ -120,7 +120,7 @@ func TestNewListCreatesSequenceWithNilErrSet(t *testing.T) {
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Nil(t, list.Err)
+	assert.Nil(t, list.Error())
 }
 
 func TestNewListCreatesSequenceWithZeroStatusCode(t *testing.T) {
@@ -137,7 +137,7 @@ func TestNewListCreatesSequenceWithZeroStatusCode(t *testing.T) {
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, 0, list.StatusCode)
+	assert.Equal(t, 0, list.StatusCode())
 }
 
 func TestListControllerCopesWithNilSequencePointer(t *testing.T) {
@@ -258,7 +258,7 @@ func TestListExecDoesNotStopWhenAStepReportsAnError(t *testing.T) {
 
 	// list.String() should not have returned an error
 	assert.Nil(t, err)
-	assert.Equal(t, StatusOkay, list.StatusCode)
+	assert.Equal(t, StatusOkay, list.StatusCode())
 
 	// list.String() should have returned the output from both
 	// of our test operations
@@ -290,7 +290,7 @@ func TestListExecSetsErrWhenOpReturnsNonZeroStatusCodeAndNilErr(t *testing.T) {
 	// test the results
 
 	// list.Err should have been set by Exec()
-	assert.NotNil(t, list.Err)
-	_, ok := list.Err.(ErrNonZeroStatusCode)
+	assert.NotNil(t, list.Error())
+	_, ok := list.Error().(ErrNonZeroStatusCode)
 	assert.True(t, ok)
 }

@@ -39,27 +39,29 @@
 
 package pipe
 
-import "fmt"
+import (
+	"testing"
 
-// ErrEmptyKey is returned whenever we're given a key that is zero-length
-// or only contains whitespace
-type ErrEmptyKey struct{}
+	"github.com/stretchr/testify/assert"
+)
 
-func (e ErrEmptyKey) Error() string {
-	return "zero-length key, or key only contains whitespace"
-}
+func TestErrNonZeroStatusCode(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
 
-// ErrNonZeroStatusCode is the error we return when a sequence has finished
-// with a non-zero status code and no error of its own
-type ErrNonZeroStatusCode struct {
-	sequenceType string
-	statusCode   int
-}
+	testData := ErrNonZeroStatusCode{
+		"sequence",
+		127,
+	}
+	expectedResult := "sequence exited with non-zero status code 127"
 
-func (e ErrNonZeroStatusCode) Error() string {
-	return fmt.Sprintf(
-		"%s exited with non-zero status code %d",
-		e.sequenceType,
-		e.statusCode,
-	)
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := testData.Error()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
 }

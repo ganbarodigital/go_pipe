@@ -2,6 +2,12 @@
 
 ## develop
 
+### Breaking Changes
+
+We're making some changes to further improve support for building UNIX shell behaviour.
+
+- Status codes and errors have moved into the `Pipe`
+
 ## v3.1.0
 
 Released Sunday, 29th September 2019.

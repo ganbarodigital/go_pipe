@@ -120,7 +120,7 @@ func TestNewPipelineCreatesPipelineWithNilErrSet(t *testing.T) {
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Nil(t, pipeline.Err)
+	assert.Nil(t, pipeline.Error())
 }
 
 func TestNewPipelineCreatesPipelineWithZeroStatusCode(t *testing.T) {
@@ -137,7 +137,7 @@ func TestNewPipelineCreatesPipelineWithZeroStatusCode(t *testing.T) {
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, 0, pipeline.StatusCode)
+	assert.Equal(t, 0, pipeline.StatusCode())
 }
 
 func TestPipelineControllerCopesWithNilSequencePointer(t *testing.T) {
@@ -295,7 +295,7 @@ func TestPipelineExecSetsErrWhenOpReturnsNonZeroStatusCodeAndNilErr(t *testing.T
 	// test the results
 
 	// pipeline.Err should have been set by Exec()
-	assert.NotNil(t, pipeline.Err)
-	_, ok := pipeline.Err.(ErrNonZeroStatusCode)
+	assert.NotNil(t, pipeline.Error())
+	_, ok := pipeline.Error().(ErrNonZeroStatusCode)
 	assert.True(t, ok)
 }

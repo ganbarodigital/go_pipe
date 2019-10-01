@@ -105,6 +105,46 @@ func TestNewPipeCreatesPipeWithEmptyStderr(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
+func TestNewPipeCreatesPipeWithStatusOkay(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedResult := StatusOkay
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe := NewPipe()
+	actualResult := pipe.StatusCode
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestNewPipeCreatesPipeWithNilError(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var expectedResult error
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe := NewPipe()
+	actualResult := pipe.Error()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
 func TestPipeNextMakesStdoutTheNextStdin(t *testing.T) {
 	t.Parallel()
 
@@ -359,4 +399,47 @@ func TestPipeDrainStdinCopesWithEmptyPipe(t *testing.T) {
 	// test the results
 	//
 	// as long as the code doesn't segfault, it works!
+}
+
+func TestPipeErrorCopesWithNilPointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe *Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := pipe.Error()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Nil(t, actualResult)
+}
+
+func TestPipeRunCommandCopesWithNilPointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe *Pipe
+
+	expectedResult := StatusNotOkay
+	op := func(p *Pipe) (int, error) {
+		return expectedResult, nil
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.RunCommand(op)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	// as long as it doesn't crash, the test has passed
 }

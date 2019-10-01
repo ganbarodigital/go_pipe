@@ -39,47 +39,19 @@
 
 package pipe
 
-import (
-	"testing"
+import "fmt"
 
-	"github.com/stretchr/testify/assert"
-)
-
-func TestErrEmptyKey(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testData := ErrEmptyKey{}
-	expectedResult := "zero-length key, or key only contains whitespace"
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := testData.Error()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
+// ErrNonZeroStatusCode is the error we return when a sequence has finished
+// with a non-zero status code and no error of its own
+type ErrNonZeroStatusCode struct {
+	sequenceType string
+	statusCode   int
 }
 
-func TestErrNonZeroStatusCode(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testData := ErrNonZeroStatusCode{
-		"sequence",
-		127,
-	}
-	expectedResult := "sequence exited with non-zero status code 127"
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := testData.Error()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
+func (e ErrNonZeroStatusCode) Error() string {
+	return fmt.Sprintf(
+		"%s exited with non-zero status code %d",
+		e.sequenceType,
+		e.statusCode,
+	)
 }
