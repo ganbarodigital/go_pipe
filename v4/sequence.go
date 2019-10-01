@@ -42,8 +42,6 @@ package pipe
 import (
 	"io/ioutil"
 	"os"
-
-	envish "github.com/ganbarodigital/go_envish"
 )
 
 // Controller is a function that executes a given sequence
@@ -59,9 +57,6 @@ type Sequence struct {
 	// keep track of the steps that belong to this sequence
 	Steps []Command
 
-	// Every sequence can have its own environment, if it wants one
-	Env *envish.Env
-
 	// How we will run the sequence
 	Controller func()
 }
@@ -72,7 +67,6 @@ func NewSequence(steps ...Command) *Sequence {
 	sequence := Sequence{
 		pipe,
 		steps,
-		nil,
 		nil,
 	}
 
@@ -139,13 +133,8 @@ func (sq *Sequence) Expand(fmt string) string {
 		return os.Expand(fmt, os.Getenv)
 	}
 
-	// do we have an environment of our own?
-	if sq.Env == nil {
-		return os.Expand(fmt, os.Getenv)
-	}
-
 	// yes we do
-	return sq.Env.Expand(fmt)
+	return sq.Pipe.Expand(fmt)
 }
 
 // Okay returns false if a sequence operation set the StatusCode to

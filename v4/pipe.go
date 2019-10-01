@@ -39,7 +39,12 @@
 
 package pipe
 
-import "io"
+import (
+	"io"
+	"os"
+
+	envish "github.com/ganbarodigital/go_envish"
+)
 
 // Pipe is our data structure. All user-land functionality either reads from,
 // and/or writes to the pipe.
@@ -56,6 +61,9 @@ type Pipe struct {
 
 	// Pipe commands return a UNIX-like status code. We store it here.
 	StatusCode int
+
+	// Pipe commands can have their own environment, if they want one
+	Env *envish.Env
 }
 
 // NewPipe creates a new, empty Pipe.
@@ -69,6 +77,25 @@ func NewPipe() *Pipe {
 		Err:        nil,
 		StatusCode: StatusOkay,
 	}
+}
+
+// Expand replaces ${var} or $var in the input string.
+//
+// It uses the Pipe's private environment (if the sequence has one),
+// or the program's environment otherwise.
+func (p *Pipe) Expand(fmt string) string {
+	// do we have a pipe to work with?
+	if p == nil {
+		return os.Expand(fmt, os.Getenv)
+	}
+
+	// do we have an environment of our own?
+	if p.Env == nil {
+		return os.Expand(fmt, os.Getenv)
+	}
+
+	// yes we do
+	return p.Env.Expand(fmt)
 }
 
 // Next prepares the pipe to be used by the next Command.

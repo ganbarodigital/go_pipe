@@ -7,6 +7,7 @@
 We're making some changes to further improve support for building UNIX shell behaviour.
 
 - Status codes and errors have moved into the `Pipe`
+- The local Env has moved into the `Pipe`
 
 ## v3.1.0
 

@@ -292,8 +292,8 @@ func TestSequenceExpandUsesTheSequenceEnvironmentIfAvailable(t *testing.T) {
 	expectedResult := "hello this is another test"
 
 	sequence := NewSequence()
-	sequence.Env = envish.NewEnv()
-	sequence.Env.Setenv(testKey, testValue2)
+	sequence.Pipe.Env = envish.NewEnv()
+	sequence.Pipe.Env.Setenv(testKey, testValue2)
 
 	// ----------------------------------------------------------------
 	// perform the change
