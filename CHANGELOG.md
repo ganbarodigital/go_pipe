@@ -10,6 +10,10 @@ We're making some changes to further improve support for building UNIX shell beh
 - The local Env has moved into the `Pipe`
 - Sequence, Pipeline and List have been moved into the `go_scriptish` package
 
+### New
+
+* `NewPipe()` now accepts option functions
+
 ## v3.1.0
 
 Released Sunday, 29th September 2019.

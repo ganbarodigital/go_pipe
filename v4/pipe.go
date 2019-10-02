@@ -69,14 +69,22 @@ type Pipe struct {
 // NewPipe creates a new, empty Pipe.
 //
 // It starts with an empty Stdin.
-func NewPipe() *Pipe {
-	return &Pipe{
+func NewPipe(options ...func(*Pipe)) *Pipe {
+	retval := Pipe{
 		Stdin:      NewSourceFromString(""),
 		Stdout:     new(Dest),
 		Stderr:     new(Dest),
 		Err:        nil,
 		StatusCode: StatusOkay,
 	}
+
+	// apply any option functions we might have been given
+	for _, option := range options {
+		option(&retval)
+	}
+
+	// all done
+	return &retval
 }
 
 // DrainStdin will copy everything that's left in the pipe's stdin

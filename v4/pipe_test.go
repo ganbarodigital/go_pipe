@@ -148,6 +148,32 @@ func TestNewPipeCreatesPipeWithNilError(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
+func TestNewPipeAppliesAnyOptionsWePassIn(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedStatusCode := 100
+	op1 := func(p *Pipe) {
+		p.StatusCode = expectedStatusCode
+	}
+	op2 := func(p *Pipe) {
+		p.Env = envish.NewEnv()
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe := NewPipe(op1, op2)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, pipe.StatusCode, expectedStatusCode)
+	assert.NotNil(t, pipe.Env)
+}
+
 func TestPipeNextMakesStdoutTheNextStdin(t *testing.T) {
 	t.Parallel()
 
