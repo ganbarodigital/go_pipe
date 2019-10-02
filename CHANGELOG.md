@@ -10,6 +10,8 @@ We're making some changes to further improve support for building UNIX shell beh
 - The local Env has moved into the `Pipe`
 - Sequence, Pipeline and List have been moved into the `go_scriptish` package
 - `Pipe.DrainStdin()` is now `Pipe.DrainStdinToStdout()`
+- Removed `Pipe.Next()`
+  - this behaviour belongs in packages that use `go_pipe`
 
 ### New
 

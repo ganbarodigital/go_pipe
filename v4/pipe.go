@@ -140,22 +140,6 @@ func (p *Pipe) Expand(fmt string) string {
 	return p.Env.Expand(fmt)
 }
 
-// Next prepares the pipe to be used by the next Command.
-//
-// NOTE that we DO NOT reset the StatusCode or Err here. Their value may
-// be of interest to the next Command (which is why they were moved here
-// in v4!)
-func (p *Pipe) Next() {
-	// do we have a pipe to work with?
-	if p == nil || p.Stdin == nil || p.Stdout == nil || p.Stderr == nil {
-		return
-	}
-
-	p.Stdin = p.Stdout.NewSource()
-	p.Stdout = new(Dest)
-	p.Stderr = new(Dest)
-}
-
 // Reset creates new, empty Stdin, Stdout and Stderr.
 //
 // It's useful for pipelines that consist of multiple lists.
