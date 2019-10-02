@@ -174,7 +174,7 @@ func TestNewPipeAppliesAnyOptionsWePassIn(t *testing.T) {
 	assert.NotNil(t, pipe.Env)
 }
 
-func TestPipeResetCopesWithNilPipePointer(t *testing.T) {
+func TestPipeResetBuffersCopesWithNilPipePointer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -185,7 +185,7 @@ func TestPipeResetCopesWithNilPipePointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.Reset()
+	pipe.ResetBuffers()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -193,7 +193,7 @@ func TestPipeResetCopesWithNilPipePointer(t *testing.T) {
 	// as long as the code doesn't segfault, it works!
 }
 
-func TestPipeResetCopesWithEmptyPipe(t *testing.T) {
+func TestPipeResetBuffersCopesWithEmptyPipe(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -204,7 +204,7 @@ func TestPipeResetCopesWithEmptyPipe(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.Reset()
+	pipe.ResetBuffers()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -212,7 +212,7 @@ func TestPipeResetCopesWithEmptyPipe(t *testing.T) {
 	// as long as the code doesn't segfault, it works!
 }
 
-func TestPipeResetEmptiesStdinStdoutStderr(t *testing.T) {
+func TestPipeResetBuffersEmptiesStdinStdoutStderr(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -235,7 +235,7 @@ func TestPipeResetEmptiesStdinStdoutStderr(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.Reset()
+	pipe.ResetBuffers()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -243,6 +243,96 @@ func TestPipeResetEmptiesStdinStdoutStderr(t *testing.T) {
 	assert.Empty(t, pipe.Stdin.String())
 	assert.Empty(t, pipe.Stdout.String())
 	assert.Empty(t, pipe.Stderr.String())
+}
+
+func TestPipeResetErrorCopesWithNilPipePointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe *Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.ResetError()
+
+	// ----------------------------------------------------------------
+	// test the results
+	//
+	// as long as the code doesn't segfault, it works!
+}
+
+func TestPipeResetErrorCopesWithEmptyPipe(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.ResetError()
+
+	// ----------------------------------------------------------------
+	// test the results
+	//
+	// as long as the code doesn't segfault, it works!
+}
+
+func TestPipeResetErrorSetsStatusCodeToStatusOkay(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	op1 := func(p *Pipe) (int, error) {
+		return StatusNotOkay, nil
+	}
+	pipe := NewPipe()
+	pipe.RunCommand(op1)
+
+	assert.Equal(t, StatusNotOkay, pipe.StatusCode())
+	assert.Error(t, pipe.Error())
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.ResetError()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, StatusOkay, pipe.StatusCode())
+}
+
+func TestPipeResetErrorSetsErrorToNil(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	op1 := func(p *Pipe) (int, error) {
+		return StatusNotOkay, nil
+	}
+	pipe := NewPipe()
+	pipe.RunCommand(op1)
+
+	assert.Equal(t, StatusNotOkay, pipe.StatusCode())
+	assert.Error(t, pipe.Error())
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.ResetError()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Nil(t, pipe.Error())
 }
 
 func TestPipeDrainStdinToStdoutCopiesStdinToStdout(t *testing.T) {

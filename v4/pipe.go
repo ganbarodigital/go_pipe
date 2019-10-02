@@ -66,13 +66,14 @@ type Pipe struct {
 	Env *envish.Env
 }
 
-// NewPipe creates a new, empty Pipe.
+// NewPipe creates a new Pipe that's ready to use.
 //
 // It starts with an empty Stdin.
 func NewPipe(options ...func(*Pipe)) *Pipe {
 	// create a pipe that's ready to go
 	retval := Pipe{}
-	retval.Reset()
+	retval.ResetBuffers()
+	retval.ResetError()
 
 	// apply any option functions we might have been given
 	for _, option := range options {
@@ -83,20 +84,20 @@ func NewPipe(options ...func(*Pipe)) *Pipe {
 	return &retval
 }
 
-// DrainStdinToStdout will copy everything that's left in the pipe's stdin
-// over to the pipe's stdout
+// DrainStdinToStdout will copy everything that's left in the pipe's Stdin
+// over to the pipe's Stdout
 func (p *Pipe) DrainStdinToStdout() {
 	// do we have a pipe to work with?
 	if p == nil {
 		return
 	}
 
-	// do we have a stdin to drain?
+	// do we have a Stdin to drain?
 	if p.Stdin == nil {
 		return
 	}
 
-	// do we have a stdout to drain to?
+	// do we have a Stdout to drain to?
 	if p.Stdout == nil {
 		p.SetNewStdout()
 	}
@@ -105,7 +106,8 @@ func (p *Pipe) DrainStdinToStdout() {
 	io.Copy(p.Stdout, p.Stdin)
 }
 
-// Error returns any error stored in the Pipe
+// Error returns the error returned from the last Command
+// that ran against this pipe
 func (p *Pipe) Error() error {
 	// do we have a pipe to work with?
 	if p == nil {
@@ -118,7 +120,7 @@ func (p *Pipe) Error() error {
 
 // Expand replaces ${var} or $var in the input string.
 //
-// It uses the Pipe's private environment (if the sequence has one),
+// It uses the Pipe's private environment (if the Pipe has one),
 // or the program's environment otherwise.
 func (p *Pipe) Expand(fmt string) string {
 	// do we have a pipe to work with?
@@ -135,10 +137,8 @@ func (p *Pipe) Expand(fmt string) string {
 	return p.Env.Expand(fmt)
 }
 
-// Reset makes sure the pipeline is ready to go
-//
-// It's useful for reusing the same pipe multiple times.
-func (p *Pipe) Reset() {
+// ResetBuffers creates new, empty buffers for the pipe
+func (p *Pipe) ResetBuffers() {
 	// do we have a pipe to work with?
 	if p == nil {
 		return
@@ -148,8 +148,17 @@ func (p *Pipe) Reset() {
 	p.SetNewStdin()
 	p.SetNewStdout()
 	p.SetNewStderr()
+}
 
-	// make sure any previous error is forgotten
+// ResetError sets the pipe's status code and error to their zero values
+// of (StatusOkay, nil)
+func (p *Pipe) ResetError() {
+	// do we have a pipe to work with?
+	if p == nil {
+		return
+	}
+
+	// yes we do
 	p.statusCode = StatusOkay
 	p.err = nil
 }
