@@ -71,12 +71,13 @@ type Pipe struct {
 // It starts with an empty Stdin.
 func NewPipe(options ...func(*Pipe)) *Pipe {
 	retval := Pipe{
-		Stdin:      NewSourceFromString(""),
-		Stdout:     new(Dest),
-		Stderr:     new(Dest),
 		Err:        nil,
 		StatusCode: StatusOkay,
 	}
+
+	retval.SetNewStdin()
+	retval.SetNewStdout()
+	retval.SetNewStderr()
 
 	// apply any option functions we might have been given
 	for _, option := range options {
@@ -179,4 +180,43 @@ func (p *Pipe) RunCommand(c Command) {
 	if p.StatusCode != StatusOkay && p.Err == nil {
 		p.Err = ErrNonZeroStatusCode{"command", p.StatusCode}
 	}
+}
+
+// SetNewStdin creates a new, empty Stdin buffer on this pipe
+func (p *Pipe) SetNewStdin() {
+	// do we have a pipe to work with?
+	if p == nil {
+		return
+	}
+
+	// yes we do
+	p.Stdin = NewSourceFromString("")
+
+	// all done
+}
+
+// SetNewStdout creates a new, empty Stdout buffer on this pipe
+func (p *Pipe) SetNewStdout() {
+	// do we have a pipe to work with?
+	if p == nil {
+		return
+	}
+
+	// yes we do
+	p.Stdout = new(Dest)
+
+	// all done
+}
+
+// SetNewStderr creates a new, empty Stderr buffer on this pipe
+func (p *Pipe) SetNewStderr() {
+	// do we have a pipe to work with?
+	if p == nil {
+		return
+	}
+
+	// yes we do
+	p.Stderr = new(Dest)
+
+	// all done
 }
