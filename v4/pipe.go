@@ -46,8 +46,8 @@ import (
 	envish "github.com/ganbarodigital/go_envish"
 )
 
-// Pipe is our data structure. All user-land functionality either reads from,
-// and/or writes to the pipe.
+// Pipe is our data structure. All Commands read from, and/or write to
+// the pipe.
 type Pipe struct {
 	// Pipe commands read from Stdin
 	Stdin *Source
