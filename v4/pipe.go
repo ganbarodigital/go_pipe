@@ -88,12 +88,22 @@ func NewPipe(options ...func(*Pipe)) *Pipe {
 	return &retval
 }
 
-// DrainStdin will copy everything that's left in the pipe's stdin
+// DrainStdinToStdout will copy everything that's left in the pipe's stdin
 // over to the pipe's stdout
-func (p *Pipe) DrainStdin() {
+func (p *Pipe) DrainStdinToStdout() {
 	// do we have a pipe to work with?
-	if p == nil || p.Stdin == nil || p.Stdout == nil {
+	if p == nil {
 		return
+	}
+
+	// do we have a stdin to drain?
+	if p.Stdin == nil {
+		return
+	}
+
+	// do we have a stdout to drain to?
+	if p.Stdout == nil {
+		p.SetNewStdout()
 	}
 
 	// yes we do
