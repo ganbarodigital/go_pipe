@@ -15,8 +15,9 @@ We're making some changes to further improve support for building UNIX shell beh
 
 * `NewPipe()` now accepts option functions
 * Added `Pipe.SetNewStdin()`
+* Added `Pipe.SetStdinFromString()`
 * Added `Pipe.SetNewStdout()`
-* Added `Pipe.SetnewStderr()`
+* Added `Pipe.SetNewStderr()`
 
 ## v3.1.0
 

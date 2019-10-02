@@ -205,6 +205,19 @@ func (p *Pipe) SetNewStdin() {
 	// all done
 }
 
+// SetStdinFromString sets the pipe's Stdin to be the given input string
+func (p *Pipe) SetStdinFromString(input string) {
+	// do we have a pipe to work with?
+	if p == nil {
+		return
+	}
+
+	// yes we do
+	p.Stdin = NewSourceFromString(input)
+
+	// all done
+}
+
 // SetNewStdout creates a new, empty Stdout buffer on this pipe
 func (p *Pipe) SetNewStdout() {
 	// do we have a pipe to work with?

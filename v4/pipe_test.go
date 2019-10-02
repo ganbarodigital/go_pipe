@@ -344,8 +344,7 @@ func TestPipeResetEmptiesStdinStdoutStderr(t *testing.T) {
 
 	// we need to start with a pipe that has data
 	pipe := NewPipe()
-	pipe.Stdout.WriteString(testDataIn)
-	pipe.Next()
+	pipe.SetStdinFromString(testDataIn)
 	pipe.Stdout.WriteString(testDataOut)
 	pipe.Stderr.WriteString(testDataErr)
 
@@ -375,8 +374,7 @@ func TestPipeDrainStdinToStdoutCopiesStdinToStdout(t *testing.T) {
 	expectedResult := "hello world\nhave a nice day\n"
 
 	pipe := NewPipe()
-	pipe.Stdout.WriteString(expectedResult)
-	pipe.Next()
+	pipe.SetStdinFromString(expectedResult)
 
 	assert.Equal(t, pipe.Stdout.String(), "")
 
@@ -663,6 +661,44 @@ func TestPipeSetNewStdinCopesWithEmptyPipe(t *testing.T) {
 	// perform the change
 
 	pipe.SetNewStdin()
+
+	// ----------------------------------------------------------------
+	// test the results
+	//
+	// as long as the code doesn't segfault, it works!
+}
+
+func TestPipeSetStdinFromStringCopesWithNilPipePointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe *Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.SetStdinFromString("")
+
+	// ----------------------------------------------------------------
+	// test the results
+	//
+	// as long as the code doesn't segfault, it works!
+}
+
+func TestPipeSetStdinFromStringCopesWithEmptyPipe(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.SetStdinFromString("")
 
 	// ----------------------------------------------------------------
 	// test the results
