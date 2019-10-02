@@ -8,6 +8,7 @@ We're making some changes to further improve support for building UNIX shell beh
 
 - Status codes and errors have moved into the `Pipe`
 - The local Env has moved into the `Pipe`
+- Sequence, Pipeline and List have been moved into the `go_scriptish` package
 
 ## v3.1.0
 

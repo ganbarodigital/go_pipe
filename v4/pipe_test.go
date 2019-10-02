@@ -40,8 +40,11 @@
 package pipe
 
 import (
+	"errors"
+	"os"
 	"testing"
 
+	envish "github.com/ganbarodigital/go_envish"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -420,6 +423,71 @@ func TestPipeErrorCopesWithNilPointer(t *testing.T) {
 	assert.Nil(t, actualResult)
 }
 
+func TestPipeExpandCopesWithNilPointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe *Pipe
+
+	expectedResult := os.Getenv("HOME")
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := pipe.Expand("${HOME}")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestPipeExpandCopesWithEmptyStruct(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe Pipe
+
+	expectedResult := os.Getenv("HOME")
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := pipe.Expand("${HOME}")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestPipeExpandUsesTemporaryEnvironmentIfWeHaveOne(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedResult := "this is not a real HOME folder"
+
+	pipe := NewPipe()
+	pipe.Env = envish.NewEnv()
+	pipe.Env.Setenv("HOME", expectedResult)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := pipe.Expand("${HOME}")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
 func TestPipeRunCommandCopesWithNilPointer(t *testing.T) {
 	t.Parallel()
 
@@ -442,4 +510,78 @@ func TestPipeRunCommandCopesWithNilPointer(t *testing.T) {
 	// test the results
 
 	// as long as it doesn't crash, the test has passed
+}
+
+func TestPipeRunCommandUpdatesStatusCode(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	pipe := NewPipe()
+
+	expectedResult := StatusNotOkay
+	op := func(p *Pipe) (int, error) {
+		return expectedResult, errors.New("status not okay")
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.RunCommand(op)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, pipe.StatusCode)
+}
+
+func TestPipeRunCommandUpdatesErr(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	pipe := NewPipe()
+
+	expectedResult := errors.New("status not okay")
+	op := func(p *Pipe) (int, error) {
+		return StatusNotOkay, expectedResult
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.RunCommand(op)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, pipe.Err)
+}
+
+func TestPipeRunCommandSetsErrIfStatusCodeNotOkay(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	pipe := NewPipe()
+
+	op := func(p *Pipe) (int, error) {
+		return StatusNotOkay, nil
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.RunCommand(op)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.NotNil(t, pipe.Err)
+	assert.Error(t, pipe.Err)
+	_, ok := pipe.Err.(ErrNonZeroStatusCode)
+	assert.True(t, ok)
 }
