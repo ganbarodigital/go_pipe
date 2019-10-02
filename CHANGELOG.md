@@ -12,6 +12,7 @@ We're making some changes to further improve support for building UNIX shell beh
 - `Pipe.DrainStdin()` is now `Pipe.DrainStdinToStdout()`
 - Removed `Pipe.Next()`
   - this behaviour belongs in packages that use `go_pipe`
+- `Pipe.StatusCode` is now a method, not an exported struct member
 
 ### New
 

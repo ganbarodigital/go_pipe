@@ -120,7 +120,7 @@ func TestNewPipeCreatesPipeWithStatusOkay(t *testing.T) {
 	// perform the change
 
 	pipe := NewPipe()
-	actualResult := pipe.StatusCode
+	actualResult := pipe.StatusCode()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -156,7 +156,7 @@ func TestNewPipeAppliesAnyOptionsWePassIn(t *testing.T) {
 
 	expectedStatusCode := 100
 	op1 := func(p *Pipe) {
-		p.StatusCode = expectedStatusCode
+		p.statusCode = expectedStatusCode
 	}
 	op2 := func(p *Pipe) {
 		p.Env = envish.NewEnv()
@@ -170,7 +170,7 @@ func TestNewPipeAppliesAnyOptionsWePassIn(t *testing.T) {
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, pipe.StatusCode, expectedStatusCode)
+	assert.Equal(t, pipe.StatusCode(), expectedStatusCode)
 	assert.NotNil(t, pipe.Env)
 }
 
@@ -457,7 +457,7 @@ func TestPipeRunCommandUpdatesStatusCode(t *testing.T) {
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, expectedResult, pipe.StatusCode)
+	assert.Equal(t, expectedResult, pipe.StatusCode())
 }
 
 func TestPipeRunCommandUpdatesErr(t *testing.T) {
@@ -660,4 +660,73 @@ func TestPipeSetNewStderrCopesWithEmptyPipe(t *testing.T) {
 	// test the results
 	//
 	// as long as the code doesn't segfault, it works!
+}
+
+func TestPipeStatusCodeCopesWithNilPipePointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe *Pipe
+	expectedResult := StatusOkay
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := pipe.StatusCode()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestPipeStatusCodeCopesWithEmptyPipe(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe Pipe
+	expectedResult := StatusOkay
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := pipe.StatusCode()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestPipeStatusCodeReturnsTheLastCommandsStatusCode(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	pipe := NewPipe()
+	expectedResult := 100
+
+	op1 := func(p *Pipe) (int, error) {
+		return StatusOkay, nil
+	}
+	op2 := func(p *Pipe) (int, error) {
+		return expectedResult, nil
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.RunCommand(op1)
+	pipe.RunCommand(op2)
+	actualResult := pipe.StatusCode()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
 }

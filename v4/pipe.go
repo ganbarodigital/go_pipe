@@ -60,7 +60,7 @@ type Pipe struct {
 	Err error
 
 	// Pipe commands return a UNIX-like status code. We store it here.
-	StatusCode int
+	statusCode int
 
 	// Pipe commands can have their own environment, if they want one
 	Env *envish.Env
@@ -168,11 +168,11 @@ func (p *Pipe) RunCommand(c Command) {
 	}
 
 	// yes we do
-	p.StatusCode, p.Err = c(p)
+	p.statusCode, p.Err = c(p)
 
 	// special case - do we have a non-zero status code, but no error?
-	if p.StatusCode != StatusOkay && p.Err == nil {
-		p.Err = ErrNonZeroStatusCode{"command", p.StatusCode}
+	if p.statusCode != StatusOkay && p.Err == nil {
+		p.Err = ErrNonZeroStatusCode{"command", p.statusCode}
 	}
 }
 
@@ -226,4 +226,16 @@ func (p *Pipe) SetNewStderr() {
 	p.Stderr = new(Dest)
 
 	// all done
+}
+
+// StatusCode returns the UNIX-like status code from the last Command
+// that ran against this pipe
+func (p *Pipe) StatusCode() int {
+	// do we have a pipe to work with?
+	if p == nil {
+		return StatusOkay
+	}
+
+	// yes we do
+	return p.statusCode
 }
