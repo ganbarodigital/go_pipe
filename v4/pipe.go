@@ -79,6 +79,29 @@ func NewPipe() *Pipe {
 	}
 }
 
+// DrainStdin will copy everything that's left in the pipe's stdin
+// over to the pipe's stdout
+func (p *Pipe) DrainStdin() {
+	// do we have a pipe to work with?
+	if p == nil || p.Stdin == nil || p.Stdout == nil {
+		return
+	}
+
+	// yes we do
+	io.Copy(p.Stdout, p.Stdin)
+}
+
+// Error returns any error stored in the Pipe
+func (p *Pipe) Error() error {
+	// do we have a pipe to work with?
+	if p == nil {
+		return nil
+	}
+
+	// yes we do
+	return p.Err
+}
+
 // Expand replaces ${var} or $var in the input string.
 //
 // It uses the Pipe's private environment (if the sequence has one),
@@ -131,29 +154,6 @@ func (p *Pipe) Reset() {
 	p.Stdin = NewSourceFromString("")
 	p.Stdout = new(Dest)
 	p.Stderr = new(Dest)
-}
-
-// DrainStdin will copy everything that's left in the pipe's stdin
-// over to the pipe's stdout
-func (p *Pipe) DrainStdin() {
-	// do we have a pipe to work with?
-	if p == nil || p.Stdin == nil || p.Stdout == nil {
-		return
-	}
-
-	// yes we do
-	io.Copy(p.Stdout, p.Stdin)
-}
-
-// Error returns any error stored in the Pipe
-func (p *Pipe) Error() error {
-	// do we have a pipe to work with?
-	if p == nil {
-		return nil
-	}
-
-	// yes we do
-	return p.Err
 }
 
 // RunCommand will run a function using this pipe. The function's return
