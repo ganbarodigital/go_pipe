@@ -13,6 +13,7 @@ We're making some changes to further improve support for building UNIX shell beh
 - Removed `Pipe.Next()`
   - this behaviour belongs in packages that use `go_pipe`
 - `Pipe.StatusCode` is now a method, not an exported struct member
+- `Pipe.Err` is no longer an exported struct member; use `Pipe.Error()` instead
 
 ### New
 

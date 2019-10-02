@@ -57,7 +57,7 @@ type Pipe struct {
 	Stderr *Dest
 
 	// Pipe commands return an error. We store it here.
-	Err error
+	err error
 
 	// Pipe commands return a UNIX-like status code. We store it here.
 	statusCode int
@@ -118,7 +118,7 @@ func (p *Pipe) Error() error {
 	}
 
 	// yes we do
-	return p.Err
+	return p.err
 }
 
 // Expand replaces ${var} or $var in the input string.
@@ -168,11 +168,11 @@ func (p *Pipe) RunCommand(c Command) {
 	}
 
 	// yes we do
-	p.statusCode, p.Err = c(p)
+	p.statusCode, p.err = c(p)
 
 	// special case - do we have a non-zero status code, but no error?
-	if p.statusCode != StatusOkay && p.Err == nil {
-		p.Err = ErrNonZeroStatusCode{"command", p.statusCode}
+	if p.statusCode != StatusOkay && p.err == nil {
+		p.err = ErrNonZeroStatusCode{"command", p.statusCode}
 	}
 }
 

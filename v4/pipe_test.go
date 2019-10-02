@@ -481,7 +481,7 @@ func TestPipeRunCommandUpdatesErr(t *testing.T) {
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, expectedResult, pipe.Err)
+	assert.Equal(t, expectedResult, pipe.Error())
 }
 
 func TestPipeRunCommandSetsErrIfStatusCodeNotOkay(t *testing.T) {
@@ -504,9 +504,10 @@ func TestPipeRunCommandSetsErrIfStatusCodeNotOkay(t *testing.T) {
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.NotNil(t, pipe.Err)
-	assert.Error(t, pipe.Err)
-	_, ok := pipe.Err.(ErrNonZeroStatusCode)
+	err := pipe.Error()
+	assert.NotNil(t, err)
+	assert.Error(t, err)
+	_, ok := err.(ErrNonZeroStatusCode)
 	assert.True(t, ok)
 }
 
