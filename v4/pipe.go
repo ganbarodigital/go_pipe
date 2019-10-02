@@ -70,14 +70,9 @@ type Pipe struct {
 //
 // It starts with an empty Stdin.
 func NewPipe(options ...func(*Pipe)) *Pipe {
-	retval := Pipe{
-		Err:        nil,
-		StatusCode: StatusOkay,
-	}
-
-	retval.SetNewStdin()
-	retval.SetNewStdout()
-	retval.SetNewStderr()
+	// create a pipe that's ready to go
+	retval := Pipe{}
+	retval.Reset()
 
 	// apply any option functions we might have been given
 	for _, option := range options {
@@ -140,23 +135,23 @@ func (p *Pipe) Expand(fmt string) string {
 	return p.Env.Expand(fmt)
 }
 
-// Reset creates new, empty Stdin, Stdout and Stderr.
+// Reset makes sure the pipeline is ready to go
 //
-// It's useful for pipelines that consist of multiple lists.
-//
-// NOTE that we DO NOT reset the StatusCode or Err here. Their value may
-// be of interest to the next Command (which is why they were moved here
-// in v4!)
+// It's useful for reusing the same pipe multiple times.
 func (p *Pipe) Reset() {
 	// do we have a pipe to work with?
 	if p == nil {
 		return
 	}
 
-	// reset most of the things
-	p.Stdin = NewSourceFromString("")
-	p.Stdout = new(Dest)
-	p.Stderr = new(Dest)
+	// set our input/output buffers
+	p.SetNewStdin()
+	p.SetNewStdout()
+	p.SetNewStderr()
+
+	// make sure any previous error is forgotten
+	p.statusCode = StatusOkay
+	p.err = nil
 }
 
 // RunCommand will run a function using this pipe. The function's return
