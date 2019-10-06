@@ -2,6 +2,10 @@
 
 ## develop
 
+### New
+
+* Added `Pipe.StatusError()` to avoid calling `Pipe.StatusCode()` and `Pipe.Error()` together.
+
 ## v4.0.0
 
 Released Sunday, 6th October 2019.

@@ -821,3 +821,78 @@ func TestPipeStatusCodeReturnsTheLastCommandsStatusCode(t *testing.T) {
 
 	assert.Equal(t, expectedResult, actualResult)
 }
+
+func TestPipeStatusErrorCopesWithNilPipePointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe *Pipe
+	expectedResult := StatusOkay
+	var expectedErr error = nil
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, actualErr := pipe.StatusError()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+	assert.Equal(t, expectedErr, actualErr)
+}
+
+func TestPipeStatusErrorCopesWithEmptyPipe(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe Pipe
+	expectedResult := StatusOkay
+	var expectedErr error = nil
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, actualErr := pipe.StatusError()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+	assert.Equal(t, expectedErr, actualErr)
+}
+
+func TestPipeStatusErrorReturnsTheLastCommandsStatusCodeAndError(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	pipe := NewPipe()
+	expectedResult := 100
+	expectedErr := errors.New("this is an error")
+
+	op1 := func(p *Pipe) (int, error) {
+		return StatusOkay, nil
+	}
+	op2 := func(p *Pipe) (int, error) {
+		return expectedResult, expectedErr
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.RunCommand(op1)
+	pipe.RunCommand(op2)
+	actualResult, actualErr := pipe.StatusError()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+	assert.Equal(t, expectedErr, actualErr)
+}

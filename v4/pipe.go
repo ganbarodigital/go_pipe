@@ -243,3 +243,15 @@ func (p *Pipe) StatusCode() int {
 	// yes we do
 	return p.statusCode
 }
+
+// StatusError is a shorthand for calling p.StatusCode() and p.Error()
+// to get the UNIX-like status code and the last reported Golang error
+func (p *Pipe) StatusError() (int, error) {
+	// do we have a pipe to inspect?
+	if p == nil {
+		return StatusOkay, nil
+	}
+
+	// yes we do
+	return p.statusCode, p.err
+}
