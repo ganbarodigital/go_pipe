@@ -341,6 +341,75 @@ func TestPipeExpandUsesTemporaryEnvironmentIfWeHaveOne(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
+func TestPipeOkayCopesWithNilPipePointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe *Pipe
+	expectedResult := true
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := pipe.Okay()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestPipeOkayCopesWithEmptyPipe(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe Pipe
+	expectedResult := true
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := pipe.Okay()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestPipeOkayReturnsFalseIfTheLastCommandFailed(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	pipe := NewPipe()
+	expectedResult := false
+
+	op1 := func(p *Pipe) (int, error) {
+		return StatusOkay, nil
+	}
+	op2 := func(p *Pipe) (int, error) {
+		return 100, nil
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.RunCommand(op1)
+	pipe.RunCommand(op2)
+	actualResult := pipe.Okay()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
 func TestPipeResetBuffersCopesWithNilPipePointer(t *testing.T) {
 	t.Parallel()
 
