@@ -39,51 +39,29 @@
 
 package pipe
 
-// NewPipeline creates a pipeline that's ready to run
-func NewPipeline(steps ...Command) *Sequence {
-	// build our pipeline
-	retval := NewSequence(steps...)
+import (
+	"testing"
 
-	// tell the underlying sequence how we want these commands to run
-	retval.Controller = PipelineController(retval)
+	"github.com/stretchr/testify/assert"
+)
 
-	// all done
-	return retval
-}
+func TestErrNonZeroStatusCode(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
 
-// PipelineController executes a sequence of commands as if they were
-// a UNIX shell pipeline
-func PipelineController(sq *Sequence) Controller {
-	return func() {
-		// do we have a pipeline to play with?
-		if sq == nil {
-			return
-		}
-
-		// is the pipeline fit to use?
-		if sq.Pipe == nil {
-			return
-		}
-
-		for _, step := range sq.Steps {
-			// at this point, stdout needs to become the next
-			// stdin
-			sq.Pipe.Next()
-
-			// run the next step
-			sq.StatusCode, sq.Err = step(sq.Pipe)
-
-			// we stop executing the moment something goes wrong
-			if sq.Err != nil {
-				return
-			}
-		}
-
-		// special case - do we have a non-zero status code, but no error?
-		if sq.StatusCode != StatusOkay && sq.Err == nil {
-			sq.Err = ErrNonZeroStatusCode{"pipeline", sq.StatusCode}
-		}
-
-		// all done
+	testData := ErrNonZeroStatusCode{
+		"sequence",
+		127,
 	}
+	expectedResult := "sequence exited with non-zero status code 127"
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := testData.Error()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
 }

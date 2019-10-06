@@ -2,6 +2,33 @@
 
 ## develop
 
+## v4.0.0
+
+Released Sunday, 6th October 2019.
+
+### Breaking Changes
+
+We're making some changes to further improve support for building UNIX-like shell behaviour in Golang packages and apps.
+
+- Status codes and errors have moved into the `Pipe`
+- The local Env has moved into the `Pipe`
+- Sequence, Pipeline and List have been moved into the `go_scriptish` package
+- `Pipe.DrainStdin()` is now `Pipe.DrainStdinToStdout()`
+- Removed `Pipe.Next()`
+  - this behaviour belongs in packages that use `go_pipe`
+- `Pipe.StatusCode` is now a method, not an exported struct member
+- `Pipe.Err` is no longer an exported struct member; use `Pipe.Error()` instead
+- `Pipe.Reset()` is now `Pipe.ResetBuffers()`
+
+### New
+
+* `NewPipe()` now accepts option functions
+* Added `Pipe.ResetError()`
+* Added `Pipe.SetNewStdin()`
+* Added `Pipe.SetStdinFromString()`
+* Added `Pipe.SetNewStdout()`
+* Added `Pipe.SetNewStderr()`
+
 ## v3.1.0
 
 Released Sunday, 29th September 2019.

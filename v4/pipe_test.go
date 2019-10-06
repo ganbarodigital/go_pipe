@@ -1,4 +1,4 @@
-// pipe is a library to help you write UNIX-like sequences of operations
+// pipe is a library to help you write UNIX-like pipelines of operations
 //
 // inspired by:
 //
@@ -48,7 +48,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewSequenceCreatesPipeWithEmptyStdin(t *testing.T) {
+func TestNewPipeCreatesPipeWithEmptyStdin(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -59,8 +59,8 @@ func TestNewSequenceCreatesPipeWithEmptyStdin(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	sequence := NewSequence()
-	actualResult := sequence.Pipe.Stdin.String()
+	pipe := NewPipe()
+	actualResult := pipe.Stdin.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -68,7 +68,7 @@ func TestNewSequenceCreatesPipeWithEmptyStdin(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestNewSequenceCreatesPipeWithEmptyStdout(t *testing.T) {
+func TestNewPipeCreatesPipeWithEmptyStdout(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -79,8 +79,8 @@ func TestNewSequenceCreatesPipeWithEmptyStdout(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	sequence := NewSequence()
-	actualResult := sequence.Pipe.Stdout.String()
+	pipe := NewPipe()
+	actualResult := pipe.Stdout.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -88,7 +88,7 @@ func TestNewSequenceCreatesPipeWithEmptyStdout(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestNewSequenceCreatesPipeWithEmptyStderr(t *testing.T) {
+func TestNewPipeCreatesPipeWithEmptyStderr(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -99,8 +99,8 @@ func TestNewSequenceCreatesPipeWithEmptyStderr(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	sequence := NewSequence()
-	actualResult := sequence.Pipe.Stderr.String()
+	pipe := NewPipe()
+	actualResult := pipe.Stderr.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -108,880 +108,716 @@ func TestNewSequenceCreatesPipeWithEmptyStderr(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestNewSequenceCreatesSequenceWithNilErrSet(t *testing.T) {
+func TestNewPipeCreatesPipeWithStatusOkay(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
+	expectedResult := StatusOkay
+
 	// ----------------------------------------------------------------
 	// perform the change
 
-	sequence := NewSequence()
+	pipe := NewPipe()
+	actualResult := pipe.StatusCode()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Nil(t, sequence.Err)
+	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestNewSequenceCreatesSequenceWithZeroStatusCode(t *testing.T) {
+func TestNewPipeCreatesPipeWithNilError(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
+	var expectedResult error
+
 	// ----------------------------------------------------------------
 	// perform the change
 
-	sequence := NewSequence()
+	pipe := NewPipe()
+	actualResult := pipe.Error()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, 0, sequence.StatusCode)
+	assert.Equal(t, expectedResult, actualResult)
 }
 
-// helper for testing our sequence behaviour
-type testOpResult struct {
-	StatusCode int
-	Err        error
-}
-
-func TestNewSequenceCreatesSequenceWithGivenSequenceOperations(t *testing.T) {
+func TestNewPipeAppliesAnyOptionsWePassIn(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	op1 := func(p *Pipe) (int, error) { return 0, nil }
-	op2 := func(p *Pipe) (int, error) { return 1, nil }
-
-	// we can't compare functions directly in Go, but we can execute them
-	// and compare their output
-	expectedResult := []testOpResult{{0, nil}, {1, nil}}
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	var actualResult []testOpResult
-
-	sequence := NewSequence(op1, op2)
-	for _, step := range sequence.Steps {
-		statusCode, err := step(sequence.Pipe)
-		actualResult = append(actualResult, testOpResult{statusCode, err})
+	expectedStatusCode := 100
+	op1 := func(p *Pipe) {
+		p.statusCode = expectedStatusCode
+	}
+	op2 := func(p *Pipe) {
+		p.Env = envish.NewEnv()
 	}
 
 	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe := NewPipe(op1, op2)
+
+	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, expectedResult, actualResult)
+	assert.Equal(t, pipe.StatusCode(), expectedStatusCode)
+	assert.NotNil(t, pipe.Env)
 }
 
-func TestSequenceExecCopesWithNilSequencePointer(t *testing.T) {
+func TestPipeResetBuffersCopesWithNilPipePointer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var sequence *Sequence
+	var pipe *Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	sequence.Exec()
+	pipe.ResetBuffers()
 
 	// ----------------------------------------------------------------
 	// test the results
-
-	// as long as it didn't crash, we're good
+	//
+	// as long as the code doesn't segfault, it works!
 }
 
-func TestSequenceExecCopesWithEmptySequence(t *testing.T) {
+func TestPipeResetBuffersCopesWithEmptyPipe(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var sequence Sequence
+	var pipe Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	sequence.Exec()
+	pipe.ResetBuffers()
 
 	// ----------------------------------------------------------------
 	// test the results
-
-	// as long as it didn't crash, we're good
+	//
+	// as long as the code doesn't segfault, it works!
 }
 
-func TestSequenceExpandCopesWithNilSequencePointer(t *testing.T) {
+func TestPipeResetBuffersEmptiesStdinStdoutStderr(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var sequence *Sequence
+	testDataIn := "this is stdin"
+	testDataOut := "this is stdout"
+	testDataErr := "this is stderr"
+
+	// we need to start with a pipe that has data
+	pipe := NewPipe()
+	pipe.SetStdinFromString(testDataIn)
+	pipe.Stdout.WriteString(testDataOut)
+	pipe.Stderr.WriteString(testDataErr)
+
+	// normally, I'd use assert.Equal() to prove that the pipe has data
+	// if we did that here, the reads would empty the pipe, making the
+	// rest of the test invalid
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	sequence.Expand("hello ${HOME}")
+	pipe.ResetBuffers()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	// as long as it didn't crash, we're good
+	assert.Empty(t, pipe.Stdin.String())
+	assert.Empty(t, pipe.Stdout.String())
+	assert.Empty(t, pipe.Stderr.String())
 }
 
-func TestSequenceExpandCopesWithEmptySequence(t *testing.T) {
+func TestPipeResetErrorCopesWithNilPipePointer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var sequence Sequence
+	var pipe *Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	sequence.Expand("hello ${HOME}")
+	pipe.ResetError()
 
 	// ----------------------------------------------------------------
 	// test the results
-
-	// as long as it didn't crash, we're good
+	//
+	// as long as the code doesn't segfault, it works!
 }
 
-func TestSequenceExpandUsesTheProgramEnvironmentByDefault(t *testing.T) {
+func TestPipeResetErrorCopesWithEmptyPipe(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	testKey := "TestSequenceKey"
-	testValue := "this is a test"
-	os.Setenv(testKey, testValue)
-
-	expectedResult := "hello this is a test"
-	sequence := NewSequence()
+	var pipe Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult := sequence.Expand("hello ${TestSequenceKey}")
+	pipe.ResetError()
 
 	// ----------------------------------------------------------------
 	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
+	//
+	// as long as the code doesn't segfault, it works!
 }
 
-func TestSequenceExpandUsesTheSequenceEnvironmentIfAvailable(t *testing.T) {
+func TestPipeResetErrorSetsStatusCodeToStatusOkay(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	testKey := "TestSequenceKey"
-	testValue1 := "this is a test"
-	testValue2 := "this is another test"
-	os.Setenv(testKey, testValue1)
+	op1 := func(p *Pipe) (int, error) {
+		return StatusNotOkay, nil
+	}
+	pipe := NewPipe()
+	pipe.RunCommand(op1)
 
-	expectedResult := "hello this is another test"
-
-	sequence := NewSequence()
-	sequence.Env = envish.NewEnv()
-	sequence.Env.Setenv(testKey, testValue2)
+	assert.Equal(t, StatusNotOkay, pipe.StatusCode())
+	assert.Error(t, pipe.Error())
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult := sequence.Expand("hello ${TestSequenceKey}")
+	pipe.ResetError()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, expectedResult, actualResult)
+	assert.Equal(t, StatusOkay, pipe.StatusCode())
 }
 
-func TestSequenceBytesCopesWithNilSequencePointer(t *testing.T) {
+func TestPipeResetErrorSetsErrorToNil(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var sequence *Sequence
-	expectedResult := ""
+	op1 := func(p *Pipe) (int, error) {
+		return StatusNotOkay, nil
+	}
+	pipe := NewPipe()
+	pipe.RunCommand(op1)
+
+	assert.Equal(t, StatusNotOkay, pipe.StatusCode())
+	assert.Error(t, pipe.Error())
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualBytes, err := sequence.Bytes()
-	actualResult := string(actualBytes)
+	pipe.ResetError()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Nil(t, err)
-	assert.Equal(t, expectedResult, actualResult)
+	assert.Nil(t, pipe.Error())
 }
 
-func TestSequenceBytesCopesWithEmptySequence(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	var sequence Sequence
-	expectedResult := ""
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualBytes, err := sequence.Bytes()
-	actualResult := string(actualBytes)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Nil(t, err)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestSequenceBytesReturnsContentsOfStdoutWhenNoError(t *testing.T) {
+func TestPipeDrainStdinToStdoutCopiesStdinToStdout(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
 	expectedResult := "hello world\nhave a nice day\n"
-	op1 := func(p *Pipe) (int, error) {
-		// this is the content we want
-		p.Stdout.WriteString(expectedResult)
 
-		// we don't want to see this in our final output
-		p.Stderr.WriteString("we do not want this")
+	pipe := NewPipe()
+	pipe.SetStdinFromString(expectedResult)
 
-		// all done
-		return 0, nil
-	}
-
-	sequence := NewSequence(op1)
-	op1(sequence.Pipe)
+	assert.Equal(t, pipe.Stdout.String(), "")
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualBytes, err := sequence.Bytes()
-	actualResult := string(actualBytes)
+	pipe.DrainStdinToStdout()
+	actualResult := pipe.Stdout.String()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Nil(t, err)
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestSequenceBytesReturnsContentsOfStdoutWhenError(t *testing.T) {
+func TestPipeDrainStdinToStdoutCopesWithNilPipePointer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	expectedResult := "hello world\nhave a nice day\n"
-	op1 := func(p *Pipe) (int, error) {
-		// this is the content we want
-		p.Stdout.WriteString(expectedResult)
-
-		// we don't want to see this in our final output
-		p.Stderr.WriteString("we do not want this")
-
-		// all done
-		return 0, errors.New("an error occurred")
-	}
-
-	sequence := NewSequence(op1)
-	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
+	var pipe *Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualBytes, err := sequence.Bytes()
-	actualResult := string(actualBytes)
+	pipe.DrainStdinToStdout()
+
+	// ----------------------------------------------------------------
+	// test the results
+	//
+	// as long as the code doesn't segfault, it works!
+}
+
+func TestPipeDrainStdinToStdoutCopesWithEmptyPipe(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.DrainStdinToStdout()
+
+	// ----------------------------------------------------------------
+	// test the results
+	//
+	// as long as the code doesn't segfault, it works!
+}
+
+func TestPipeDrainStdinToStdoutCreatesNewStdoutIfNecessary(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	pipe := NewPipe()
+	pipe.Stdout = nil
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.DrainStdinToStdout()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.NotNil(t, err)
+	assert.NotNil(t, pipe.Stdout)
+}
+
+func TestPipeErrorCopesWithNilPointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe *Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := pipe.Error()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Nil(t, actualResult)
+}
+
+func TestPipeExpandCopesWithNilPointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe *Pipe
+
+	expectedResult := os.Getenv("HOME")
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := pipe.Expand("${HOME}")
+
+	// ----------------------------------------------------------------
+	// test the results
+
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestSequenceErrorCopesWithNilSequencePointer(t *testing.T) {
+func TestPipeExpandCopesWithEmptyStruct(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var sequence *Sequence
+	var pipe Pipe
+
+	expectedResult := os.Getenv("HOME")
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	err := sequence.Error()
+	actualResult := pipe.Expand("${HOME}")
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Nil(t, err)
+	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestSequenceErrorCopesWithEmptySequence(t *testing.T) {
+func TestPipeExpandUsesTemporaryEnvironmentIfWeHaveOne(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var sequence Sequence
+	expectedResult := "this is not a real HOME folder"
+
+	pipe := NewPipe()
+	pipe.Env = envish.NewEnv()
+	pipe.Env.Setenv("HOME", expectedResult)
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	err := sequence.Error()
+	actualResult := pipe.Expand("${HOME}")
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Nil(t, err)
+	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestSequenceErrorReturnsErrProperty(t *testing.T) {
+func TestPipeRunCommandCopesWithNilPointer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	op1 := func(p *Pipe) (int, error) {
-		// all done
-		return 0, errors.New("this is an error")
+	var pipe *Pipe
+
+	expectedResult := StatusNotOkay
+	op := func(p *Pipe) (int, error) {
+		return expectedResult, nil
 	}
-	expectedResult := errors.New("this is an error")
-
-	sequence := NewSequence(op1)
-	sequence.Err = expectedResult
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	err := sequence.Error()
+	pipe.RunCommand(op)
 
 	// ----------------------------------------------------------------
 	// test the results
 
+	// as long as it doesn't crash, the test has passed
+}
+
+func TestPipeRunCommandUpdatesStatusCode(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	pipe := NewPipe()
+
+	expectedResult := StatusNotOkay
+	op := func(p *Pipe) (int, error) {
+		return expectedResult, errors.New("status not okay")
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.RunCommand(op)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, pipe.StatusCode())
+}
+
+func TestPipeRunCommandUpdatesErr(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	pipe := NewPipe()
+
+	expectedResult := errors.New("status not okay")
+	op := func(p *Pipe) (int, error) {
+		return StatusNotOkay, expectedResult
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.RunCommand(op)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, pipe.Error())
+}
+
+func TestPipeRunCommandSetsErrIfStatusCodeNotOkay(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	pipe := NewPipe()
+
+	op := func(p *Pipe) (int, error) {
+		return StatusNotOkay, nil
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.RunCommand(op)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	err := pipe.Error()
 	assert.NotNil(t, err)
 	assert.Error(t, err)
-	assert.Equal(t, expectedResult, err)
+	_, ok := err.(ErrNonZeroStatusCode)
+	assert.True(t, ok)
 }
 
-func TestSequenceOkayCopesWithNilSequencePointer(t *testing.T) {
+func TestPipeSetNewStdinCopesWithNilPipePointer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var sequence *Sequence
+	var pipe *Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	success, err := sequence.Okay()
+	pipe.SetNewStdin()
 
 	// ----------------------------------------------------------------
 	// test the results
-
-	assert.True(t, success)
-	assert.Nil(t, err)
+	//
+	// as long as the code doesn't segfault, it works!
 }
 
-func TestSequenceOkayCopesWithEmptySequence(t *testing.T) {
+func TestPipeSetNewStdinCopesWithEmptyPipe(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var sequence Sequence
+	var pipe Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	success, err := sequence.Okay()
+	pipe.SetNewStdin()
 
 	// ----------------------------------------------------------------
 	// test the results
-
-	assert.True(t, success)
-	assert.Nil(t, err)
+	//
+	// as long as the code doesn't segfault, it works!
 }
 
-func TestSequenceOkayReturnsFalseWhenSequenceErrorHappens(t *testing.T) {
+func TestPipeSetStdinFromStringCopesWithNilPipePointer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	op1 := func(p *Pipe) (int, error) {
-		// all done
-		return StatusNotOkay, errors.New("this is an error")
-	}
-
-	sequence := NewSequence(op1)
-	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
+	var pipe *Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	success, err := sequence.Okay()
+	pipe.SetStdinFromString("")
 
 	// ----------------------------------------------------------------
 	// test the results
-
-	assert.False(t, success)
-	assert.Error(t, err)
+	//
+	// as long as the code doesn't segfault, it works!
 }
 
-func TestSequenceParseIntCopesWithNilSequencePointer(t *testing.T) {
+func TestPipeSetStdinFromStringCopesWithEmptyPipe(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var sequence *Sequence
-	expectedResult := 0
+	var pipe Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := sequence.ParseInt()
+	pipe.SetStdinFromString("")
+
+	// ----------------------------------------------------------------
+	// test the results
+	//
+	// as long as the code doesn't segfault, it works!
+}
+
+func TestPipeSetNewStdoutCopesWithNilPipePointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe *Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.SetNewStdout()
+
+	// ----------------------------------------------------------------
+	// test the results
+	//
+	// as long as the code doesn't segfault, it works!
+}
+
+func TestPipeSetNewStdoutCopesWithEmptyPipe(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.SetNewStdout()
+
+	// ----------------------------------------------------------------
+	// test the results
+	//
+	// as long as the code doesn't segfault, it works!
+}
+
+func TestPipeSetNewStderrCopesWithNilPipePointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe *Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.SetNewStderr()
+
+	// ----------------------------------------------------------------
+	// test the results
+	//
+	// as long as the code doesn't segfault, it works!
+}
+
+func TestPipeSetNewStderrCopesWithEmptyPipe(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	pipe.SetNewStderr()
+
+	// ----------------------------------------------------------------
+	// test the results
+	//
+	// as long as the code doesn't segfault, it works!
+}
+
+func TestPipeStatusCodeCopesWithNilPipePointer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var pipe *Pipe
+	expectedResult := StatusOkay
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := pipe.StatusCode()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Nil(t, err)
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestSequenceParseIntCopesWithEmptySequence(t *testing.T) {
+func TestPipeStatusCodeCopesWithEmptyPipe(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var sequence Sequence
-	expectedResult := 0
+	var pipe Pipe
+	expectedResult := StatusOkay
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := sequence.ParseInt()
+	actualResult := pipe.StatusCode()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Nil(t, err)
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestSequenceParseIntConvertsContentsOfStdoutWhenNoError(t *testing.T) {
+func TestPipeStatusCodeReturnsTheLastCommandsStatusCode(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
+	pipe := NewPipe()
 	expectedResult := 100
-	op1 := func(p *Pipe) (int, error) {
-		p.Stdout.WriteString("100\n")
-
-		// we don't want to see this in our final output
-		p.Stderr.WriteString("we do not want this")
-
-		// all done
-		return 0, nil
-	}
-
-	sequence := NewSequence(op1)
-	op1(sequence.Pipe)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, err := sequence.ParseInt()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Nil(t, err)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestSequenceParseIntReturnsZeroWhenError(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	expectedResult := 0
-	op1 := func(p *Pipe) (int, error) {
-		// we don't want to see this in our final output
-		p.Stdout.WriteString("we do not want this")
-		p.Stderr.WriteString("not a number")
-
-		// all done
-		return 0, errors.New("an error occurred")
-	}
-
-	sequence := NewSequence(op1)
-	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, err := sequence.ParseInt()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.NotNil(t, err)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestSequenceStringCopesWithNilSequencePointer(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	var sequence *Sequence
-	expectedResult := ""
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, err := sequence.String()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Nil(t, err)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestSequenceStringCopesWithEmptySequence(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	var sequence Sequence
-	expectedResult := ""
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, err := sequence.String()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Nil(t, err)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestSequenceStringReturnsContentsOfStdoutWhenNoError(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	expectedResult := "hello world\nhave a nice day\n"
-	op1 := func(p *Pipe) (int, error) {
-		// this is the content we want
-		p.Stdout.WriteString(expectedResult)
-
-		// we don't want to see this in our final output
-		p.Stderr.WriteString("we do not want this")
-
-		// all done
-		return 0, nil
-	}
-
-	sequence := NewSequence(op1)
-	op1(sequence.Pipe)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, err := sequence.String()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Nil(t, err)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestSequenceStringReturnsContentsOfStdoutWhenError(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	expectedResult := "hello world\nhave a nice day\n"
-	op1 := func(p *Pipe) (int, error) {
-		// this is the content we want
-		p.Stdout.WriteString(expectedResult)
-
-		// we don't want to see this in our final output
-		p.Stderr.WriteString("we do not want this")
-
-		// all done
-		return 0, errors.New("an eccor occurred")
-	}
-
-	sequence := NewSequence(op1)
-	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, err := sequence.String()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.NotNil(t, err)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestSequenceStringsCopesWithNilSequencePointer(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	var sequence *Sequence
-	expectedResult := []string{}
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, err := sequence.Strings()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Nil(t, err)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestSequenceStringsCopesWithEmptySequence(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	var sequence Sequence
-	expectedResult := []string{}
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, err := sequence.Strings()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Nil(t, err)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestSequenceStringsReturnsContentsOfStdoutWhenNoError(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	expectedResult := []string{"hello world", "have a nice day"}
-	op1 := func(p *Pipe) (int, error) {
-		for _, line := range expectedResult {
-			p.Stdout.WriteString(line)
-			p.Stdout.WriteRune('\n')
-		}
-
-		// we don't want to see this in our final output
-		p.Stderr.WriteString("we do not want this")
-
-		// all done
-		return 0, nil
-	}
-
-	sequence := NewSequence(op1)
-	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, err := sequence.Strings()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Nil(t, err)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestSequenceStringsReturnsContentsOfStdoutWhenError(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	expectedResult := []string{"hello world", "have a nice day"}
-	op1 := func(p *Pipe) (int, error) {
-		for _, line := range expectedResult {
-			p.Stdout.WriteString(line)
-			p.Stdout.WriteRune('\n')
-		}
-
-		// we don't want to see this in our final output
-		p.Stderr.WriteString("we do not want this")
-
-		// all done
-		return 0, errors.New("an error occurred")
-	}
-
-	sequence := NewSequence(op1)
-	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, err := sequence.Strings()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.NotNil(t, err)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestSequenceTrimmedStringCopesWithNilSequencePointer(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	var sequence *Sequence
-	expectedResult := ""
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, err := sequence.TrimmedString()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Nil(t, err)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestSequenceTrimmedStringCopesWithEmptySequence(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	var sequence Sequence
-	expectedResult := ""
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, err := sequence.TrimmedString()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Nil(t, err)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestSequenceTrimmedStringReturnsContentsOfStdoutWhenNoError(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testData := "   hello world\nhave a nice day\n\n\n"
-	expectedResult := "hello world\nhave a nice day"
 
 	op1 := func(p *Pipe) (int, error) {
-		// this is the content we want
-		p.Stdout.WriteString(testData)
-
-		// we don't want to see this in our final output
-		p.Stderr.WriteString("we do not want this")
-
-		// all done
-		return 0, nil
+		return StatusOkay, nil
 	}
-
-	sequence := NewSequence(op1)
-	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
+	op2 := func(p *Pipe) (int, error) {
+		return expectedResult, nil
+	}
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, err := sequence.TrimmedString()
+	pipe.RunCommand(op1)
+	pipe.RunCommand(op2)
+	actualResult := pipe.StatusCode()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Nil(t, err)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestSequenceTrimmedStringReturnsContentsOfStdoutWhenError(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testData := "   hello world\nhave a nice day\n\n\n"
-	expectedResult := "hello world\nhave a nice day"
-	op1 := func(p *Pipe) (int, error) {
-		// this is the content we want
-		p.Stdout.WriteString(testData)
-
-		// we don't want to see this in our final output
-		p.Stderr.WriteString("we do not want this")
-
-		// all done
-		return 0, errors.New("an error occurred")
-	}
-
-	sequence := NewSequence(op1)
-	sequence.StatusCode, sequence.Err = op1(sequence.Pipe)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, err := sequence.TrimmedString()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.NotNil(t, err)
 	assert.Equal(t, expectedResult, actualResult)
 }

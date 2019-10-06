@@ -39,42 +39,19 @@
 
 package pipe
 
-// NewList creates a list that's ready to run
-func NewList(steps ...Command) *Sequence {
-	// build our list
-	retval := NewSequence(steps...)
+import "fmt"
 
-	// tell the underlying sequence how we want these commands to run
-	retval.Controller = ListController(retval)
-
-	// all done
-	return retval
+// ErrNonZeroStatusCode is the error we return when a sequence has finished
+// with a non-zero status code and no error of its own
+type ErrNonZeroStatusCode struct {
+	sequenceType string
+	statusCode   int
 }
 
-// ListController executes a sequence of commands as if they were
-// a UNIX shell list
-func ListController(sq *Sequence) Controller {
-	return func() {
-		// do we have a pipeline to play with?
-		if sq == nil {
-			return
-		}
-
-		// is the pipeline fit to use?
-		if sq.Pipe == nil {
-			return
-		}
-
-		for _, step := range sq.Steps {
-			// run the next step
-			sq.StatusCode, sq.Err = step(sq.Pipe)
-		}
-
-		// special case - do we have a non-zero status code, but no error?
-		if sq.StatusCode != StatusOkay && sq.Err == nil {
-			sq.Err = ErrNonZeroStatusCode{"list", sq.StatusCode}
-		}
-
-		// all done
-	}
+func (e ErrNonZeroStatusCode) Error() string {
+	return fmt.Sprintf(
+		"%s exited with non-zero status code %d",
+		e.sequenceType,
+		e.statusCode,
+	)
 }
