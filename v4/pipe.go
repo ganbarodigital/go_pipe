@@ -137,6 +137,18 @@ func (p *Pipe) Expand(fmt string) string {
 	return p.Env.Expand(fmt)
 }
 
+// Okay confirms that the last Command run against the pipe completed
+// without reporting an error
+func (p *Pipe) Okay() bool {
+	// do we have a pipe to inspect?
+	if p == nil {
+		return true
+	}
+
+	// yes we do
+	return p.err == nil
+}
+
 // ResetBuffers creates new, empty buffers for the pipe
 func (p *Pipe) ResetBuffers() {
 	// do we have a pipe to work with?
@@ -242,4 +254,16 @@ func (p *Pipe) StatusCode() int {
 
 	// yes we do
 	return p.statusCode
+}
+
+// StatusError is a shorthand for calling p.StatusCode() and p.Error()
+// to get the UNIX-like status code and the last reported Golang error
+func (p *Pipe) StatusError() (int, error) {
+	// do we have a pipe to inspect?
+	if p == nil {
+		return StatusOkay, nil
+	}
+
+	// yes we do
+	return p.statusCode, p.err
 }
