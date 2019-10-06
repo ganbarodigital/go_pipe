@@ -2,6 +2,10 @@
 
 ## develop
 
+## v4.1.0
+
+Released Sunday, 6th October 2019.
+
 ### New
 
 * Added `Pipe.Okay()`
