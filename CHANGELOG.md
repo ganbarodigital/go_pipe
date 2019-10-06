@@ -2,9 +2,13 @@
 
 ## develop
 
+## v4.0.0
+
+Released Sunday, 6th October 2019.
+
 ### Breaking Changes
 
-We're making some changes to further improve support for building UNIX shell behaviour.
+We're making some changes to further improve support for building UNIX-like shell behaviour in Golang packages and apps.
 
 - Status codes and errors have moved into the `Pipe`
 - The local Env has moved into the `Pipe`
