@@ -2,6 +2,19 @@
 
 ## develop
 
+## v4.2.0
+
+Released Monday, 7th October 2019.
+
+### New
+
+* Added `Pipe.Vars` to store local variables
+* Added `Pipe.Getvar()` to retrieve a variable from:
+  - the pipe's local variable store
+  - the pipe's local environment store
+  - the program's environment
+  in that order.
+
 ## v4.1.0
 
 Released Sunday, 6th October 2019.

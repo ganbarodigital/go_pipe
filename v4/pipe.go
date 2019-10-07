@@ -43,7 +43,7 @@ import (
 	"io"
 	"os"
 
-	envish "github.com/ganbarodigital/go_envish"
+	envish "github.com/ganbarodigital/go_envish/v2"
 )
 
 // Pipe is our data structure. All Commands read from, and/or write to
@@ -64,14 +64,19 @@ type Pipe struct {
 
 	// Pipe commands can have their own environment, if they want one
 	Env *envish.Env
+
+	// Pipe commands can have their own local variables, if they want
+	Vars *envish.Env
 }
 
 // NewPipe creates a new Pipe that's ready to use.
 //
-// It starts with an empty Stdin.
+// It starts with an empty Stdin, and empty local variable store.
 func NewPipe(options ...func(*Pipe)) *Pipe {
 	// create a pipe that's ready to go
-	retval := Pipe{}
+	retval := Pipe{
+		Vars: envish.NewEnv(),
+	}
 	retval.ResetBuffers()
 	retval.ResetError()
 
@@ -123,18 +128,41 @@ func (p *Pipe) Error() error {
 // It uses the Pipe's private environment (if the Pipe has one),
 // or the program's environment otherwise.
 func (p *Pipe) Expand(fmt string) string {
+	return os.Expand(fmt, p.Getvar)
+}
+
+// Getvar returns the current value for a given variable name.
+//
+// It searches:
+//
+// * the local variable store (pipe.Vars)
+// * the local environment store (pipe.Env)
+// * the program's environment (os.Getenv)
+//
+// in that order.
+func (p *Pipe) Getvar(key string) string {
 	// do we have a pipe to work with?
 	if p == nil {
-		return os.Expand(fmt, os.Getenv)
+		return os.Getenv(key)
 	}
 
-	// do we have an environment of our own?
-	if p.Env == nil {
-		return os.Expand(fmt, os.Getenv)
+	// a list of the places we can look
+	lookupFuncs := []func(string) (string, bool){
+		p.Vars.LookupEnv,
+		p.Env.LookupEnv,
+		os.LookupEnv,
 	}
 
-	// yes we do
-	return p.Env.Expand(fmt)
+	// search for this variable
+	for _, lookupFunc := range lookupFuncs {
+		value, ok := lookupFunc(key)
+		if ok {
+			return value
+		}
+	}
+
+	// if we get here, then it doesn't exist
+	return ""
 }
 
 // Okay confirms that the last Command run against the pipe completed
