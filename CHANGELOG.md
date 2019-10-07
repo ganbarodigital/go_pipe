@@ -2,6 +2,10 @@
 
 ## develop
 
+## v4.2.0
+
+Released Monday, 7th October 2019.
+
 ### New
 
 * Added `Pipe.Vars` to store local variables
