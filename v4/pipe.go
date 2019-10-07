@@ -43,7 +43,7 @@ import (
 	"io"
 	"os"
 
-	envish "github.com/ganbarodigital/go_envish"
+	envish "github.com/ganbarodigital/go_envish/v2"
 )
 
 // Pipe is our data structure. All Commands read from, and/or write to
