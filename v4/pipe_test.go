@@ -318,6 +318,30 @@ func TestPipeExpandCopesWithEmptyStruct(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
+func TestPipeExpandUsesLocalVarsFirst(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedResult := "this is set in Vars"
+
+	pipe := NewPipe()
+	pipe.Env = envish.NewEnv()
+	pipe.Env.Setenv("HOME", "this is set in Env")
+	pipe.Vars.Setenv("HOME", expectedResult)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := pipe.Expand("${HOME}")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
 func TestPipeExpandUsesTemporaryEnvironmentIfWeHaveOne(t *testing.T) {
 	t.Parallel()
 
@@ -334,6 +358,28 @@ func TestPipeExpandUsesTemporaryEnvironmentIfWeHaveOne(t *testing.T) {
 	// perform the change
 
 	actualResult := pipe.Expand("${HOME}")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestPipeExpandConvertsUnknownVarsIntoBlankStrings(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedResult := ""
+
+	pipe := NewPipe()
+	pipe.Env = envish.NewEnv()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := pipe.Expand("${DOES_NOT_EXIST}")
 
 	// ----------------------------------------------------------------
 	// test the results
