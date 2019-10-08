@@ -2,6 +2,14 @@
 
 ## develop
 
+## v4.3.0
+
+Released Tuesday, 8th October 2019.
+
+### New
+
+* `Pipe.Vars.Expand()` now supports UNIX shell special variables (`$#`, `$*` et al)
+
 ## v4.2.0
 
 Released Monday, 7th October 2019.
