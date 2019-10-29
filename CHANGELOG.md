@@ -2,6 +2,10 @@
 
 ## develop
 
+### Dependencies
+
+- bumped to go_envish v2.2.0
+
 ## v4.3.0
 
 Released Tuesday, 8th October 2019.
