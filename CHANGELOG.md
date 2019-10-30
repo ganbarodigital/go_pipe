@@ -2,9 +2,19 @@
 
 ## develop
 
+### Backwards-Compatibility Breaks
+
+* Dropped `Pipe.Vars`
+* `Pipe.Env` now defaults to the program's environment
+  - you can replace it with an `OverlayEnv` from Envish if you'd like
+* Dropped `Pipe.Getvar()`
+  - call `Pipe.Env.Getenv()` instead
+* Dropped `Pipe.Expand()`
+  - call `Pipe.Env.Expand()` instead
+
 ### Dependencies
 
-- bumped to go_envish v2.2.0
+- bumped to go_envish v3.0.1
 
 ## v4.3.0
 

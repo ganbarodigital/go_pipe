@@ -41,10 +41,9 @@ package pipe
 
 import (
 	"errors"
-	"os"
 	"testing"
 
-	envish "github.com/ganbarodigital/go_envish/v2"
+	envish "github.com/ganbarodigital/go_envish/v3"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -159,7 +158,7 @@ func TestNewPipeAppliesAnyOptionsWePassIn(t *testing.T) {
 		p.statusCode = expectedStatusCode
 	}
 	op2 := func(p *Pipe) {
-		p.Env = envish.NewEnv()
+		p.Env = envish.NewLocalEnv()
 	}
 
 	// ----------------------------------------------------------------
@@ -274,117 +273,6 @@ func TestPipeErrorCopesWithNilPointer(t *testing.T) {
 	// test the results
 
 	assert.Nil(t, actualResult)
-}
-
-func TestPipeExpandCopesWithNilPointer(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	var pipe *Pipe
-
-	expectedResult := os.Getenv("HOME")
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := pipe.Expand("${HOME}")
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestPipeExpandCopesWithEmptyStruct(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	var pipe Pipe
-
-	expectedResult := os.Getenv("HOME")
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := pipe.Expand("${HOME}")
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestPipeExpandUsesLocalVarsFirst(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	expectedResult := "this is set in Vars"
-
-	pipe := NewPipe()
-	pipe.Env = envish.NewEnv()
-	pipe.Env.Setenv("HOME", "this is set in Env")
-	pipe.Vars.Setenv("HOME", expectedResult)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := pipe.Expand("${HOME}")
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestPipeExpandUsesTemporaryEnvironmentIfWeHaveOne(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	expectedResult := "this is not a real HOME folder"
-
-	pipe := NewPipe()
-	pipe.Env = envish.NewEnv()
-	pipe.Env.Setenv("HOME", expectedResult)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := pipe.Expand("${HOME}")
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestPipeExpandConvertsUnknownVarsIntoBlankStrings(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	expectedResult := ""
-
-	pipe := NewPipe()
-	pipe.Env = envish.NewEnv()
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := pipe.Expand("${DOES_NOT_EXIST}")
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
 }
 
 func TestPipeOkayCopesWithNilPipePointer(t *testing.T) {
