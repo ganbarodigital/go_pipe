@@ -41,9 +41,8 @@ package pipe
 
 import (
 	"io"
-	"os"
 
-	envish "github.com/ganbarodigital/go_envish/v2"
+	envish "github.com/ganbarodigital/go_envish/v3"
 )
 
 // Pipe is our data structure. All Commands read from, and/or write to
@@ -63,19 +62,17 @@ type Pipe struct {
 	statusCode int
 
 	// Pipe commands can have their own environment, if they want one
-	Env *envish.Env
-
-	// Pipe commands can have their own local variables, if they want
-	Vars *envish.Env
+	Env envish.Expander
 }
 
 // NewPipe creates a new Pipe that's ready to use.
 //
-// It starts with an empty Stdin, and empty local variable store.
+// It starts with an empty Stdin, and uses the program's environment
+// by default.
 func NewPipe(options ...func(*Pipe)) *Pipe {
 	// create a pipe that's ready to go
 	retval := Pipe{
-		Vars: envish.NewEnv(),
+		Env: envish.NewProgramEnv(),
 	}
 	retval.ResetBuffers()
 	retval.ResetError()
@@ -121,48 +118,6 @@ func (p *Pipe) Error() error {
 
 	// yes we do
 	return p.err
-}
-
-// Expand replaces ${var} or $var in the input string.
-//
-// It uses the Pipe's private environment (if the Pipe has one),
-// or the program's environment otherwise.
-func (p *Pipe) Expand(fmt string) string {
-	return os.Expand(fmt, p.Getvar)
-}
-
-// Getvar returns the current value for a given variable name.
-//
-// It searches:
-//
-// * the local variable store (pipe.Vars)
-// * the local environment store (pipe.Env)
-// * the program's environment (os.Getenv)
-//
-// in that order.
-func (p *Pipe) Getvar(key string) string {
-	// do we have a pipe to work with?
-	if p == nil {
-		return os.Getenv(key)
-	}
-
-	// a list of the places we can look
-	lookupFuncs := []func(string) (string, bool){
-		p.Vars.LookupEnv,
-		p.Env.LookupEnv,
-		os.LookupEnv,
-	}
-
-	// search for this variable
-	for _, lookupFunc := range lookupFuncs {
-		value, ok := lookupFunc(key)
-		if ok {
-			return value
-		}
-	}
-
-	// if we get here, then it doesn't exist
-	return ""
 }
 
 // Okay confirms that the last Command run against the pipe completed
