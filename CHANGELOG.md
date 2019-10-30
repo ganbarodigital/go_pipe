@@ -2,6 +2,10 @@
 
 ## develop
 
+## v5.0.0
+
+Released Wednesday, 30th October 2019.
+
 ### Backwards-Compatibility Breaks
 
 * Dropped `Pipe.Vars`
