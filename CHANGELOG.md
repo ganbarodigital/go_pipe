@@ -6,6 +6,10 @@
 
 * Added `Pipe.WriteBuffer` interface
 
+### Fixes
+
+* `NewScanReader()` now panics if it is given a nil pointer
+
 ## v5.1.0
 
 Released Sunday, 3rd November 2019.

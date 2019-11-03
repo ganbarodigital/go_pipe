@@ -48,6 +48,11 @@ import (
 //
 // This is a low-level function. Use pipe.ReadLines or pipe.ReadWords instead.
 func NewScanReader(reader io.Reader, splitter bufio.SplitFunc) <-chan string {
+	// robustness
+	if reader == nil {
+		panic("nil pointer passed into pipe.NewScanReader()")
+	}
+
 	chn := make(chan string)
 
 	scanner := bufio.NewScanner(reader)
