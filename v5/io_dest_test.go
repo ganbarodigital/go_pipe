@@ -52,7 +52,7 @@ func TestDestNewReaderReturnsReaderForBuffer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var dest Dest
+	dest := NewDest()
 	dest.WriteString("hello world\nhave a nice day")
 
 	expectedResult := []string{"hello world", "have a nice day"}
@@ -79,7 +79,7 @@ func TestDestNewSourceReturnsSourceForBuffer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var dest Dest
+	dest := NewDest()
 	dest.WriteString("hello world\nhave a nice day")
 
 	expectedResult := []string{"hello world", "have a nice day"}
@@ -109,7 +109,7 @@ func TestDestParseIntReturnsValueOnSuccess(t *testing.T) {
 	testData := " 100 \n"
 	expectedOutput := 100
 
-	var dest Dest
+	dest := NewDest()
 	dest.WriteString(testData)
 
 	// ----------------------------------------------------------------
@@ -130,7 +130,7 @@ func TestDestReadLinesIteratesOverBuffer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var dest Dest
+	dest := NewDest()
 	dest.WriteString("hello world\nhave a nice day")
 
 	expectedResult := []string{"hello world", "have a nice day"}
@@ -149,13 +149,44 @@ func TestDestReadLinesIteratesOverBuffer(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
+func TestDestReadLinesEmptiesTheBuffer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	dest := NewDest()
+	dest.WriteString("hello world\nhave a nice day")
+
+	expectedResult := []string{"hello world", "have a nice day"}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	var actualResult []string
+	for line := range dest.ReadLines() {
+		actualResult = append(actualResult, line)
+	}
+
+	extraOutput := []string{}
+	for line := range dest.ReadLines() {
+		extraOutput = append(extraOutput, line)
+	}
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+	assert.Empty(t, extraOutput)
+}
+
 func TestDestReadWordsIteratesOverBuffer(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var dest Dest
+	dest := NewDest()
 	dest.WriteString("hello world\nhave a nice day")
 
 	expectedResult := []string{"hello", "world", "have", "a", "nice", "day"}
@@ -181,7 +212,7 @@ func TestDestStringReturnsBuffer(t *testing.T) {
 	// setup your test
 
 	expectedOutput := "hello world\n"
-	var dest Dest
+	dest := NewDest()
 	dest.WriteString(expectedOutput)
 
 	// ----------------------------------------------------------------
@@ -201,7 +232,7 @@ func TestDestStringsReturnsBuffer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var dest Dest
+	dest := NewDest()
 	dest.WriteString("hello world\nhave a nice day\n")
 	expectedOutput := []string{"hello world", "have a nice day"}
 
@@ -222,7 +253,7 @@ func TestDestTrimmedStringReturnsBufferWithWhitespaceRemoved(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var dest Dest
+	dest := NewDest()
 	dest.WriteString(" hello world\n")
 	expectedOutput := "hello world"
 
@@ -250,6 +281,26 @@ func TestDestImplementsReadBuffer(t *testing.T) {
 	// perform the change
 
 	_, ok := i.(ReadBuffer)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
+
+func TestDestImplementsWriteBuffer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	dest := Dest{}
+	var i interface{} = &dest
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(WriteBuffer)
 
 	// ----------------------------------------------------------------
 	// test the results

@@ -208,6 +208,35 @@ func TestReadLines(t *testing.T) {
 	assert.Equal(t, expectedOutput, actualOutput, "ReadLines() did not produce what we expect")
 }
 
+func TestReadLinesEmptiesTheInput(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	source := Source{ioutil.NopCloser(strings.NewReader("one\ntwo\nthree\n"))}
+	expectedOutput := []string{"one", "two", "three"}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualOutput := []string{}
+	for line := range source.ReadLines() {
+		actualOutput = append(actualOutput, line)
+	}
+
+	extraOutput := []string{}
+	for line := range source.ReadLines() {
+		extraOutput = append(extraOutput, line)
+	}
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedOutput, actualOutput, "ReadLines() did not produce what we expect")
+	assert.Empty(t, extraOutput)
+}
+
 func TestSourceStringReturnsBuffer(t *testing.T) {
 	t.Parallel()
 

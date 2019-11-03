@@ -213,7 +213,7 @@ func (p *Pipe) SetNewStdout() {
 	}
 
 	// yes we do
-	p.Stdout = new(Dest)
+	p.Stdout = NewDest()
 
 	// all done
 }
@@ -226,7 +226,7 @@ func (p *Pipe) SetNewStderr() {
 	}
 
 	// yes we do
-	p.Stderr = new(Dest)
+	p.Stderr = NewDest()
 
 	// all done
 }

@@ -40,31 +40,15 @@
 package pipe
 
 import (
-	"bufio"
 	"io"
 )
 
-// NewScanReader will run a bufio.Scanner over the contents of an io.Reader
-//
-// This is a low-level function. Use pipe.ReadLines or pipe.ReadWords instead.
-func NewScanReader(reader io.Reader, splitter bufio.SplitFunc) <-chan string {
-	// robustness
-	if reader == nil {
-		panic("nil pointer passed into pipe.NewScanReader()")
-	}
+// WriteBuffer gives us helpful ways to write to a buffer
+type WriteBuffer interface {
+	io.Writer
+	io.ByteWriter
+	io.StringWriter
 
-	chn := make(chan string)
-
-	scanner := bufio.NewScanner(reader)
-	scanner.Split(splitter)
-
-	go func() {
-		for scanner.Scan() {
-			line := scanner.Text()
-			chn <- line
-		}
-		close(chn)
-	}()
-
-	return chn
+	// WriteRune writes a rune to the buffer
+	WriteRune(r rune) (n int, err error)
 }

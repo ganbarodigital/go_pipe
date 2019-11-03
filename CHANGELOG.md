@@ -2,6 +2,19 @@
 
 ## develop
 
+## v5.2.0
+
+Released Sunday, 3rd November 2019.
+
+### New
+
+* Added `Pipe.WriteBuffer` interface
+
+### Fixes
+
+* `NewScanReader()` now panics if it is given a nil pointer
+* Reads on a `Dest` struct are now destructive
+
 ## v5.1.0
 
 Released Sunday, 3rd November 2019.
