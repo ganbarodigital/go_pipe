@@ -2,6 +2,10 @@
 
 ## develop
 
+## v5.1.0
+
+Released Sunday, 3rd November 2019.
+
 ### New
 
 * Added `Pipe.Flags` property
