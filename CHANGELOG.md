@@ -2,6 +2,10 @@
 
 ## develop
 
+### New
+
+* Added `Pipe.WriteBuffer` interface
+
 ## v5.1.0
 
 Released Sunday, 3rd November 2019.
