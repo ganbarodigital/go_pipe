@@ -9,6 +9,7 @@
 ### Fixes
 
 * `NewScanReader()` now panics if it is given a nil pointer
+* Reads on a `Dest` struct are now destructive
 
 ## v5.1.0
 

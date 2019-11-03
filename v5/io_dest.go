@@ -41,6 +41,7 @@ package pipe
 
 import (
 	"bufio"
+	"bytes"
 	"io"
 	"strconv"
 	"strings"
@@ -48,12 +49,20 @@ import (
 
 // Dest is an output source for our pipe
 type Dest struct {
-	strings.Builder
+	bytes.Buffer
 }
 
-// NewReader returns a `strings.Reader` for the contents of our buffer
+// NewDest creates a new output buffer
+func NewDest() *Dest {
+	retval := Dest{}
+
+	// all done
+	return &retval
+}
+
+// NewReader returns an `io.Reader` for the contents of our buffer
 func (d *Dest) NewReader() io.Reader {
-	return strings.NewReader(d.String())
+	return d
 }
 
 // NewSource returns a `Source` for reading the contents of our buffer
