@@ -63,6 +63,10 @@ type Pipe struct {
 
 	// Pipe commands can have their own environment, if they want one
 	Env envish.Expander
+
+	// You can pass bitmask flags into pipe commands. Their meaning
+	// is entirely yours to interpret.
+	Flags int
 }
 
 // NewPipe creates a new Pipe that's ready to use.
