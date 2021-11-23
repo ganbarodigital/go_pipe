@@ -11,6 +11,9 @@
 
 * Added `ReadWriteBuffer`
 * Added `FileDest` and `NewFileDest`
+* Added `AttachOsStdin`
+* Added `AttachOsStdout`
+* Added `AttachOsStderr`
 * `Dest` now implements `ReadWriteBuffer`
 
 ### Fixes
