@@ -45,6 +45,12 @@ import (
 
 // ReadBuffer gives us helpful ways to read from a buffer
 type ReadBuffer interface {
+	// Read allows other packages to easily use our buffer
+	io.Reader
+
+	// Close tells the input source that we're done reading from it
+	io.Closer
+
 	// NewReader returns an `io.Reader` for the contents of our buffer
 	NewReader() io.Reader
 

@@ -2,6 +2,10 @@
 
 ## develop
 
+### Fixes
+
+* `ReadBuffer` now extends `io.Reader` and `io.Closer`
+
 ## v5.2.0
 
 Released Sunday, 3rd November 2019.
