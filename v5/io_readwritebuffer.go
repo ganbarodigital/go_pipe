@@ -43,5 +43,5 @@ package pipe
 // we can write to
 type ReadWriteBuffer interface {
 	Input
-	WriteBuffer
+	Output
 }

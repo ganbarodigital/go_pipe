@@ -43,12 +43,14 @@ import (
 	"io"
 )
 
-// WriteBuffer gives us helpful ways to write to a buffer
-type WriteBuffer interface {
+// Output gives us helpful ways to write to an output destination
+type Output interface {
 	io.Writer
 	io.ByteWriter
 	io.StringWriter
 
-	// WriteRune writes a rune to the buffer
+	// WriteRune writes a single rune (a unicode character) to the output
+	// destination. It returns the number of types written, and any error
+	// encountered that caused the write to fail.
 	WriteRune(r rune) (n int, err error)
 }

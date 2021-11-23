@@ -12,6 +12,9 @@
 According to pkg.go.dev, nothing is using pipe/v5, so it's safe to make these changes.
 
 * `ReadBuffer` is now `Input`
+  - `ReadBuffer` was not an accurate name, as the input could have been backed by an underlying file (e.g. os.Stdin)
+* `WriteBuffer` is now `Output`
+  - `WriteBuffer` was not an accurate name, as the output could have been backed by an underlying file (e.g. os.Stdout)
 
 ### New
 
