@@ -7,6 +7,10 @@
 * `ReadBuffer.NewReader()` is now deprecated
   - there's no way to implement it without creating unwanted side-effects
 
+### New
+
+* Added `ReadWriteBuffer`
+
 ### Fixes
 
 * `ReadBuffer` now extends `io.Reader` and `io.Closer`
