@@ -49,11 +49,11 @@ import (
 // the pipe.
 type Pipe struct {
 	// Pipe commands read from Stdin
-	Stdin *Source
+	Stdin ReadBuffer
 
 	// Pipe commands write to Stdout and/or Stderr
-	Stdout *Dest
-	Stderr *Dest
+	Stdout ReadWriteBuffer
+	Stderr ReadWriteBuffer
 
 	// Pipe commands return an error. We store it here.
 	err error
@@ -73,6 +73,9 @@ type Pipe struct {
 //
 // It starts with an empty Stdin, and uses the program's environment
 // by default.
+//
+// You can provide a list of functional options for us to call. We'll
+// pass in the Pipe, for you to reconfigure.
 func NewPipe(options ...func(*Pipe)) *Pipe {
 	// create a pipe that's ready to go
 	retval := Pipe{

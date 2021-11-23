@@ -19,6 +19,9 @@
 
 ### Fixes
 
+* `Pipe.Stdin` is now a `ReadBuffer`
+* `Pipe.Stdout` is now a `ReadWriteBuffer`
+* `Pipe.Stderr` is now a `ReadWriteBuffer`
 * `ReadBuffer` now extends `io.Reader` and `io.Closer`
 
 ## v5.2.0
