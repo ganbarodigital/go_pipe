@@ -52,8 +52,8 @@ type Pipe struct {
 	Stdin Input
 
 	// Pipe commands write to Stdout and/or Stderr
-	Stdout ReadWriteBuffer
-	Stderr ReadWriteBuffer
+	Stdout InputOutput
+	Stderr InputOutput
 
 	// Pipe commands return an error. We store it here.
 	err error

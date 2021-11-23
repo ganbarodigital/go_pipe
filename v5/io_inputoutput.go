@@ -39,9 +39,9 @@
 
 package pipe
 
-// ReadWriteBuffer represents a buffer that we can read from and that
-// we can write to
-type ReadWriteBuffer interface {
+// InputOutput represents an input source that we can read from and
+// an output destination that we can write to
+type InputOutput interface {
 	Input
 	Output
 }

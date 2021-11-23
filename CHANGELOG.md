@@ -18,7 +18,7 @@ According to pkg.go.dev, nothing is using pipe/v5, so it's safe to make these ch
 
 ### New
 
-* Added `ReadWriteBuffer`
+* Added `InputOutput`
 * Added `FileDest` and `NewFileDest`
 * Added `AttachOsStdin`
 * Added `AttachOsStdout`
@@ -28,10 +28,10 @@ According to pkg.go.dev, nothing is using pipe/v5, so it's safe to make these ch
 
 ### Fixes
 
-* `Pipe.Stdin` is now a `ReadBuffer`
-* `Pipe.Stdout` is now a `ReadWriteBuffer`
-* `Pipe.Stderr` is now a `ReadWriteBuffer`
-* `ReadBuffer` now extends `io.Reader` and `io.Closer`
+* `Pipe.Stdin` is now an `Input`
+* `Pipe.Stdout` is now an `Output`
+* `Pipe.Stderr` is now an `Output`
+* `Input` now extends `io.Reader` and `io.Closer`
 
 ## v5.2.0
 

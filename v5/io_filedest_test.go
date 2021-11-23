@@ -170,7 +170,7 @@ func TestFileDestImplementsOutput(t *testing.T) {
 	assert.True(t, ok)
 }
 
-func TestFileDestImplementsReadWriteBuffer(t *testing.T) {
+func TestFileDestImplementsInputOutput(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -182,7 +182,7 @@ func TestFileDestImplementsReadWriteBuffer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(ReadWriteBuffer)
+	_, ok := i.(InputOutput)
 
 	// ----------------------------------------------------------------
 	// test the results
