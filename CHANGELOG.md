@@ -2,6 +2,11 @@
 
 ## develop
 
+### Deprecations
+
+* `ReadBuffer.NewReader()` is now deprecated
+  - there's no way to implement it without creating unwanted side-effects
+
 ### Fixes
 
 * `ReadBuffer` now extends `io.Reader` and `io.Closer`

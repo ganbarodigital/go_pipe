@@ -52,6 +52,9 @@ type ReadBuffer interface {
 	io.Closer
 
 	// NewReader returns an `io.Reader` for the contents of our buffer
+	//
+	// Deprecated: this function currently does nothing useful, as
+	// it can't be implemented in a way that's free from side effects
 	NewReader() io.Reader
 
 	// ParseInt returns the data in our buffer as an integer.
