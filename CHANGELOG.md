@@ -10,6 +10,7 @@
 ### New
 
 * Added `ReadWriteBuffer`
+* Added `FileDest` and `NewFileDest`
 * `Dest` now implements `ReadWriteBuffer`
 
 ### Fixes
