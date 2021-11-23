@@ -429,7 +429,7 @@ func TestNewSourceFromStringWrapsGivenString(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestSourceImplementsReadBuffer(t *testing.T) {
+func TestSourceImplementsInput(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -441,7 +441,7 @@ func TestSourceImplementsReadBuffer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(ReadBuffer)
+	_, ok := i.(Input)
 
 	// ----------------------------------------------------------------
 	// test the results

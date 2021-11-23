@@ -142,7 +142,7 @@ func TestFileDestImplementsReadBuffer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(ReadBuffer)
+	_, ok := i.(Input)
 
 	// ----------------------------------------------------------------
 	// test the results

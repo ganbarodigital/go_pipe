@@ -7,6 +7,12 @@
 * `ReadBuffer.NewReader()` is now deprecated
   - there's no way to implement it without creating unwanted side-effects
 
+### Refactoring
+
+According to pkg.go.dev, nothing is using pipe/v5, so it's safe to make these changes.
+
+* `ReadBuffer` is now `Input`
+
 ### New
 
 * Added `ReadWriteBuffer`

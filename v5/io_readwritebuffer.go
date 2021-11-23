@@ -42,6 +42,6 @@ package pipe
 // ReadWriteBuffer represents a buffer that we can read from and that
 // we can write to
 type ReadWriteBuffer interface {
-	ReadBuffer
+	Input
 	WriteBuffer
 }

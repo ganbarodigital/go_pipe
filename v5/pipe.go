@@ -49,7 +49,7 @@ import (
 // the pipe.
 type Pipe struct {
 	// Pipe commands read from Stdin
-	Stdin ReadBuffer
+	Stdin Input
 
 	// Pipe commands write to Stdout and/or Stderr
 	Stdout ReadWriteBuffer
