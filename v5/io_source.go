@@ -153,3 +153,8 @@ func NewSourceFromReadCloser(input io.ReadCloser) *Source {
 func NewSourceFromString(input string) *Source {
 	return NewSourceFromReader(strings.NewReader(input))
 }
+
+// NewSourceFromDest creates a `Source` from an existing Dest
+func NewSourceFromDest(d *Dest) *Source {
+	return NewSourceFromString(d.String())
+}

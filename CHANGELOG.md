@@ -15,6 +15,7 @@
 * Added `AttachOsStdout`
 * Added `AttachOsStderr`
 * `Dest` now implements `ReadWriteBuffer`
+* Added `NewSourceFromDest()`
 
 ### Fixes
 
