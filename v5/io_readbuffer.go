@@ -43,7 +43,7 @@ import (
 	"io"
 )
 
-// ReadBuffer gives us helpful ways to work with a buffer
+// ReadBuffer gives us helpful ways to read from a buffer
 type ReadBuffer interface {
 	// NewReader returns an `io.Reader` for the contents of our buffer
 	NewReader() io.Reader
