@@ -10,6 +10,7 @@
 ### New
 
 * Added `ReadWriteBuffer`
+* `Dest` now implements `ReadWriteBuffer`
 
 ### Fixes
 

@@ -307,3 +307,23 @@ func TestDestImplementsWriteBuffer(t *testing.T) {
 
 	assert.True(t, ok)
 }
+
+func TestDestImplementsReadWriteBuffer(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	dest := Dest{}
+	var i interface{} = &dest
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(ReadWriteBuffer)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}

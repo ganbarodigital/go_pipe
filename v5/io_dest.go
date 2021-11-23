@@ -60,6 +60,13 @@ func NewDest() *Dest {
 	return &retval
 }
 
+// Close tells the input source that we're done reading from it
+//
+// As our input source is a memory-backed buffer, this is a no-op
+func (d *Dest) Close() error {
+	return nil
+}
+
 // NewReader returns an `io.Reader` for the contents of our buffer
 func (d *Dest) NewReader() io.Reader {
 	return d
