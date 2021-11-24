@@ -42,6 +42,7 @@ package pipe
 import (
 	"io"
 
+	ioextra "github.com/ganbarodigital/go-ioextra/v2"
 	envish "github.com/ganbarodigital/go_envish/v3"
 )
 
@@ -49,11 +50,11 @@ import (
 // the pipe.
 type Pipe struct {
 	// Pipe commands read from Stdin
-	Stdin Input
+	Stdin ioextra.TextReader
 
 	// Pipe commands write to Stdout and/or Stderr
-	Stdout InputOutput
-	Stderr InputOutput
+	Stdout ioextra.TextReaderWriter
+	Stderr ioextra.TextReaderWriter
 
 	// Pipe commands return an error. We store it here.
 	err error
@@ -190,7 +191,7 @@ func (p *Pipe) SetNewStdin() {
 	}
 
 	// yes we do
-	p.Stdin = NewSourceFromString("")
+	p.Stdin = ioextra.NewTextBuffer()
 
 	// all done
 }
@@ -203,7 +204,10 @@ func (p *Pipe) SetStdinFromString(input string) {
 	}
 
 	// yes we do
-	p.Stdin = NewSourceFromString(input)
+	buf := ioextra.NewTextBuffer()
+	buf.WriteString(input)
+
+	p.Stdin = buf
 
 	// all done
 }
@@ -216,7 +220,7 @@ func (p *Pipe) SetNewStdout() {
 	}
 
 	// yes we do
-	p.Stdout = NewDest()
+	p.Stdout = ioextra.NewTextBuffer()
 
 	// all done
 }
@@ -229,7 +233,7 @@ func (p *Pipe) SetNewStderr() {
 	}
 
 	// yes we do
-	p.Stderr = NewDest()
+	p.Stderr = ioextra.NewTextBuffer()
 
 	// all done
 }

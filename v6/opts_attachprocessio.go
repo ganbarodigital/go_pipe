@@ -5,7 +5,7 @@
 // - http://labix.org/pipe
 // - https://github.com/bitfield/script
 //
-// Copyright 2019-present Ganbaro Digital Ltd
+// Copyright 2021-present Ganbaro Digital Ltd
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -39,18 +39,17 @@
 
 package pipe
 
-import (
-	"io"
-)
+// AttachOsStdin sets the pipe to read from your program's stdin
+// func AttachOsStdin(p *Pipe) {
+// 	p.Stdin = NewSourceFromReader(os.Stdin)
+// }
 
-// Output gives us helpful ways to write to an output destination
-type Output interface {
-	io.Writer
-	io.ByteWriter
-	io.StringWriter
+// AttachOsStdout sets the pipe to write to your program's stdout
+// func AttachOsStdout(p *Pipe) {
+// 	p.Stdout = NewFileDest(os.Stdout)
+// }
 
-	// WriteRune writes a single rune (a unicode character) to the output
-	// destination. It returns the number of types written, and any error
-	// encountered that caused the write to fail.
-	WriteRune(r rune) (n int, err error)
-}
+// AttachOsStderr sets the pipe to write to your program's stderr
+// func AttachOsStderr(p *Pipe) {
+// 	p.Stderr = NewFileDest(os.Stderr)
+// }
