@@ -39,17 +39,23 @@
 
 package pipe
 
+import (
+	"os"
+
+	ioextra "github.com/ganbarodigital/go-ioextra/v2"
+)
+
 // AttachOsStdin sets the pipe to read from your program's stdin
-// func AttachOsStdin(p *Pipe) {
-// 	p.Stdin = NewSourceFromReader(os.Stdin)
-// }
+func AttachOsStdin(p *Pipe) {
+	p.Stdin = ioextra.NewTextFile(os.Stdin)
+}
 
 // AttachOsStdout sets the pipe to write to your program's stdout
-// func AttachOsStdout(p *Pipe) {
-// 	p.Stdout = NewFileDest(os.Stdout)
-// }
+func AttachOsStdout(p *Pipe) {
+	p.Stdout = ioextra.NewTextFile(os.Stdout)
+}
 
 // AttachOsStderr sets the pipe to write to your program's stderr
-// func AttachOsStderr(p *Pipe) {
-// 	p.Stderr = NewFileDest(os.Stderr)
-// }
+func AttachOsStderr(p *Pipe) {
+	p.Stderr = ioextra.NewTextFile(os.Stderr)
+}

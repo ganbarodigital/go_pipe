@@ -2,6 +2,12 @@
 
 ## develop
 
+### New
+
+* Added `AttachOsStdin`
+* Added `AttachOsStdout`
+* Added `AttachOsStderr`
+
 ## v6.0.0
 
 Released Wednesday, 24th November 2021.
@@ -24,9 +30,6 @@ According to pkg.go.dev, nothing is using pipe/v5, so it's safe to make these ch
 
 * Added `InputOutput`
 * Added `FileDest` and `NewFileDest`
-* Added `AttachOsStdin`
-* Added `AttachOsStdout`
-* Added `AttachOsStderr`
 * `Dest` now implements `ReadWriteBuffer`
 * Added `NewSourceFromDest()`
 
