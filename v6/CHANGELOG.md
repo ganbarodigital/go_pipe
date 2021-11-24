@@ -11,6 +11,7 @@ The main focus for v6.0.0 has been to extract reusable I/O concepts out into a s
 * `Source` has been replaced by `ioextra.TextBuffer`
 * `Dest` has been replaced by `ioextra.TextBuffer`
 * `NewScanReader` has been replaced by `ioextra.NewTextScanner`
+* `Command` is now `PipeCommand`
 
 ### New
 

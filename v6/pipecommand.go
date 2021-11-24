@@ -39,9 +39,9 @@
 
 package pipe
 
-// Command is the signature of any function that will work with
+// PipeCommand is the signature of any function that will work with
 // our Pipe
-type Command = func(*Pipe) (int, error)
+type PipeCommand = func(*Pipe) (int, error)
 
 const (
 	// StatusOkay is what a Command returns when everything worked

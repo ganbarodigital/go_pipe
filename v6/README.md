@@ -14,11 +14,11 @@ It is released under the 3-clause New BSD license. See [LICENSE.md](LICENSE.md) 
   - [Why Did We Build Pipe?](#why-did-we-build-pipe)
 - [How Does It Work?](#how-does-it-work)
   - [Getting Started](#getting-started)
-  - [Composing Commands](#composing-commands)
+  - [Composing PipeCommands](#composing-pipecommands)
 - [Creating A Pipe](#creating-a-pipe)
   - [NewPipe()](#newpipe)
 - [Using A Pipe](#using-a-pipe)
-  - [Command](#command)
+  - [PipeCommand](#pipecommand)
 - [Pipe](#pipe)
   - [NewPipe()](#newpipe-1)
   - [Pipe Functional Options](#pipe-functional-options)
@@ -84,7 +84,7 @@ p := pipe.NewPipe()
 p.Stdin = NewSourceFromReader(os.Stdin)
 ```
 
-Define a [Command][Command], and then pass it into your pipe's `RunCommand()` function:
+Define a [PipeCommand][PipeCommand], and then pass it into your pipe's `RunCommand()` function:
 
 ```golang
 // this example is abridged from the Scriptish source code
@@ -112,13 +112,13 @@ Once your command has run, you can get its status code and Golang error:
 statusCode, err := p.StatusError()
 ```
 
-### Composing Commands
+### Composing PipeCommands
 
-Pipe gives you the glue that you can use to chain [Commands][Command] together. It standardises the behaviour of input, output and error handling, so that you can build your own solution for composing standardised [command functions][Command].
+Pipe gives you the glue that you can use to chain [PipeCommands][PipeCommand] together. It standardises the behaviour of input, output and error handling, so that you can build your own solution for composing standardised [command functions][PipeCommand].
 
 ```golang
 // this example code is based on the PipelineController from Scriptish
-func runCommands(p *pipe.Pipe, steps ...Pipe.Command) {
+func runCommands(p *pipe.Pipe, steps ...Pipe.PipeCommand) {
     // do we have a pipeline to play with?
     if p == nil {
         return
@@ -176,12 +176,12 @@ The new pipe:
 
 ## Using A Pipe
 
-### Command
+### PipeCommand
 
-`Command` is the signature of any function that will work with our Pipe.
+`PipeCommand` is the signature of any function that will work with our Pipe.
 
 ```golang
-type Command = func(*pipe.Pipe) (int, error)
+type PipeCommand = func(*pipe.Pipe) (int, error)
 ```
 
 It takes a `pipe.Pipe` as its input parameter, and it returns:
@@ -211,13 +211,13 @@ p.RunCommand(Sort)
 ## Pipe
 
 ```golang
-// Pipe is our data structure. All Commands read from, and/or write to
+// Pipe is our data structure. All PipeCommands read from, and/or write to
 // the pipe.
 type Pipe struct {
-	// Pipe commands read from Stdin
+	// PipeCommands read from Stdin
 	Stdin ioextra.TextReader
 
-	// Pipe commands write to Stdout and/or Stderr
+	// PipeCommands write to Stdout and/or Stderr
 	Stdout ioextra.TextReaderWriter
 	Stderr ioextra.TextReaderWriter
 
@@ -288,7 +288,7 @@ func (p *Pipe) DrainStdinToStdout()
 ### Pipe.Error()
 
 ```golang
-// Error returns the error returned from the last Command
+// Error returns the error returned from the last PipeCommand
 // that ran against this pipe
 func (p *Pipe) Error() error
 ```
@@ -296,7 +296,7 @@ func (p *Pipe) Error() error
 ### Pipe.Okay()
 
 ```golang
-// Okay confirms that the last Command run against the pipe completed
+// Okay confirms that the last PipeCommand run against the pipe completed
 // without reporting an error
 func (p *Pipe) Okay() bool
 ```
@@ -321,7 +321,7 @@ func (p *Pipe) ResetError()
 ```golang
 // RunCommand will run a function using this pipe. The function's return
 // values are stored in the pipe's StatusCode and Err fields.
-func (p *Pipe) RunCommand(c Command)
+func (p *Pipe) RunCommand(c PipeCommand)
 ```
 
 ### Pipe.SetNewStdin()
@@ -355,7 +355,7 @@ func (p *Pipe) SetNewStdout()
 ### Pipe.StatusCode()
 
 ```golang
-// StatusCode returns the UNIX-like status code from the last Command
+// StatusCode returns the UNIX-like status code from the last PipeCommand
 // that ran against this pipe
 func (p *Pipe) StatusCode() int
 ```
@@ -368,7 +368,7 @@ func (p *Pipe) StatusCode() int
 func (p *Pipe) StatusError() (int, error)
 ```
 
-[Command]: #command
+[PipeCommand]: #pipecommand
 [RunCommand]: #piperuncommand
 [Envish]: https://github.com/ganbarodigital/go_envish
 [Scriptish]: https://github.com/ganbarodigital/go_scriptish

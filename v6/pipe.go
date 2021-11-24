@@ -46,13 +46,13 @@ import (
 	envish "github.com/ganbarodigital/go_envish/v3"
 )
 
-// Pipe is our data structure. All Commands read from, and/or write to
+// Pipe is our data structure. All PipeCommands read from, and/or write to
 // the pipe.
 type Pipe struct {
-	// Pipe commands read from Stdin
+	// PipeCommands read from Stdin
 	Stdin ioextra.TextReader
 
-	// Pipe commands write to Stdout and/or Stderr
+	// PipeCommands write to Stdout and/or Stderr
 	Stdout ioextra.TextReaderWriter
 	Stderr ioextra.TextReaderWriter
 
@@ -95,7 +95,7 @@ func NewPipe(options ...func(*Pipe)) *Pipe {
 }
 
 // DrainStdinToStdout will copy everything that's left in the pipe's Stdin
-// over to the pipe's Stdout
+// over to the pipe's Stdout.
 func (p *Pipe) DrainStdinToStdout() {
 	// do we have a pipe to work with?
 	if p == nil {
@@ -116,8 +116,8 @@ func (p *Pipe) DrainStdinToStdout() {
 	io.Copy(p.Stdout, p.Stdin)
 }
 
-// Error returns the error returned from the last Command
-// that ran against this pipe
+// Error returns the error returned from the last PipeCommand
+// that ran against this pipe.
 func (p *Pipe) Error() error {
 	// do we have a pipe to work with?
 	if p == nil {
@@ -128,8 +128,8 @@ func (p *Pipe) Error() error {
 	return p.err
 }
 
-// Okay confirms that the last Command run against the pipe completed
-// without reporting an error
+// Okay confirms that the last PipeCommand run against the pipe completed
+// without reporting an error.
 func (p *Pipe) Okay() bool {
 	// do we have a pipe to inspect?
 	if p == nil {
@@ -140,7 +140,7 @@ func (p *Pipe) Okay() bool {
 	return p.err == nil
 }
 
-// ResetBuffers creates new, empty buffers for the pipe
+// ResetBuffers creates new, empty buffers for the pipe.
 func (p *Pipe) ResetBuffers() {
 	// do we have a pipe to work with?
 	if p == nil {
@@ -154,7 +154,7 @@ func (p *Pipe) ResetBuffers() {
 }
 
 // ResetError sets the pipe's status code and error to their zero values
-// of (StatusOkay, nil)
+// of (StatusOkay, nil).
 func (p *Pipe) ResetError() {
 	// do we have a pipe to work with?
 	if p == nil {
@@ -168,7 +168,7 @@ func (p *Pipe) ResetError() {
 
 // RunCommand will run a function using this pipe. The function's return
 // values are stored in the pipe's StatusCode and Err fields.
-func (p *Pipe) RunCommand(c Command) {
+func (p *Pipe) RunCommand(c PipeCommand) {
 	// do we have a pipe to work with?
 	if p == nil || p.Stdin == nil || p.Stdout == nil {
 		return
@@ -183,7 +183,7 @@ func (p *Pipe) RunCommand(c Command) {
 	}
 }
 
-// SetNewStdin creates a new, empty Stdin buffer on this pipe
+// SetNewStdin creates a new, empty Stdin buffer on this pipe.
 func (p *Pipe) SetNewStdin() {
 	// do we have a pipe to work with?
 	if p == nil {
@@ -196,7 +196,7 @@ func (p *Pipe) SetNewStdin() {
 	// all done
 }
 
-// SetStdinFromString sets the pipe's Stdin to be the given input string
+// SetStdinFromString sets the pipe's Stdin to be the given input string.
 func (p *Pipe) SetStdinFromString(input string) {
 	// do we have a pipe to work with?
 	if p == nil {
@@ -212,7 +212,7 @@ func (p *Pipe) SetStdinFromString(input string) {
 	// all done
 }
 
-// SetNewStdout creates a new, empty Stdout buffer on this pipe
+// SetNewStdout creates a new, empty Stdout buffer on this pipe.
 func (p *Pipe) SetNewStdout() {
 	// do we have a pipe to work with?
 	if p == nil {
@@ -225,7 +225,7 @@ func (p *Pipe) SetNewStdout() {
 	// all done
 }
 
-// SetNewStderr creates a new, empty Stderr buffer on this pipe
+// SetNewStderr creates a new, empty Stderr buffer on this pipe.
 func (p *Pipe) SetNewStderr() {
 	// do we have a pipe to work with?
 	if p == nil {
@@ -238,8 +238,8 @@ func (p *Pipe) SetNewStderr() {
 	// all done
 }
 
-// StatusCode returns the UNIX-like status code from the last Command
-// that ran against this pipe
+// StatusCode returns the UNIX-like status code from the last PipeCommand
+// that ran against this pipe.
 func (p *Pipe) StatusCode() int {
 	// do we have a pipe to work with?
 	if p == nil {
@@ -251,7 +251,7 @@ func (p *Pipe) StatusCode() int {
 }
 
 // StatusError is a shorthand for calling p.StatusCode() and p.Error()
-// to get the UNIX-like status code and the last reported Golang error
+// to get the UNIX-like status code and the last reported Golang error.
 func (p *Pipe) StatusError() (int, error) {
 	// do we have a pipe to inspect?
 	if p == nil {
