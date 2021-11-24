@@ -2,6 +2,10 @@
 
 ## develop
 
+## v6.0.0
+
+Released Wednesday, 24th November 2021.
+
 ### Deprecations
 
 * `ReadBuffer.NewReader()` is now deprecated
