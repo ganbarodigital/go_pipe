@@ -2,6 +2,10 @@
 
 ## develop
 
+## v6.1.0
+
+Released Wednesday, 24th November 2021.
+
 ### New
 
 * Added `AttachOsStdin`
