@@ -44,14 +44,14 @@ import "fmt"
 // ErrNonZeroStatusCode is the error we return when a sequence has finished
 // with a non-zero status code and no error of its own
 type ErrNonZeroStatusCode struct {
-	sequenceType string
-	statusCode   int
+	SequenceType string
+	StatusCode   int
 }
 
 func (e ErrNonZeroStatusCode) Error() string {
 	return fmt.Sprintf(
 		"%s exited with non-zero status code %d",
-		e.sequenceType,
-		e.statusCode,
+		e.SequenceType,
+		e.StatusCode,
 	)
 }
