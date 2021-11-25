@@ -2,6 +2,10 @@
 
 ## develop
 
+## v6.1.1
+
+Released Thursday, 25th November 2021.
+
 ### Fixes
 
 * `ErrNonZeroStatusCode` now exports its fields.
