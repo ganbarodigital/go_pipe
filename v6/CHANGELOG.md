@@ -4,6 +4,28 @@
 
 The main focus for v6.0.0 has been to extract reusable I/O concepts out into a separate `ioextra` package.
 
+## v6.1.1
+
+Released Thursday, 25th November 2021.
+
+### Fixes
+
+* `ErrNonZeroErrorCode` now exports its fields.
+
+## v6.1.0
+
+Released Wednesday, 24th November 2021.
+
+### New
+
+* Added `AttachOsStdin`
+* Added `AttachOsStdout`
+* Added `AttachOsStderr`
+
+## v6.0.0
+
+Released Wednesday, 24th November 2021.
+
 ### Refactoring
 
 * `ReadBuffer` has been replaced by `ioextra.TextReader`
@@ -12,12 +34,6 @@ The main focus for v6.0.0 has been to extract reusable I/O concepts out into a s
 * `Dest` has been replaced by `ioextra.TextBuffer`
 * `NewScanReader` has been replaced by `ioextra.NewTextScanner`
 * `Command` is now `PipeCommand`
-
-### New
-
-* Added `AttachOsStdin`
-* Added `AttachOsStdout`
-* Added `AttachOsStderr`
 
 ### Fixes
 
