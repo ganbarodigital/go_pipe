@@ -4,6 +4,10 @@
 
 The main focus for v6.0.0 has been to extract reusable I/O concepts out into a separate `ioextra` package.
 
+## v6.2.0
+
+Released Friday, 26th November 2021.
+
 ### New
 
 * Added `Pipe.PushStdin()`
