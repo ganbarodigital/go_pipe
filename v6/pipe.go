@@ -499,6 +499,9 @@ func (p *Pipe) PopStderr() {
 //
 // This is useful for callers who need to temporarily replace the pipe's
 // Stderr (for example, to redirect to /dev/null).
+//
+// NOTE: even if p.Stdout == p.Stderr, PopStderrOnly leaves p.Stdout
+// untouched.
 func (p *Pipe) PopStderrOnly() {
 	// do we have a pipe to work with?
 	if p == nil {
