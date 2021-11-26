@@ -4,6 +4,18 @@
 
 The main focus for v6.0.0 has been to extract reusable I/O concepts out into a separate `ioextra` package.
 
+### New
+
+* Added `Pipe.PushStdin()`
+* Added `Pipe.PopStdin()`
+* Added `Pipe.StdinStackLen()`
+* Added `Pipe.PushStdout()`
+* Added `Pipe.PopStdout()`
+* Added `Pipe.StdoutStackLen()`
+* Added `Pipe.PushStderr()`
+* Added `Pipe.PopStderr()`
+* Added `Pipe.StderrStackLen()`
+
 ## v6.1.1
 
 Released Thursday, 25th November 2021.

@@ -56,16 +56,22 @@ type Pipe struct {
 	Stdout ioextra.TextReaderWriter
 	Stderr ioextra.TextReaderWriter
 
-	// Pipe commands return an error. We store it here.
+	// Pipe users may need to temporarily replace Stdin, Stdout and/or Stderr
+	// We provide a simple stack system to support that.
+	stdinStack  []ioextra.TextReader
+	stdoutStack []ioextra.TextReaderWriter
+	stderrStack []ioextra.TextReaderWriter
+
+	// PipeCommands return an error. We store it here.
 	err error
 
-	// Pipe commands return a UNIX-like status code. We store it here.
+	// PipeCommands return a UNIX-like status code. We store it here.
 	statusCode int
 
-	// Pipe commands can have their own environment, if they want one
+	// PipeCommands can have their own environment, if they want one
 	Env envish.Expander
 
-	// You can pass bitmask flags into pipe commands. Their meaning
+	// You can pass bitmask flags into PipeCommands. Their meaning
 	// is entirely yours to interpret.
 	Flags int
 }
@@ -140,7 +146,11 @@ func (p *Pipe) Okay() bool {
 	return p.err == nil
 }
 
-// ResetBuffers creates new, empty buffers for the pipe.
+// ResetBuffers creates new, empty Stdin, Stdout and Stderr for the given
+// pipe.
+//
+// It also empties the internal stacks used by PushStdin / PopStdin,
+// PushStdout / PopStdout, and PushStderr / PopStderr.
 func (p *Pipe) ResetBuffers() {
 	// do we have a pipe to work with?
 	if p == nil {
@@ -151,6 +161,11 @@ func (p *Pipe) ResetBuffers() {
 	p.SetNewStdin()
 	p.SetNewStdout()
 	p.SetNewStderr()
+
+	// reset our internal stacks
+	p.stdinStack = make([]ioextra.TextReader, 0)
+	p.stdoutStack = make([]ioextra.TextReaderWriter, 0)
+	p.stderrStack = make([]ioextra.TextReaderWriter, 0)
 }
 
 // ResetError sets the pipe's status code and error to their zero values
@@ -212,6 +227,65 @@ func (p *Pipe) SetStdinFromString(input string) {
 	// all done
 }
 
+// PushStdin adds the pipe's existing Stdin to an internal stack,
+// and then sets the pipe's Stdin to the given newStdin.
+//
+// You can call PopStdin to reverse this operation.
+//
+// This is useful for callers who need to temporarily replace the pipe's
+// Stdin.
+func (p *Pipe) PushStdin(newStdin ioextra.TextReader) {
+	// do we have a pipe to work with?
+	if p == nil {
+		// no, we do not
+		return
+	}
+
+	p.stdinStack = append(p.stdinStack, p.Stdin)
+	p.Stdin = newStdin
+}
+
+// PopStdin sets the pipe's Stdin to its previous value.
+//
+// It reverses your last call to PushStdin.
+//
+// This is useful for callers who need to temporarily replace the pipe's
+// Stdin.
+func (p *Pipe) PopStdin() {
+	// do we have a pipe to work with?
+	if p == nil {
+		// no, we do not
+		return
+	}
+
+	// do we have anything to restore?
+	if len(p.stdinStack) == 0 {
+		return
+	}
+
+	// restore Stdin
+	p.Stdin = p.stdinStack[len(p.stdinStack)-1]
+
+	// remove the value we've just popped from the stack
+	p.stdinStack = p.stdinStack[:len(p.stdinStack)-1]
+}
+
+// StdinStackLen returns the number of entries in the internal stack of
+// Stdin entries.
+//
+// You can call PushStdin and PopStdin to add entries to & from the
+// internal stack.
+func (p *Pipe) StdinStackLen() int {
+	// do we have a pipe to work with?
+	if p == nil {
+		// no, we do not
+		return 0
+	}
+
+	// yes we do
+	return len(p.stdinStack)
+}
+
 // SetNewStdout creates a new, empty Stdout buffer on this pipe.
 func (p *Pipe) SetNewStdout() {
 	// do we have a pipe to work with?
@@ -225,6 +299,66 @@ func (p *Pipe) SetNewStdout() {
 	// all done
 }
 
+// PushStdout adds the pipe's existing Stdout to an internal stack,
+// and then sets the pipe's Stdout to the given newStdout.
+//
+// You can call PopStdout to reverse this operation.
+//
+// This is useful for callers who need to temporarily replace the pipe's
+// Stdout (for example, to redirect to /dev/null).
+func (p *Pipe) PushStdout(newStdout ioextra.TextReaderWriter) {
+	// do we have a pipe to work with?
+	if p == nil {
+		// no, we do not
+		return
+	}
+
+	// yes we do
+	p.stdoutStack = append(p.stdoutStack, p.Stdout)
+	p.Stdout = newStdout
+}
+
+// PopStdout sets the pipe's Stdout to its previous value.
+//
+// It reverses your last call to PushStdout.
+//
+// This is useful for callers who need to temporarily replace the pipe's
+// Stdout (for example, to redirect to /dev/null).
+func (p *Pipe) PopStdout() {
+	// do we have a pipe to work with?
+	if p == nil {
+		// no, we do not
+		return
+	}
+
+	// do we have anything to restore?
+	if len(p.stdoutStack) == 0 {
+		return
+	}
+
+	// restore Stdout
+	p.Stdout = p.stdoutStack[len(p.stdoutStack)-1]
+
+	// remove the value we've just popped from the stack
+	p.stdoutStack = p.stdoutStack[:len(p.stdoutStack)-1]
+}
+
+// StdoutStackLen returns the number of entries in the internal stack of
+// Stdout entries.
+//
+// You can call PushStdout and PopStdout to add entries to & from the
+// internal stack.
+func (p *Pipe) StdoutStackLen() int {
+	// do we have a pipe to work with?
+	if p == nil {
+		// no, we do not
+		return 0
+	}
+
+	// yes we do
+	return len(p.stdoutStack)
+}
+
 // SetNewStderr creates a new, empty Stderr buffer on this pipe.
 func (p *Pipe) SetNewStderr() {
 	// do we have a pipe to work with?
@@ -236,6 +370,66 @@ func (p *Pipe) SetNewStderr() {
 	p.Stderr = ioextra.NewTextBuffer()
 
 	// all done
+}
+
+// PushStderr adds the pipe's existing Stderr to an internal stack,
+// and then sets the pipe's Stderr to the given newStderr.
+//
+// You can call PopStderr to reverse this operation.
+//
+// This is useful for callers who need to temporarily replace the pipe's
+// Stderr (for example, to redirect to /dev/null).
+func (p *Pipe) PushStderr(newStderr ioextra.TextReaderWriter) {
+	// do we have a pipe to work with?
+	if p == nil {
+		// no, we do not
+		return
+	}
+
+	// yes we do
+	p.stderrStack = append(p.stderrStack, p.Stderr)
+	p.Stderr = newStderr
+}
+
+// PopStderr sets the pipe's Stderr to its previous value.
+//
+// It reverses your last call to PushStderr.
+//
+// This is useful for callers who need to temporarily replace the pipe's
+// Stderr (for example, to redirect to /dev/null).
+func (p *Pipe) PopStderr() {
+	// do we have a pipe to work with?
+	if p == nil {
+		// no, we do not
+		return
+	}
+
+	// do we have anything to restore?
+	if len(p.stderrStack) == 0 {
+		return
+	}
+
+	// restore Stderr
+	p.Stderr = p.stderrStack[len(p.stderrStack)-1]
+
+	// remove the value we've just popped from the stack
+	p.stderrStack = p.stderrStack[:len(p.stderrStack)-1]
+}
+
+// StderrStackLen returns the number of entries in the internal stack of
+// Stderr entries.
+//
+// You can call PushStderr and PopStderr to add entries to & from the
+// internal stack.
+func (p *Pipe) StderrStackLen() int {
+	// do we have a pipe to work with?
+	if p == nil {
+		// no, we do not
+		return 0
+	}
+
+	// yes we do
+	return len(p.stderrStack)
 }
 
 // StatusCode returns the UNIX-like status code from the last PipeCommand

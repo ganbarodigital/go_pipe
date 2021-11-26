@@ -19,6 +19,7 @@ It is released under the 3-clause New BSD license. See [LICENSE.md](LICENSE.md) 
   - [NewPipe()](#newpipe)
 - [Using A Pipe](#using-a-pipe)
   - [PipeCommand](#pipecommand)
+  - [Using The Stdin, Stdout And Stderr Stacks](#using-the-stdin-stdout-and-stderr-stacks)
 - [Pipe](#pipe)
   - [NewPipe()](#newpipe-1)
   - [Pipe Functional Options](#pipe-functional-options)
@@ -30,8 +31,17 @@ It is released under the 3-clause New BSD license. See [LICENSE.md](LICENSE.md) 
   - [Pipe.RunCommand()](#piperuncommand)
   - [Pipe.SetNewStdin()](#pipesetnewstdin)
   - [Pipe.SetStdinFromString()](#pipesetstdinfromstring)
+  - [Pipe.PushStdin()](#pipepushstdin)
+  - [Pipe.PopStdin()](#pipepopstdin)
+  - [Pipe.StdinStackLen()](#pipestdinstacklen)
   - [Pipe.SetNewStderr()](#pipesetnewstderr)
+  - [Pipe.PushStderr()](#pipepushstderr)
+  - [Pipe.PopStderr()](#pipepopstderr)
+  - [Pipe.StderrStackLen()](#pipestderrstacklen)
   - [Pipe.SetNewStdout()](#pipesetnewstdout)
+  - [Pipe.PushStdout()](#pipepushstdout)
+  - [Pipe.PopStdout()](#pipepopstdout)
+  - [Pipe.StdoutStackLen()](#pipestdoutstacklen)
   - [Pipe.StatusCode()](#pipestatuscode)
   - [Pipe.StatusError()](#pipestatuserror)
 
@@ -208,6 +218,31 @@ func Sort(p *Pipe) (int, error) {
 p.RunCommand(Sort)
 ```
 
+### Using The Stdin, Stdout And Stderr Stacks
+
+Sometimes, you may want to temporarily replace the pipe's Stdin, Stdout or Stderr (for example, to simulate redirecting to `/dev/null`).
+
+You can use the pipe's push & pop functions for this, so that you don't have to keep track of it yourself:
+
+Input/Output   | Push Method      | Pop Method
+---------------|------------------|-----------
+`p.Stdin`      | `p.PushStdin()`  | `p.PopStdin()`
+`p.Stdout`     | `p.PushStdout()` | `p.PopStdout()`
+`p.Stderr`     | `p.PushStderr()` | `p.PopStderr()`
+
+```golang
+pipe := NewPipe()
+
+// temporarily redirect to /dev/null
+p.PushStderr(ioextra.NewTextDevNull())
+
+// run a command
+p.RunCommand(myCommand)
+
+// restore the previous stderr
+p.PopStderr()
+```
+
 ## Pipe
 
 ```golang
@@ -304,7 +339,11 @@ func (p *Pipe) Okay() bool
 ### Pipe.ResetBuffers()
 
 ```golang
-// ResetBuffers creates new, empty buffers for the pipe
+// ResetBuffers creates new, empty Stdin, Stdout and Stderr for the given
+// pipe.
+//
+// It also empties the internal stacks used by PushStdin / PopStdin,
+// PushStdout / PopStdout, and PushStderr / PopStderr.
 func (p *Pipe) ResetBuffers()
 ```
 
@@ -338,6 +377,42 @@ func (p *Pipe) SetNewStdin()
 func (p *Pipe) SetStdinFromString(input string) {
 ```
 
+### Pipe.PushStdin()
+
+```golang
+// PushStdin adds the pipe's existing Stdin to an internal stack,
+// and then sets the pipe's Stdin to the given newStdin.
+//
+// You can call PopStdin to reverse this operation.
+//
+// This is useful for callers who need to temporarily replace the pipe's
+// Stdin.
+func (p *Pipe) PushStdin(newStdin ioextra.TextReader)
+```
+
+### Pipe.PopStdin()
+
+```golang
+// PopStdin sets the pipe's Stdin to its previous value.
+//
+// It reverses your last call to PushStdin.
+//
+// This is useful for callers who need to temporarily replace the pipe's
+// Stdin.
+func (p *Pipe) PopStdin()
+```
+
+### Pipe.StdinStackLen()
+
+```golang
+// StdinStackLen returns the number of entries in the internal stack of
+// Stdin entries.
+//
+// You can call PushStdin and PopStdin to add entries to & from the
+// internal stack.
+func (p *Pipe) StdinStackLen()
+```
+
 ### Pipe.SetNewStderr()
 
 ```golang
@@ -345,11 +420,83 @@ func (p *Pipe) SetStdinFromString(input string) {
 func (p *Pipe) SetNewStderr()
 ```
 
+### Pipe.PushStderr()
+
+```golang
+// PushStderr adds the pipe's existing Stderr to an internal stack,
+// and then sets the pipe's Stderr to the given newStderr.
+//
+// You can call PopStderr to reverse this operation.
+//
+// This is useful for callers who need to temporarily replace the pipe's
+// Stderr (for example, to redirect to /dev/null).
+func (p *Pipe) PushStderr(newStderr ioextra.TextReaderWriter)
+```
+
+### Pipe.PopStderr()
+
+```golang
+// PopStderr sets the pipe's Stderr to its previous value.
+//
+// It reverses your last call to PushStderr.
+//
+// This is useful for callers who need to temporarily replace the pipe's
+// Stderr (for example, to redirect to /dev/null).
+func (p *Pipe) PopStderr()
+```
+
+### Pipe.StderrStackLen()
+
+```golang
+// StderrStackLen returns the number of entries in the internal stack of
+// Stderr entries.
+//
+// You can call PushStderr and PopStderr to add entries to & from the
+// internal stack.
+func (p *Pipe) StderrStackLen()
+```
+
 ### Pipe.SetNewStdout()
 
 ```golang
 // SetNewStdout creates a new, empty Stdout buffer on this pipe
 func (p *Pipe) SetNewStdout()
+```
+
+### Pipe.PushStdout()
+
+```golang
+// PushStdout adds the pipe's existing Stdout to an internal stack,
+// and then sets the pipe's Stdout to the given newStdout.
+//
+// You can call PopStdout to reverse this operation.
+//
+// This is useful for callers who need to temporarily replace the pipe's
+// Stdout (for example, to redirect to /dev/null).
+func (p *Pipe) PushStdout(newStdout ioextra.TextReaderWriter)
+```
+
+### Pipe.PopStdout()
+
+```golang
+// PopStdout sets the pipe's Stdout to its previous value.
+//
+// It reverses your last call to PushStdout.
+//
+// This is useful for callers who need to temporarily replace the pipe's
+// Stdout (for example, to redirect to /dev/null).
+func (p *Pipe) PopStdout()
+```
+
+### Pipe.StdoutStackLen()
+
+```golang
+// StdoutStackLen returns the number of entries in the internal stack of
+// Stdout entries.
+//
+// You can call PushStdout and PopStdout to add entries to & from the
+// internal stack.
+func (p *Pipe) StdoutStackLen()
 ```
 
 ### Pipe.StatusCode()
