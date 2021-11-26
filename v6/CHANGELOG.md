@@ -4,6 +4,12 @@
 
 The main focus for v6.0.0 has been to extract reusable I/O concepts out into a separate `ioextra` package.
 
+### New
+
+* Added `Pipe.PopStdoutOnly()`
+* Added `Pipe.PopStderrOnly()`
+* `Pipe.PushStdout()`, `Pipe.PushStderr()`, `Pipe.PopStdout()` and `Pipe.PopStderr()` will change *both* the Stdout and the Stderr, if they are the same when the function is called.
+
 ## v6.2.0
 
 Released Friday, 26th November 2021.

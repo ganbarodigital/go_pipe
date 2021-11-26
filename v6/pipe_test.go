@@ -1088,6 +1088,32 @@ func TestPipePushStdoutReplacesThePipeStdout(t *testing.T) {
 	assert.Equal(t, testData2, actualResult)
 }
 
+func TestPipePushStdoutReplacesThePipeStderrIfNeeded(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	oldStdout := ioextra.NewTextBuffer()
+
+	unit := NewPipe()
+	unit.Stdout = oldStdout
+	unit.Stderr = oldStdout
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	newStdout := ioextra.NewTextBuffer()
+
+	unit.PushStdout(newStdout)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	// the pipe's Stdout and Stderr should be the same
+	assert.Equal(t, unit.Stdout, newStdout)
+	assert.Equal(t, unit.Stderr, newStdout)
+}
+
 func TestPipePushStdoutAddsTheOldStdoutToAnInternalStack(t *testing.T) {
 
 	// ----------------------------------------------------------------
@@ -1173,6 +1199,32 @@ func TestPipePopStdoutRestoresThePreviousPipeStdout(t *testing.T) {
 	assert.Zero(t, unit.StdoutStackLen())
 }
 
+func TestPipePopStdoutRestoresThePreviousPipeStderrIfNecessary(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	oldStdout := ioextra.NewTextBuffer()
+
+	unit := NewPipe()
+	unit.Stderr = oldStdout
+	unit.Stdout = oldStdout
+
+	newStdout := ioextra.NewTextBuffer()
+	unit.PushStdout(newStdout)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	unit.PopStdout()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, unit.Stdout, oldStdout)
+	assert.Equal(t, unit.Stderr, oldStdout)
+}
+
 func TestPipePopStdoutDoesNothingWhenTheInternalStackIsEmpty(t *testing.T) {
 
 	// ----------------------------------------------------------------
@@ -1194,6 +1246,116 @@ func TestPipePopStdoutDoesNothingWhenTheInternalStackIsEmpty(t *testing.T) {
 	// perform the change
 
 	unit.PopStdout()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	// we should get back the data that was written into oldStdout
+	actualResult := unit.Stdout.String()
+	assert.Equal(t, testData1, actualResult)
+}
+
+func TestPipePopStdoutOnlyCopesWithNilPointer(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var unit *Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	unit.PopStdoutOnly()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	// as long as the code does not segfault, it works!
+}
+
+func TestPipePopStdoutOnlyRestoresThePreviousPipeStdout(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	// we need some data, so that we can try and tell the two buffers
+	// apart later on
+	testData1 := "this is the old stdout"
+	oldStdout := ioextra.NewTextBuffer()
+	oldStdout.WriteString(testData1)
+
+	unit := NewPipe()
+	unit.Stdout = oldStdout
+
+	// before we can test popping the stack, we need to push something
+	// onto it
+	testData2 := "this is the new stdout"
+	newStdout := ioextra.NewTextBuffer()
+	newStdout.WriteString(testData2)
+
+	unit.PushStdout(newStdout)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	unit.PopStdoutOnly()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	// we should get back the data that was written into oldStdout
+	actualResult := unit.Stdout.String()
+	assert.Equal(t, testData1, actualResult)
+	assert.Zero(t, unit.StdoutStackLen())
+}
+
+func TestPipePopStdoutOnlyDoesNotRestoreThePreviousPipeStderr(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	oldStdout := ioextra.NewTextBuffer()
+
+	unit := NewPipe()
+	unit.Stderr = oldStdout
+	unit.Stdout = oldStdout
+
+	newStdout := ioextra.NewTextBuffer()
+	unit.PushStdout(newStdout)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	unit.PopStdoutOnly()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, unit.Stdout, oldStdout)
+	assert.Equal(t, unit.Stderr, newStdout)
+}
+
+func TestPipePopStdoutOnlyDoesNothingWhenTheInternalStackIsEmpty(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	// we need some data, so that we can prove that popping an empty stack
+	// makes no changes
+	testData1 := "this is the old stdout"
+	oldStdout := ioextra.NewTextBuffer()
+	oldStdout.WriteString(testData1)
+
+	unit := NewPipe()
+	unit.Stdout = oldStdout
+
+	// make sure the stack is empty
+	assert.Zero(t, unit.StdoutStackLen())
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	unit.PopStdoutOnly()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -1346,6 +1508,32 @@ func TestPipePushStderrReplacesThePipeStderr(t *testing.T) {
 	assert.Equal(t, testData2, actualResult)
 }
 
+func TestPipePushStderrReplacesThePipeStdoutIfNeeded(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	oldStderr := ioextra.NewTextBuffer()
+
+	unit := NewPipe()
+	unit.Stdout = oldStderr
+	unit.Stderr = oldStderr
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	newStderr := ioextra.NewTextBuffer()
+
+	unit.PushStderr(newStderr)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	// the pipe's Stdout and Stderr should be the same
+	assert.Equal(t, unit.Stdout, newStderr)
+	assert.Equal(t, unit.Stderr, newStderr)
+}
+
 func TestPipePushStderrAddsTheOldStderrToAnInternalStack(t *testing.T) {
 
 	// ----------------------------------------------------------------
@@ -1431,6 +1619,32 @@ func TestPipePopStderrRestoresThePreviousPipeStderr(t *testing.T) {
 	assert.Zero(t, unit.StderrStackLen())
 }
 
+func TestPipePopStderrRestoresThePreviousPipeStdoutIfNecessary(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	oldStderr := ioextra.NewTextBuffer()
+
+	unit := NewPipe()
+	unit.Stderr = oldStderr
+	unit.Stdout = oldStderr
+
+	newStderr := ioextra.NewTextBuffer()
+	unit.PushStderr(newStderr)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	unit.PopStderr()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, unit.Stdout, oldStderr)
+	assert.Equal(t, unit.Stderr, oldStderr)
+}
+
 func TestPipePopStderrDoesNothingWhenTheInternalStackIsEmpty(t *testing.T) {
 
 	// ----------------------------------------------------------------
@@ -1461,6 +1675,115 @@ func TestPipePopStderrDoesNothingWhenTheInternalStackIsEmpty(t *testing.T) {
 	assert.Equal(t, testData1, actualResult)
 }
 
+func TestPipePopStderrOnlyCopesWithNilPointer(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var unit *Pipe
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	unit.PopStderrOnly()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	// as long as the code does not segfault, it works!
+}
+
+func TestPipePopStderrOnlyRestoresThePreviousPipeStderr(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	// we need some data, so that we can try and tell the two buffers
+	// apart later on
+	testData1 := "this is the old stderr"
+	oldStderr := ioextra.NewTextBuffer()
+	oldStderr.WriteString(testData1)
+
+	unit := NewPipe()
+	unit.Stderr = oldStderr
+
+	// before we can test popping the stack, we need to push something
+	// onto it
+	testData2 := "this is the new stderr"
+	newStderr := ioextra.NewTextBuffer()
+	newStderr.WriteString(testData2)
+
+	unit.PushStderr(newStderr)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	unit.PopStderrOnly()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	// we should get back the data that was written into oldStderr
+	actualResult := unit.Stderr.String()
+	assert.Equal(t, testData1, actualResult)
+	assert.Zero(t, unit.StderrStackLen())
+}
+
+func TestPipePopStderrOnlyNeverRestoresThePreviousPipeStdout(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	oldStderr := ioextra.NewTextBuffer()
+
+	unit := NewPipe()
+	unit.Stderr = oldStderr
+	unit.Stdout = oldStderr
+
+	newStderr := ioextra.NewTextBuffer()
+	unit.PushStderr(newStderr)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	unit.PopStderrOnly()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, unit.Stdout, newStderr)
+	assert.Equal(t, unit.Stderr, oldStderr)
+}
+
+func TestPipePopStderrOnlyDoesNothingWhenTheInternalStackIsEmpty(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	// we need some data, so that we can prove that popping an empty stack
+	// makes no changes
+	testData1 := "this is the old stderr"
+	oldStderr := ioextra.NewTextBuffer()
+	oldStderr.WriteString(testData1)
+
+	unit := NewPipe()
+	unit.Stderr = oldStderr
+
+	// make sure the stack is empty
+	assert.Zero(t, unit.StderrStackLen())
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	unit.PopStderrOnly()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	// we should get back the data that was written into oldStderr
+	actualResult := unit.Stderr.String()
+	assert.Equal(t, testData1, actualResult)
+}
 func TestPipeStderrStackLenCopesWithNilPointer(t *testing.T) {
 
 	// ----------------------------------------------------------------

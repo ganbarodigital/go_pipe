@@ -37,10 +37,12 @@ It is released under the 3-clause New BSD license. See [LICENSE.md](LICENSE.md) 
   - [Pipe.SetNewStderr()](#pipesetnewstderr)
   - [Pipe.PushStderr()](#pipepushstderr)
   - [Pipe.PopStderr()](#pipepopstderr)
+  - [Pipe.PopStderrOnly()](#pipepopstderronly)
   - [Pipe.StderrStackLen()](#pipestderrstacklen)
   - [Pipe.SetNewStdout()](#pipesetnewstdout)
   - [Pipe.PushStdout()](#pipepushstdout)
   - [Pipe.PopStdout()](#pipepopstdout)
+  - [Pipe.PopStdoutOnly()](#pipepopstdoutonly)
   - [Pipe.StdoutStackLen()](#pipestdoutstacklen)
   - [Pipe.StatusCode()](#pipestatuscode)
   - [Pipe.StatusError()](#pipestatuserror)
@@ -227,8 +229,8 @@ You can use the pipe's push & pop functions for this, so that you don't have to 
 Input/Output   | Push Method      | Pop Method
 ---------------|------------------|-----------
 `p.Stdin`      | `p.PushStdin()`  | `p.PopStdin()`
-`p.Stdout`     | `p.PushStdout()` | `p.PopStdout()`
-`p.Stderr`     | `p.PushStderr()` | `p.PopStderr()`
+`p.Stdout`     | `p.PushStdout()` | `p.PopStdout()`, `p.PopStdoutOnly()`
+`p.Stderr`     | `p.PushStderr()` | `p.PopStderr()`, `p.PopStderrOnly()`
 
 ```golang
 pipe := NewPipe()
@@ -430,6 +432,9 @@ func (p *Pipe) SetNewStderr()
 //
 // This is useful for callers who need to temporarily replace the pipe's
 // Stderr (for example, to redirect to /dev/null).
+//
+// NOTE: if p.Stdout == p.Stderr, PushStderr sets *both* p.Stdout and
+// p.Stderr to the newStderr.
 func (p *Pipe) PushStderr(newStderr ioextra.TextReaderWriter)
 ```
 
@@ -442,7 +447,28 @@ func (p *Pipe) PushStderr(newStderr ioextra.TextReaderWriter)
 //
 // This is useful for callers who need to temporarily replace the pipe's
 // Stderr (for example, to redirect to /dev/null).
+//
+// NOTE: if p.Stdout == p.Stderr, PopStderr sets *both* p.Stdout and
+// p.Stderr to the previous Stderr. Most of the time, this is the desired
+// intention.
+//
+// Use PopStderrOnly when you don't want to touch the pipe's Stdout at all.
 func (p *Pipe) PopStderr()
+```
+
+### Pipe.PopStderrOnly()
+
+```golang
+// PopStderrOnly sets the pipe's Stderr to its previous value.
+//
+// It reverses your last call to PushStderr.
+//
+// This is useful for callers who need to temporarily replace the pipe's
+// Stderr (for example, to redirect to /dev/null).
+//
+// NOTE: even if p.Stdout == p.Stderr, PopStderrOnly leaves p.Stdout
+// untouched.
+func (p *Pipe) PopStderrOnly()
 ```
 
 ### Pipe.StderrStackLen()
@@ -473,6 +499,9 @@ func (p *Pipe) SetNewStdout()
 //
 // This is useful for callers who need to temporarily replace the pipe's
 // Stdout (for example, to redirect to /dev/null).
+//
+// NOTE: if p.Stdout == p.Stderr, PushStdout sets *both* p.Stdout and
+// p.Stderr to the newStdout.
 func (p *Pipe) PushStdout(newStdout ioextra.TextReaderWriter)
 ```
 
@@ -485,7 +514,28 @@ func (p *Pipe) PushStdout(newStdout ioextra.TextReaderWriter)
 //
 // This is useful for callers who need to temporarily replace the pipe's
 // Stdout (for example, to redirect to /dev/null).
+//
+// NOTE: if p.Stdout == p.Stderr, PopStdout sets *both* p.Stdout and
+// p.Stderr to the previous Stdout. Most of the time, this is the desired
+// intention.
+//
+// Use PopStdoutOnly when you don't want to touch the pipe's Stderr at all.
 func (p *Pipe) PopStdout()
+```
+
+### Pipe.PopStdoutOnly()
+
+```golang
+// PopStdoutOnly sets the pipe's Stdout to its previous value.
+//
+// It reverses your last call to PushStdout.
+//
+// This is useful for callers who need to temporarily replace the pipe's
+// Stdout (for example, to redirect to /dev/null).
+//
+// NOTE: even if p.Stdout == p.Stderr, PopStdoutOnly leaves p.Stderr
+// untouched.
+func (p *Pipe) PopStdoutOnly()
 ```
 
 ### Pipe.StdoutStackLen()

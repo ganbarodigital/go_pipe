@@ -306,11 +306,20 @@ func (p *Pipe) SetNewStdout() {
 //
 // This is useful for callers who need to temporarily replace the pipe's
 // Stdout (for example, to redirect to /dev/null).
+//
+// NOTE: if p.Stdout == p.Stderr, PushStdout sets *both* p.Stdout and
+// p.Stderr to the newStdout.
 func (p *Pipe) PushStdout(newStdout ioextra.TextReaderWriter) {
 	// do we have a pipe to work with?
 	if p == nil {
 		// no, we do not
 		return
+	}
+
+	// special case - does the pipe's Stdout currently point at
+	// the pipe's Stdin?
+	if p.Stdout == p.Stderr {
+		p.Stderr = newStdout
 	}
 
 	// yes we do
@@ -324,7 +333,50 @@ func (p *Pipe) PushStdout(newStdout ioextra.TextReaderWriter) {
 //
 // This is useful for callers who need to temporarily replace the pipe's
 // Stdout (for example, to redirect to /dev/null).
+//
+// NOTE: if p.Stdout == p.Stderr, PopStdout sets *both* p.Stdout and
+// p.Stderr to the previous Stdout. Most of the time, this is the desired
+// intention.
+//
+// Use PopStdoutOnly when you don't want to touch the pipe's Stderr at all.
 func (p *Pipe) PopStdout() {
+	// do we have a pipe to work with?
+	if p == nil {
+		// no, we do not
+		return
+	}
+
+	// do we have anything to restore?
+	if len(p.stdoutStack) == 0 {
+		return
+	}
+
+	// fetch the old stdout from our internal stack
+	oldStdout := p.stdoutStack[len(p.stdoutStack)-1]
+
+	// remove the value we've just popped from the stack
+	p.stdoutStack = p.stdoutStack[:len(p.stdoutStack)-1]
+
+	// do Stdout and Stderr point at each other?
+	if p.Stdout == p.Stderr {
+		// yes, so we need to restore to both
+		p.Stderr = oldStdout
+	}
+
+	// restore Stdout
+	p.Stdout = oldStdout
+}
+
+// PopStdoutOnly sets the pipe's Stdout to its previous value.
+//
+// It reverses your last call to PushStdout.
+//
+// This is useful for callers who need to temporarily replace the pipe's
+// Stdout (for example, to redirect to /dev/null).
+//
+// NOTE: even if p.Stdout == p.Stderr, PopStdoutOnly leaves p.Stderr
+// untouched.
+func (p *Pipe) PopStdoutOnly() {
 	// do we have a pipe to work with?
 	if p == nil {
 		// no, we do not
@@ -379,6 +431,9 @@ func (p *Pipe) SetNewStderr() {
 //
 // This is useful for callers who need to temporarily replace the pipe's
 // Stderr (for example, to redirect to /dev/null).
+//
+// NOTE: if p.Stdout == p.Stderr, PushStderr sets *both* p.Stdout and
+// p.Stderr to the newStderr.
 func (p *Pipe) PushStderr(newStderr ioextra.TextReaderWriter) {
 	// do we have a pipe to work with?
 	if p == nil {
@@ -387,6 +442,13 @@ func (p *Pipe) PushStderr(newStderr ioextra.TextReaderWriter) {
 	}
 
 	// yes we do
+
+	// special case - does the pipe's Stdout current point at the pipe's
+	// Stderr?
+	if p.Stdout == p.Stderr {
+		p.Stdout = newStderr
+	}
+
 	p.stderrStack = append(p.stderrStack, p.Stderr)
 	p.Stderr = newStderr
 }
@@ -397,7 +459,47 @@ func (p *Pipe) PushStderr(newStderr ioextra.TextReaderWriter) {
 //
 // This is useful for callers who need to temporarily replace the pipe's
 // Stderr (for example, to redirect to /dev/null).
+//
+// NOTE: if p.Stdout == p.Stderr, PopStderr sets *both* p.Stdout and
+// p.Stderr to the previous Stderr. Most of the time, this is the desired
+// intention.
+//
+// Use PopStderrOnly when you don't want to touch the pipe's Stdout at all.
 func (p *Pipe) PopStderr() {
+	// do we have a pipe to work with?
+	if p == nil {
+		// no, we do not
+		return
+	}
+
+	// do we have anything to restore?
+	if len(p.stderrStack) == 0 {
+		return
+	}
+
+	// restore Stderr
+	oldStderr := p.stderrStack[len(p.stderrStack)-1]
+
+	// remove the value we've just popped from the stack
+	p.stderrStack = p.stderrStack[:len(p.stderrStack)-1]
+
+	// special case - does the pipe's Stdout currently point at
+	// the pipe's Stderr?
+	if p.Stdout == p.Stderr {
+		p.Stdout = oldStderr
+	}
+
+	// restore Stderr
+	p.Stderr = oldStderr
+}
+
+// PopStderrOnly sets the pipe's Stderr to its previous value.
+//
+// It reverses your last call to PushStderr.
+//
+// This is useful for callers who need to temporarily replace the pipe's
+// Stderr (for example, to redirect to /dev/null).
+func (p *Pipe) PopStderrOnly() {
 	// do we have a pipe to work with?
 	if p == nil {
 		// no, we do not
