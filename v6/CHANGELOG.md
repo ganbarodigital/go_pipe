@@ -2,7 +2,9 @@
 
 ## develop
 
-The main focus for v6.0.0 has been to extract reusable I/O concepts out into a separate `ioextra` package.
+## v6.3.0
+
+Released Friday, 26th November 2021.
 
 ### New
 
@@ -47,6 +49,8 @@ Released Wednesday, 24th November 2021.
 ## v6.0.0
 
 Released Wednesday, 24th November 2021.
+
+The main focus for v6.0.0 has been to extract reusable I/O concepts out into a separate `ioextra` package.
 
 ### Refactoring
 
