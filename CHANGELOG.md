@@ -2,6 +2,10 @@
 
 ## develop
 
+## v7.0.0
+
+Released Friday, 3rd December 2021.
+
 ### Dependencies
 
 * Switched to go_envish/v4.
