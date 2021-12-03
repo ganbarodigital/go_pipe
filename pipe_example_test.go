@@ -5,7 +5,7 @@
 // - http://labix.org/pipe
 // - https://github.com/bitfield/script
 //
-// Copyright 2019-present Ganbaro Digital Ltd
+// Copyright 2021-present Ganbaro Digital Ltd
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,16 +37,24 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-package pipe
+package pipe_test
 
-// PipeCommand is the signature of any function that will work with
-// our Pipe.
-type PipeCommand = func(*Pipe) (int, error)
+import (
+	"fmt"
 
-const (
-	// StatusOkay is what a PipeCommand returns when everything worked.
-	StatusOkay = iota
-
-	// StatusNotOkay is what a PipeCommand returns when it did not work.
-	StatusNotOkay
+	pipe "github.com/ganbarodigital/go_pipe/v6"
 )
+
+func ExampleNewPipe() {
+	// create a new pipe
+	p := pipe.NewPipe()
+
+	// it starts with no error set
+	statusCode, err := p.StatusError()
+
+	fmt.Printf("statusCode is: %d\n", statusCode)
+	fmt.Printf("err is: %v\n", err)
+	// Output:
+	// statusCode is: 0
+	// err is: <nil>
+}

@@ -560,3 +560,11 @@ func (p *Pipe) StatusError() (int, error) {
 	// yes we do
 	return p.statusCode, p.err
 }
+
+// SetStatusCode is a helper method, added to help us test this
+// package.
+//
+// It is not part of our supported API. Use at your own risk!
+func SetStatusCode(p *Pipe, newStatusCode int) {
+	p.statusCode = newStatusCode
+}

@@ -41,8 +41,9 @@ package pipe
 
 import "fmt"
 
-// ErrNonZeroStatusCode is the error we return when a sequence has finished
-// with a non-zero status code and no error of its own
+// ErrNonZeroStatusCode is the error returned by Pipe.RunCommand when
+// a PipeCommand has finished with a non-zero status code, and no error
+// of its own.
 type ErrNonZeroStatusCode struct {
 	SequenceType string
 	StatusCode   int
