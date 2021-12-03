@@ -37,37 +37,73 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-package pipe
+package pipe_test
 
 import (
-	"os"
+	"fmt"
 
-	ioextra "github.com/ganbarodigital/go-ioextra/v2"
+	pipe "github.com/ganbarodigital/go_pipe/v6"
 )
 
-// AttachOsStdin sets the pipe to read from your program's Stdin.
-//
-// You can use this both as a functional option, and/or as a
-// PipeCommand.
-func AttachOsStdin(p *Pipe) (int, error) {
-	p.Stdin = ioextra.NewTextFile(os.Stdin)
-	return StatusOkay, nil
+func ExampleAttachOsStdin_asFunctionalOption() {
+	// the pipe will now read from os.Stdin
+	p := pipe.NewPipe(pipe.AttachOsStdin)
+
+	// prove that the option did not error out
+	statusCode, err := p.StatusError()
+	fmt.Printf("statusCode is: %d\n", statusCode)
+	fmt.Printf("err is: %v\n", err)
+	// Output:
+	// statusCode is: 0
+	// err is: <nil>
 }
 
-// AttachOsStdout sets the pipe to write to your program's Stdout.
-//
-// You can use this both as a functional option, and/or as a
-// PipeCommand.
-func AttachOsStdout(p *Pipe) (int, error) {
-	p.Stdout = ioextra.NewTextFile(os.Stdout)
-	return StatusOkay, nil
+func ExampleAttachOsStdin_asPipeCommand() {
+	// create a new pipe
+	p := pipe.NewPipe()
+
+	// the pipe will now read from os.Stdin
+	p.RunCommand(pipe.AttachOsStdin)
 }
 
-// AttachOsStderr sets the pipe to write to your program's Stderr.
-//
-// You can use this both as a functional option, and/or as a
-// PipeCommand.
-func AttachOsStderr(p *Pipe) (int, error) {
-	p.Stderr = ioextra.NewTextFile(os.Stderr)
-	return StatusOkay, nil
+func ExampleAttachOsStdout_asFunctionalOption() {
+	// the pipe will now read from os.Stdout
+	p := pipe.NewPipe(pipe.AttachOsStdout)
+
+	// prove that the option did not error out
+	statusCode, err := p.StatusError()
+	fmt.Printf("statusCode is: %d\n", statusCode)
+	fmt.Printf("err is: %v\n", err)
+	// Output:
+	// statusCode is: 0
+	// err is: <nil>
+}
+
+func ExampleAttachOsStdout_asPipeCommand() {
+	// create a new pipe
+	p := pipe.NewPipe()
+
+	// the pipe will now read from os.Stdout
+	p.RunCommand(pipe.AttachOsStdout)
+}
+
+func ExampleAttachOsStderr_asFunctionalOption() {
+	// the pipe will now read from os.Stdin
+	p := pipe.NewPipe(pipe.AttachOsStderr)
+
+	// prove that the option did not error out
+	statusCode, err := p.StatusError()
+	fmt.Printf("statusCode is: %d\n", statusCode)
+	fmt.Printf("err is: %v\n", err)
+	// Output:
+	// statusCode is: 0
+	// err is: <nil>
+}
+
+func ExampleAttachOsStderr_asPipeCommand() {
+	// create a new pipe
+	p := pipe.NewPipe()
+
+	// the pipe will now read from os.Stderr
+	p.RunCommand(pipe.AttachOsStderr)
 }

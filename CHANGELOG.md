@@ -10,6 +10,14 @@
 
 * `Pipe.Env` is now always an `envish.OverlayEnv`
   - makes life a lot easier for Scriptish
+* `NewPipe()` now accepts `PipeOption` as functional options
+* `AttachOsStdin()` is now a `PipeCommand` and `PipeOption`
+* `AttachOsStdout()` is now a `PipeCommand` and `PipeOption`
+* `AttachOsStderr()` is now a `PipeCommand` and `PipeOption`
+
+### New
+
+* Added `PipeOption` (an alias for `PipeCommand`)
 
 ## v6.3.0
 

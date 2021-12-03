@@ -14,13 +14,20 @@ It is released under the 3-clause New BSD license. See [./LICENSE.md](./LICENSE.
 - [Constants](#constants)
 - [Functions](#functions)
   - [func AttachOsStderr](#func-attachosstderr)
+  - [AsFunctionalOption](#asfunctionaloption)
+  - [AsPipeCommand](#aspipecommand)
   - [func AttachOsStdin](#func-attachosstdin)
+  - [AsFunctionalOption](#asfunctionaloption-1)
+  - [AsPipeCommand](#aspipecommand-1)
   - [func AttachOsStdout](#func-attachosstdout)
+  - [AsFunctionalOption](#asfunctionaloption-2)
+  - [AsPipeCommand](#aspipecommand-2)
   - [func SetStatusCode](#func-setstatuscode)
 - [Types](#types)
   - [type ErrNonZeroStatusCode](#type-errnonzerostatuscode)
   - [type Pipe](#type-pipe)
   - [type PipeCommand](#type-pipecommand)
+  - [type PipeOption](#type-pipeoption)
 
 ## What Does Pipe Do
 
@@ -250,25 +257,178 @@ const (
 
 ## Functions
 
-### func [AttachOsStderr](/opts_attachprocessio.go#L59)
+### func [AttachOsStderr](/opts_attachprocessio.go#L70)
 
-`func AttachOsStderr(p *Pipe)`
+`func AttachOsStderr(p *Pipe) (int, error)`
 
 AttachOsStderr sets the pipe to write to your program's Stderr.
 
-### func [AttachOsStdin](/opts_attachprocessio.go#L49)
+You can use this both as a functional option, and/or as a
+PipeCommand.
 
-`func AttachOsStdin(p *Pipe)`
+### AsFunctionalOption
+
+```golang
+package main
+
+import (
+	"fmt"
+	pipe "github.com/ganbarodigital/go_pipe/v6"
+)
+
+func main() {
+	// the pipe will now read from os.Stdin
+	p := pipe.NewPipe(pipe.AttachOsStderr)
+
+	// prove that the option did not error out
+	statusCode, err := p.StatusError()
+	fmt.Printf("statusCode is: %d\n", statusCode)
+	fmt.Printf("err is: %v\n", err)
+}
+
+```
+
+ Output:
+
+```
+statusCode is: 0
+err is: <nil>
+```
+
+### AsPipeCommand
+
+```golang
+package main
+
+import (
+	pipe "github.com/ganbarodigital/go_pipe/v6"
+)
+
+func main() {
+	// create a new pipe
+	p := pipe.NewPipe()
+
+	// the pipe will now read from os.Stderr
+	p.RunCommand(pipe.AttachOsStderr)
+}
+
+```
+
+### func [AttachOsStdin](/opts_attachprocessio.go#L52)
+
+`func AttachOsStdin(p *Pipe) (int, error)`
 
 AttachOsStdin sets the pipe to read from your program's Stdin.
 
-### func [AttachOsStdout](/opts_attachprocessio.go#L54)
+You can use this both as a functional option, and/or as a
+PipeCommand.
 
-`func AttachOsStdout(p *Pipe)`
+### AsFunctionalOption
+
+```golang
+package main
+
+import (
+	"fmt"
+	pipe "github.com/ganbarodigital/go_pipe/v6"
+)
+
+func main() {
+	// the pipe will now read from os.Stdin
+	p := pipe.NewPipe(pipe.AttachOsStdin)
+
+	// prove that the option did not error out
+	statusCode, err := p.StatusError()
+	fmt.Printf("statusCode is: %d\n", statusCode)
+	fmt.Printf("err is: %v\n", err)
+}
+
+```
+
+ Output:
+
+```
+statusCode is: 0
+err is: <nil>
+```
+
+### AsPipeCommand
+
+```golang
+package main
+
+import (
+	pipe "github.com/ganbarodigital/go_pipe/v6"
+)
+
+func main() {
+	// create a new pipe
+	p := pipe.NewPipe()
+
+	// the pipe will now read from os.Stdin
+	p.RunCommand(pipe.AttachOsStdin)
+}
+
+```
+
+### func [AttachOsStdout](/opts_attachprocessio.go#L61)
+
+`func AttachOsStdout(p *Pipe) (int, error)`
 
 AttachOsStdout sets the pipe to write to your program's Stdout.
 
-### func [SetStatusCode](/pipe.go#L572)
+You can use this both as a functional option, and/or as a
+PipeCommand.
+
+### AsFunctionalOption
+
+```golang
+package main
+
+import (
+	"fmt"
+	pipe "github.com/ganbarodigital/go_pipe/v6"
+)
+
+func main() {
+	// the pipe will now read from os.Stdout
+	p := pipe.NewPipe(pipe.AttachOsStdout)
+
+	// prove that the option did not error out
+	statusCode, err := p.StatusError()
+	fmt.Printf("statusCode is: %d\n", statusCode)
+	fmt.Printf("err is: %v\n", err)
+}
+
+```
+
+ Output:
+
+```
+statusCode is: 0
+err is: <nil>
+```
+
+### AsPipeCommand
+
+```golang
+package main
+
+import (
+	pipe "github.com/ganbarodigital/go_pipe/v6"
+)
+
+func main() {
+	// create a new pipe
+	p := pipe.NewPipe()
+
+	// the pipe will now read from os.Stdout
+	p.RunCommand(pipe.AttachOsStdout)
+}
+
+```
+
+### func [SetStatusCode](/pipe.go#L581)
 
 `func SetStatusCode(p *Pipe, newStatusCode int)`
 
@@ -298,9 +458,9 @@ of its own.
 Pipe is our data structure. All PipeCommands read from, and/or write to
 the pipe.
 
-#### func [NewPipe](/pipe.go#L86)
+#### func [NewPipe](/pipe.go#L88)
 
-`func NewPipe(options ...func(*Pipe)) *Pipe`
+`func NewPipe(options ...PipeOption) *Pipe`
 
 NewPipe creates a new Pipe that's ready to use.
 
@@ -308,7 +468,9 @@ It starts with an empty Stdin, and uses the program's environment
 by default.
 
 You can provide a list of functional options for us to call. We'll
-pass in the Pipe, for you to reconfigure.
+pass in the Pipe, for you to reconfigure. If your functional option
+returns an error, we'll store that in the Pipe, and stop processing
+any further functional options.
 
 ```golang
 package main
@@ -338,28 +500,28 @@ statusCode is: 0
 err is: <nil>
 ```
 
-#### func (*Pipe) [DrainStdinToStdout](/pipe.go#L109)
+#### func (*Pipe) [DrainStdinToStdout](/pipe.go#L118)
 
 `func (p *Pipe) DrainStdinToStdout()`
 
 DrainStdinToStdout will copy everything that's left in the pipe's Stdin
 over to the pipe's Stdout.
 
-#### func (*Pipe) [Error](/pipe.go#L131)
+#### func (*Pipe) [Error](/pipe.go#L140)
 
 `func (p *Pipe) Error() error`
 
 Error returns the error returned from the last PipeCommand
 that ran against this pipe.
 
-#### func (*Pipe) [Okay](/pipe.go#L143)
+#### func (*Pipe) [Okay](/pipe.go#L152)
 
 `func (p *Pipe) Okay() bool`
 
 Okay confirms that the last PipeCommand run against the pipe completed
 without reporting an error.
 
-#### func (*Pipe) [PopStderr](/pipe.go#L472)
+#### func (*Pipe) [PopStderr](/pipe.go#L481)
 
 `func (p *Pipe) PopStderr()`
 
@@ -376,7 +538,7 @@ intention.
 
 Use PopStderrOnly when you don't want to touch the pipe's Stdout at all.
 
-#### func (*Pipe) [PopStderrOnly](/pipe.go#L509)
+#### func (*Pipe) [PopStderrOnly](/pipe.go#L518)
 
 `func (p *Pipe) PopStderrOnly()`
 
@@ -390,7 +552,7 @@ Stderr (for example, to redirect to /dev/null).
 NOTE: even if p.Stdout == p.Stderr, PopStderrOnly leaves p.Stdout
 untouched.
 
-#### func (*Pipe) [PopStdin](/pipe.go#L258)
+#### func (*Pipe) [PopStdin](/pipe.go#L267)
 
 `func (p *Pipe) PopStdin()`
 
@@ -401,7 +563,7 @@ It reverses your last call to PushStdin.
 This is useful for callers who need to temporarily replace the pipe's
 Stdin.
 
-#### func (*Pipe) [PopStdout](/pipe.go#L346)
+#### func (*Pipe) [PopStdout](/pipe.go#L355)
 
 `func (p *Pipe) PopStdout()`
 
@@ -418,7 +580,7 @@ intention.
 
 Use PopStdoutOnly when you don't want to touch the pipe's Stderr at all.
 
-#### func (*Pipe) [PopStdoutOnly](/pipe.go#L383)
+#### func (*Pipe) [PopStdoutOnly](/pipe.go#L392)
 
 `func (p *Pipe) PopStdoutOnly()`
 
@@ -432,7 +594,7 @@ Stdout (for example, to redirect to /dev/null).
 NOTE: even if p.Stdout == p.Stderr, PopStdoutOnly leaves p.Stderr
 untouched.
 
-#### func (*Pipe) [PushStderr](/pipe.go#L441)
+#### func (*Pipe) [PushStderr](/pipe.go#L450)
 
 `func (p *Pipe) PushStderr(newStderr ioextra.TextReaderWriter)`
 
@@ -447,7 +609,7 @@ Stderr (for example, to redirect to /dev/null).
 NOTE: if p.Stdout == p.Stderr, PushStderr sets *both* p.Stdout and
 p.Stderr to the newStderr.
 
-#### func (*Pipe) [PushStdin](/pipe.go#L241)
+#### func (*Pipe) [PushStdin](/pipe.go#L250)
 
 `func (p *Pipe) PushStdin(newStdin ioextra.TextReader)`
 
@@ -459,7 +621,7 @@ You can call PopStdin to reverse this operation.
 This is useful for callers who need to temporarily replace the pipe's
 Stdin.
 
-#### func (*Pipe) [PushStdout](/pipe.go#L316)
+#### func (*Pipe) [PushStdout](/pipe.go#L325)
 
 `func (p *Pipe) PushStdout(newStdout ioextra.TextReaderWriter)`
 
@@ -474,7 +636,7 @@ Stdout (for example, to redirect to /dev/null).
 NOTE: if p.Stdout == p.Stderr, PushStdout sets *both* p.Stdout and
 p.Stderr to the newStdout.
 
-#### func (*Pipe) [ResetBuffers](/pipe.go#L158)
+#### func (*Pipe) [ResetBuffers](/pipe.go#L167)
 
 `func (p *Pipe) ResetBuffers()`
 
@@ -484,59 +646,59 @@ pipe.
 It also empties the internal stacks used by PushStdin / PopStdin,
 PushStdout / PopStdout, and PushStderr / PopStderr.
 
-#### func (*Pipe) [ResetError](/pipe.go#L177)
+#### func (*Pipe) [ResetError](/pipe.go#L186)
 
 `func (p *Pipe) ResetError()`
 
 ResetError sets the pipe's status code and error to their zero values
 of (StatusOkay, nil).
 
-#### func (*Pipe) [RunCommand](/pipe.go#L190)
+#### func (*Pipe) [RunCommand](/pipe.go#L199)
 
 `func (p *Pipe) RunCommand(c PipeCommand)`
 
 RunCommand will run a function using this pipe. The function's return
 values are stored in the pipe's StatusCode and Err fields.
 
-#### func (*Pipe) [SetNewStderr](/pipe.go#L419)
+#### func (*Pipe) [SetNewStderr](/pipe.go#L428)
 
 `func (p *Pipe) SetNewStderr()`
 
 SetNewStderr creates a new, empty Stderr buffer on this pipe.
 
-#### func (*Pipe) [SetNewStdin](/pipe.go#L206)
+#### func (*Pipe) [SetNewStdin](/pipe.go#L215)
 
 `func (p *Pipe) SetNewStdin()`
 
 SetNewStdin creates a new, empty Stdin buffer on this pipe.
 
-#### func (*Pipe) [SetNewStdout](/pipe.go#L294)
+#### func (*Pipe) [SetNewStdout](/pipe.go#L303)
 
 `func (p *Pipe) SetNewStdout()`
 
 SetNewStdout creates a new, empty Stdout buffer on this pipe.
 
-#### func (*Pipe) [SetStdinFromString](/pipe.go#L219)
+#### func (*Pipe) [SetStdinFromString](/pipe.go#L228)
 
 `func (p *Pipe) SetStdinFromString(input string)`
 
 SetStdinFromString sets the pipe's Stdin to be the given input string.
 
-#### func (*Pipe) [StatusCode](/pipe.go#L546)
+#### func (*Pipe) [StatusCode](/pipe.go#L555)
 
 `func (p *Pipe) StatusCode() int`
 
 StatusCode returns the UNIX-like status code from the last PipeCommand
 that ran against this pipe.
 
-#### func (*Pipe) [StatusError](/pipe.go#L558)
+#### func (*Pipe) [StatusError](/pipe.go#L567)
 
 `func (p *Pipe) StatusError() (int, error)`
 
 StatusError is a shorthand for calling p.StatusCode() and p.Error()
 to get the UNIX-like status code and the last reported Golang error.
 
-#### func (*Pipe) [StderrStackLen](/pipe.go#L533)
+#### func (*Pipe) [StderrStackLen](/pipe.go#L542)
 
 `func (p *Pipe) StderrStackLen() int`
 
@@ -546,7 +708,7 @@ Stderr entries.
 You can call PushStderr and PopStderr to add entries to & from the
 internal stack.
 
-#### func (*Pipe) [StdinStackLen](/pipe.go#L282)
+#### func (*Pipe) [StdinStackLen](/pipe.go#L291)
 
 `func (p *Pipe) StdinStackLen() int`
 
@@ -556,7 +718,7 @@ Stdin entries.
 You can call PushStdin and PopStdin to add entries to & from the
 internal stack.
 
-#### func (*Pipe) [StdoutStackLen](/pipe.go#L407)
+#### func (*Pipe) [StdoutStackLen](/pipe.go#L416)
 
 `func (p *Pipe) StdoutStackLen() int`
 
@@ -572,6 +734,13 @@ internal stack.
 
 PipeCommand is the signature of any function that will work with
 our Pipe.
+
+### type [PipeOption](/pipeoption.go#L44)
+
+`type PipeOption = PipeCommand`
+
+PipeOption describes functional options that you can pass into
+NewPipe.
 
 ---
 Readme created from Go doc with [goreadme](https://github.com/posener/goreadme)

@@ -207,16 +207,18 @@ func TestNewPipeAppliesAnyOptionsWePassIn(t *testing.T) {
 	// setup your test
 
 	expectedStatusCode := 100
-	op1 := func(p *pipe.Pipe) {
-		// use a helper method
-		pipe.SetStatusCode(p, expectedStatusCode)
-	}
-	op2 := func(p *pipe.Pipe) {
+	op1 := func(p *pipe.Pipe) (int, error) {
 		p.Env = envish.NewOverlayEnv(
 			[]envish.Expander{
 				envish.NewLocalEnv(),
 			},
 		)
+
+		return pipe.StatusOkay, nil
+	}
+
+	op2 := func(p *pipe.Pipe) (int, error) {
+		return expectedStatusCode, nil
 	}
 
 	// ----------------------------------------------------------------

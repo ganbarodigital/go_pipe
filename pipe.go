@@ -82,8 +82,10 @@ type Pipe struct {
 // by default.
 //
 // You can provide a list of functional options for us to call. We'll
-// pass in the Pipe, for you to reconfigure.
-func NewPipe(options ...func(*Pipe)) *Pipe {
+// pass in the Pipe, for you to reconfigure. If your functional option
+// returns an error, we'll store that in the Pipe, and stop processing
+// any further functional options.
+func NewPipe(options ...PipeOption) *Pipe {
 	// create a pipe that's ready to go
 	retval := Pipe{
 		Env: envish.NewOverlayEnv(
@@ -96,8 +98,15 @@ func NewPipe(options ...func(*Pipe)) *Pipe {
 	retval.ResetError()
 
 	// apply any option functions we might have been given
+	//
+	// if any of them error out, we stop right there!
 	for _, option := range options {
-		option(&retval)
+		retval.RunCommand(option)
+
+		// did anything go wrong?
+		if retval.Error() != nil {
+			break
+		}
 	}
 
 	// all done

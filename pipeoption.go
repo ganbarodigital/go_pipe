@@ -5,7 +5,7 @@
 // - http://labix.org/pipe
 // - https://github.com/bitfield/script
 //
-// Copyright 2021-present Ganbaro Digital Ltd
+// Copyright 2019-present Ganbaro Digital Ltd
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -39,35 +39,6 @@
 
 package pipe
 
-import (
-	"os"
-
-	ioextra "github.com/ganbarodigital/go-ioextra/v2"
-)
-
-// AttachOsStdin sets the pipe to read from your program's Stdin.
-//
-// You can use this both as a functional option, and/or as a
-// PipeCommand.
-func AttachOsStdin(p *Pipe) (int, error) {
-	p.Stdin = ioextra.NewTextFile(os.Stdin)
-	return StatusOkay, nil
-}
-
-// AttachOsStdout sets the pipe to write to your program's Stdout.
-//
-// You can use this both as a functional option, and/or as a
-// PipeCommand.
-func AttachOsStdout(p *Pipe) (int, error) {
-	p.Stdout = ioextra.NewTextFile(os.Stdout)
-	return StatusOkay, nil
-}
-
-// AttachOsStderr sets the pipe to write to your program's Stderr.
-//
-// You can use this both as a functional option, and/or as a
-// PipeCommand.
-func AttachOsStderr(p *Pipe) (int, error) {
-	p.Stderr = ioextra.NewTextFile(os.Stderr)
-	return StatusOkay, nil
-}
+// PipeOption describes functional options that you can pass into
+// NewPipe.
+type PipeOption = PipeCommand
