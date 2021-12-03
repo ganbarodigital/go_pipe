@@ -42,7 +42,7 @@ package pipe_test
 import (
 	"fmt"
 
-	pipe "github.com/ganbarodigital/go_pipe/v6"
+	pipe "github.com/ganbarodigital/go_pipe/v7"
 )
 
 func ExampleAttachOsStdin_asFunctionalOption() {

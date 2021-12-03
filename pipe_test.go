@@ -45,7 +45,7 @@ import (
 
 	"github.com/ganbarodigital/go-ioextra/v2"
 	envish "github.com/ganbarodigital/go_envish/v4"
-	pipe "github.com/ganbarodigital/go_pipe/v6"
+	pipe "github.com/ganbarodigital/go_pipe/v7"
 	"github.com/stretchr/testify/assert"
 )
 

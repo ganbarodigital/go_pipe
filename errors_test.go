@@ -42,7 +42,7 @@ package pipe_test
 import (
 	"testing"
 
-	pipe "github.com/ganbarodigital/go_pipe/v6"
+	pipe "github.com/ganbarodigital/go_pipe/v7"
 	"github.com/stretchr/testify/assert"
 )
 

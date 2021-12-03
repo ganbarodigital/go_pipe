@@ -273,7 +273,7 @@ package main
 
 import (
 	"fmt"
-	pipe "github.com/ganbarodigital/go_pipe/v6"
+	pipe "github.com/ganbarodigital/go_pipe/v7"
 )
 
 func main() {
@@ -301,7 +301,7 @@ err is: <nil>
 package main
 
 import (
-	pipe "github.com/ganbarodigital/go_pipe/v6"
+	pipe "github.com/ganbarodigital/go_pipe/v7"
 )
 
 func main() {
@@ -330,7 +330,7 @@ package main
 
 import (
 	"fmt"
-	pipe "github.com/ganbarodigital/go_pipe/v6"
+	pipe "github.com/ganbarodigital/go_pipe/v7"
 )
 
 func main() {
@@ -358,7 +358,7 @@ err is: <nil>
 package main
 
 import (
-	pipe "github.com/ganbarodigital/go_pipe/v6"
+	pipe "github.com/ganbarodigital/go_pipe/v7"
 )
 
 func main() {
@@ -387,7 +387,7 @@ package main
 
 import (
 	"fmt"
-	pipe "github.com/ganbarodigital/go_pipe/v6"
+	pipe "github.com/ganbarodigital/go_pipe/v7"
 )
 
 func main() {
@@ -415,7 +415,7 @@ err is: <nil>
 package main
 
 import (
-	pipe "github.com/ganbarodigital/go_pipe/v6"
+	pipe "github.com/ganbarodigital/go_pipe/v7"
 )
 
 func main() {
@@ -477,7 +477,7 @@ package main
 
 import (
 	"fmt"
-	pipe "github.com/ganbarodigital/go_pipe/v6"
+	pipe "github.com/ganbarodigital/go_pipe/v7"
 )
 
 func main() {
