@@ -37,7 +37,7 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-package pipe
+package pipe_test
 
 import (
 	"errors"
@@ -45,6 +45,7 @@ import (
 
 	"github.com/ganbarodigital/go-ioextra/v2"
 	envish "github.com/ganbarodigital/go_envish/v3"
+	pipe "github.com/ganbarodigital/go_pipe/v6"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -59,8 +60,8 @@ func TestNewPipeCreatesPipeWithEmptyStdin(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe := NewPipe()
-	actualResult := pipe.Stdin.String()
+	unit := pipe.NewPipe()
+	actualResult := unit.Stdin.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -77,12 +78,12 @@ func TestNewPipeCreatesPipeWithEmptyStdinStack(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe := NewPipe()
+	unit := pipe.NewPipe()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Zero(t, pipe.StdinStackLen())
+	assert.Zero(t, unit.StdinStackLen())
 }
 
 func TestNewPipeCreatesPipeWithEmptyStdout(t *testing.T) {
@@ -96,8 +97,8 @@ func TestNewPipeCreatesPipeWithEmptyStdout(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe := NewPipe()
-	actualResult := pipe.Stdout.String()
+	unit := pipe.NewPipe()
+	actualResult := unit.Stdout.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -114,12 +115,12 @@ func TestNewPipeCreatesPipeWithEmptyStdoutStack(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe := NewPipe()
+	unit := pipe.NewPipe()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Zero(t, pipe.StdoutStackLen())
+	assert.Zero(t, unit.StdoutStackLen())
 }
 
 func TestNewPipeCreatesPipeWithEmptyStderr(t *testing.T) {
@@ -133,8 +134,8 @@ func TestNewPipeCreatesPipeWithEmptyStderr(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe := NewPipe()
-	actualResult := pipe.Stderr.String()
+	unit := pipe.NewPipe()
+	actualResult := unit.Stderr.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -151,12 +152,12 @@ func TestNewPipeCreatesPipeWithEmptyStderrStack(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe := NewPipe()
+	unit := pipe.NewPipe()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Zero(t, pipe.StderrStackLen())
+	assert.Zero(t, unit.StderrStackLen())
 }
 
 func TestNewPipeCreatesPipeWithStatusOkay(t *testing.T) {
@@ -165,13 +166,13 @@ func TestNewPipeCreatesPipeWithStatusOkay(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	expectedResult := StatusOkay
+	expectedResult := pipe.StatusOkay
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe := NewPipe()
-	actualResult := pipe.StatusCode()
+	unit := pipe.NewPipe()
+	actualResult := unit.StatusCode()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -190,8 +191,8 @@ func TestNewPipeCreatesPipeWithNilError(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe := NewPipe()
-	actualResult := pipe.Error()
+	unit := pipe.NewPipe()
+	actualResult := unit.Error()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -206,23 +207,24 @@ func TestNewPipeAppliesAnyOptionsWePassIn(t *testing.T) {
 	// setup your test
 
 	expectedStatusCode := 100
-	op1 := func(p *Pipe) {
-		p.statusCode = expectedStatusCode
+	op1 := func(p *pipe.Pipe) {
+		// use a helper method
+		pipe.SetStatusCode(p, expectedStatusCode)
 	}
-	op2 := func(p *Pipe) {
+	op2 := func(p *pipe.Pipe) {
 		p.Env = envish.NewLocalEnv()
 	}
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe := NewPipe(op1, op2)
+	unit := pipe.NewPipe(op1, op2)
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, pipe.StatusCode(), expectedStatusCode)
-	assert.NotNil(t, pipe.Env)
+	assert.Equal(t, unit.StatusCode(), expectedStatusCode)
+	assert.NotNil(t, unit.Env)
 }
 
 func TestPipeDrainStdinToStdoutCopiesStdinToStdout(t *testing.T) {
@@ -233,16 +235,16 @@ func TestPipeDrainStdinToStdoutCopiesStdinToStdout(t *testing.T) {
 
 	expectedResult := "hello world\nhave a nice day\n"
 
-	pipe := NewPipe()
-	pipe.SetStdinFromString(expectedResult)
+	unit := pipe.NewPipe()
+	unit.SetStdinFromString(expectedResult)
 
-	assert.Equal(t, pipe.Stdout.String(), "")
+	assert.Equal(t, unit.Stdout.String(), "")
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.DrainStdinToStdout()
-	actualResult := pipe.Stdout.String()
+	unit.DrainStdinToStdout()
+	actualResult := unit.Stdout.String()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -256,12 +258,12 @@ func TestPipeDrainStdinToStdoutCopesWithNilPipePointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.DrainStdinToStdout()
+	unit.DrainStdinToStdout()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -275,12 +277,12 @@ func TestPipeDrainStdinToStdoutCopesWithEmptyPipe(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe Pipe
+	var unit pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.DrainStdinToStdout()
+	unit.DrainStdinToStdout()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -294,18 +296,18 @@ func TestPipeDrainStdinToStdoutCreatesNewStdoutIfNecessary(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	pipe := NewPipe()
-	pipe.Stdout = nil
+	unit := pipe.NewPipe()
+	unit.Stdout = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.DrainStdinToStdout()
+	unit.DrainStdinToStdout()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.NotNil(t, pipe.Stdout)
+	assert.NotNil(t, unit.Stdout)
 }
 
 func TestPipeErrorCopesWithNilPointer(t *testing.T) {
@@ -314,12 +316,12 @@ func TestPipeErrorCopesWithNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult := pipe.Error()
+	actualResult := unit.Error()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -333,13 +335,13 @@ func TestPipeOkayCopesWithNilPipePointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe *Pipe
+	var unit *pipe.Pipe
 	expectedResult := true
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult := pipe.Okay()
+	actualResult := unit.Okay()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -353,13 +355,13 @@ func TestPipeOkayCopesWithEmptyPipe(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe Pipe
+	var unit pipe.Pipe
 	expectedResult := true
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult := pipe.Okay()
+	actualResult := unit.Okay()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -373,22 +375,22 @@ func TestPipeOkayReturnsFalseIfTheLastCommandFailed(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	pipe := NewPipe()
+	unit := pipe.NewPipe()
 	expectedResult := false
 
-	op1 := func(p *Pipe) (int, error) {
-		return StatusOkay, nil
+	op1 := func(p *pipe.Pipe) (int, error) {
+		return pipe.StatusOkay, nil
 	}
-	op2 := func(p *Pipe) (int, error) {
+	op2 := func(p *pipe.Pipe) (int, error) {
 		return 100, nil
 	}
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.RunCommand(op1)
-	pipe.RunCommand(op2)
-	actualResult := pipe.Okay()
+	unit.RunCommand(op1)
+	unit.RunCommand(op2)
+	actualResult := unit.Okay()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -402,12 +404,12 @@ func TestPipeResetBuffersCopesWithNilPipePointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.ResetBuffers()
+	unit.ResetBuffers()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -421,12 +423,12 @@ func TestPipeResetBuffersCopesWithEmptyPipe(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe Pipe
+	var unit pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.ResetBuffers()
+	unit.ResetBuffers()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -445,10 +447,10 @@ func TestPipeResetBuffersEmptiesStdinStdoutStderr(t *testing.T) {
 	testDataErr := "this is stderr"
 
 	// we need to start with a pipe that has data
-	pipe := NewPipe()
-	pipe.SetStdinFromString(testDataIn)
-	pipe.Stdout.WriteString(testDataOut)
-	pipe.Stderr.WriteString(testDataErr)
+	unit := pipe.NewPipe()
+	unit.SetStdinFromString(testDataIn)
+	unit.Stdout.WriteString(testDataOut)
+	unit.Stderr.WriteString(testDataErr)
 
 	// normally, I'd use assert.Equal() to prove that the pipe has data
 	// if we did that here, the reads would empty the pipe, making the
@@ -457,14 +459,14 @@ func TestPipeResetBuffersEmptiesStdinStdoutStderr(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.ResetBuffers()
+	unit.ResetBuffers()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Empty(t, pipe.Stdin.String())
-	assert.Empty(t, pipe.Stdout.String())
-	assert.Empty(t, pipe.Stderr.String())
+	assert.Empty(t, unit.Stdin.String())
+	assert.Empty(t, unit.Stdout.String())
+	assert.Empty(t, unit.Stderr.String())
 }
 
 func TestPipeResetBuffersEmptiesInternalStdinStdoutStderrStacks(t *testing.T) {
@@ -478,20 +480,20 @@ func TestPipeResetBuffersEmptiesInternalStdinStdoutStderrStacks(t *testing.T) {
 	testDataErr := "this is stderr"
 
 	// we need to start with a pipe that has data
-	pipe := NewPipe()
-	pipe.SetStdinFromString(testDataIn)
-	pipe.Stdout.WriteString(testDataOut)
-	pipe.Stderr.WriteString(testDataErr)
+	unit := pipe.NewPipe()
+	unit.SetStdinFromString(testDataIn)
+	unit.Stdout.WriteString(testDataOut)
+	unit.Stderr.WriteString(testDataErr)
 
 	// now, we need to put these onto the internal stacks
-	pipe.PushStdin(ioextra.NewTextBuffer())
-	pipe.PushStdout(ioextra.NewTextBuffer())
-	pipe.PushStderr(ioextra.NewTextBuffer())
+	unit.PushStdin(ioextra.NewTextBuffer())
+	unit.PushStdout(ioextra.NewTextBuffer())
+	unit.PushStderr(ioextra.NewTextBuffer())
 
 	// make sure that all of the stacks now have something on them
-	assert.Equal(t, 1, pipe.StdinStackLen())
-	assert.Equal(t, 1, pipe.StdoutStackLen())
-	assert.Equal(t, 1, pipe.StderrStackLen())
+	assert.Equal(t, 1, unit.StdinStackLen())
+	assert.Equal(t, 1, unit.StdoutStackLen())
+	assert.Equal(t, 1, unit.StderrStackLen())
 
 	// normally, I'd use assert.Equal() to prove that the pipe has data
 	// if we did that here, the reads would empty the pipe, making the
@@ -500,19 +502,19 @@ func TestPipeResetBuffersEmptiesInternalStdinStdoutStderrStacks(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.ResetBuffers()
+	unit.ResetBuffers()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Empty(t, pipe.Stdin.String())
-	assert.Empty(t, pipe.Stdout.String())
-	assert.Empty(t, pipe.Stderr.String())
+	assert.Empty(t, unit.Stdin.String())
+	assert.Empty(t, unit.Stdout.String())
+	assert.Empty(t, unit.Stderr.String())
 
 	// make sure that all of the io stacks have been emptied
-	assert.Zero(t, pipe.StdinStackLen())
-	assert.Zero(t, pipe.StdoutStackLen())
-	assert.Zero(t, pipe.StderrStackLen())
+	assert.Zero(t, unit.StdinStackLen())
+	assert.Zero(t, unit.StdoutStackLen())
+	assert.Zero(t, unit.StderrStackLen())
 }
 
 func TestPipeResetErrorCopesWithNilPipePointer(t *testing.T) {
@@ -521,12 +523,12 @@ func TestPipeResetErrorCopesWithNilPipePointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.ResetError()
+	unit.ResetError()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -540,12 +542,12 @@ func TestPipeResetErrorCopesWithEmptyPipe(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe Pipe
+	var unit pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.ResetError()
+	unit.ResetError()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -559,24 +561,24 @@ func TestPipeResetErrorSetsStatusCodeToStatusOkay(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	op1 := func(p *Pipe) (int, error) {
-		return StatusNotOkay, nil
+	op1 := func(p *pipe.Pipe) (int, error) {
+		return pipe.StatusNotOkay, nil
 	}
-	pipe := NewPipe()
-	pipe.RunCommand(op1)
+	unit := pipe.NewPipe()
+	unit.RunCommand(op1)
 
-	assert.Equal(t, StatusNotOkay, pipe.StatusCode())
-	assert.Error(t, pipe.Error())
+	assert.Equal(t, pipe.StatusNotOkay, unit.StatusCode())
+	assert.Error(t, unit.Error())
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.ResetError()
+	unit.ResetError()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, StatusOkay, pipe.StatusCode())
+	assert.Equal(t, pipe.StatusOkay, unit.StatusCode())
 }
 
 func TestPipeResetErrorSetsErrorToNil(t *testing.T) {
@@ -585,24 +587,24 @@ func TestPipeResetErrorSetsErrorToNil(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	op1 := func(p *Pipe) (int, error) {
-		return StatusNotOkay, nil
+	op1 := func(p *pipe.Pipe) (int, error) {
+		return pipe.StatusNotOkay, nil
 	}
-	pipe := NewPipe()
-	pipe.RunCommand(op1)
+	unit := pipe.NewPipe()
+	unit.RunCommand(op1)
 
-	assert.Equal(t, StatusNotOkay, pipe.StatusCode())
-	assert.Error(t, pipe.Error())
+	assert.Equal(t, pipe.StatusNotOkay, unit.StatusCode())
+	assert.Error(t, unit.Error())
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.ResetError()
+	unit.ResetError()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Nil(t, pipe.Error())
+	assert.Nil(t, unit.Error())
 }
 
 func TestPipeRunCommandCopesWithNilPointer(t *testing.T) {
@@ -611,17 +613,17 @@ func TestPipeRunCommandCopesWithNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe *Pipe
+	var unit *pipe.Pipe
 
-	expectedResult := StatusNotOkay
-	op := func(p *Pipe) (int, error) {
+	expectedResult := pipe.StatusNotOkay
+	op := func(p *pipe.Pipe) (int, error) {
 		return expectedResult, nil
 	}
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.RunCommand(op)
+	unit.RunCommand(op)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -635,22 +637,22 @@ func TestPipeRunCommandUpdatesStatusCode(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	pipe := NewPipe()
+	unit := pipe.NewPipe()
 
-	expectedResult := StatusNotOkay
-	op := func(p *Pipe) (int, error) {
+	expectedResult := pipe.StatusNotOkay
+	op := func(p *pipe.Pipe) (int, error) {
 		return expectedResult, errors.New("status not okay")
 	}
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.RunCommand(op)
+	unit.RunCommand(op)
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, expectedResult, pipe.StatusCode())
+	assert.Equal(t, expectedResult, unit.StatusCode())
 }
 
 func TestPipeRunCommandUpdatesErr(t *testing.T) {
@@ -659,22 +661,22 @@ func TestPipeRunCommandUpdatesErr(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	pipe := NewPipe()
+	unit := pipe.NewPipe()
 
 	expectedResult := errors.New("status not okay")
-	op := func(p *Pipe) (int, error) {
-		return StatusNotOkay, expectedResult
+	op := func(p *pipe.Pipe) (int, error) {
+		return pipe.StatusNotOkay, expectedResult
 	}
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.RunCommand(op)
+	unit.RunCommand(op)
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, expectedResult, pipe.Error())
+	assert.Equal(t, expectedResult, unit.Error())
 }
 
 func TestPipeRunCommandSetsErrIfStatusCodeNotOkay(t *testing.T) {
@@ -683,24 +685,24 @@ func TestPipeRunCommandSetsErrIfStatusCodeNotOkay(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	pipe := NewPipe()
+	unit := pipe.NewPipe()
 
-	op := func(p *Pipe) (int, error) {
-		return StatusNotOkay, nil
+	op := func(p *pipe.Pipe) (int, error) {
+		return pipe.StatusNotOkay, nil
 	}
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.RunCommand(op)
+	unit.RunCommand(op)
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	err := pipe.Error()
+	err := unit.Error()
 	assert.NotNil(t, err)
 	assert.Error(t, err)
-	_, ok := err.(ErrNonZeroStatusCode)
+	_, ok := err.(pipe.ErrNonZeroStatusCode)
 	assert.True(t, ok)
 }
 
@@ -710,12 +712,12 @@ func TestPipeSetNewStdinCopesWithNilPipePointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.SetNewStdin()
+	unit.SetNewStdin()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -729,12 +731,12 @@ func TestPipeSetNewStdinCopesWithEmptyPipe(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe Pipe
+	var unit pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.SetNewStdin()
+	unit.SetNewStdin()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -748,12 +750,12 @@ func TestPipeSetStdinFromStringCopesWithNilPipePointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.SetStdinFromString("")
+	unit.SetStdinFromString("")
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -767,12 +769,12 @@ func TestPipeSetStdinFromStringCopesWithEmptyPipe(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe Pipe
+	var unit pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.SetStdinFromString("")
+	unit.SetStdinFromString("")
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -786,12 +788,12 @@ func TestPipePushStdinCopesWithNilPipePointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.PushStdin(ioextra.NewTextBuffer())
+	unit.PushStdin(ioextra.NewTextBuffer())
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -810,7 +812,7 @@ func TestPipePushStdinReplacesThePipeStdin(t *testing.T) {
 	oldStdin := ioextra.NewTextBuffer()
 	oldStdin.WriteString(testData1)
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stdin = oldStdin
 
 	// ----------------------------------------------------------------
@@ -841,7 +843,7 @@ func TestPipePushStdinAddsTheOldStdinToAnInternalStack(t *testing.T) {
 	oldStdin := ioextra.NewTextBuffer()
 	oldStdin.WriteString(testData1)
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stdin = oldStdin
 
 	// ----------------------------------------------------------------
@@ -866,7 +868,7 @@ func TestPipePopStdinCopesWithNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var unit *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -890,7 +892,7 @@ func TestPipePopStdinRestoresThePreviousPipeStdin(t *testing.T) {
 	oldStdin := ioextra.NewTextBuffer()
 	oldStdin.WriteString(testData1)
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stdin = oldStdin
 
 	// before we can test popping the stack, we need to push something
@@ -926,7 +928,7 @@ func TestPipePopStdinDoesNothingWhenTheInternalStackIsEmpty(t *testing.T) {
 	oldStdin := ioextra.NewTextBuffer()
 	oldStdin.WriteString(testData1)
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stdin = oldStdin
 
 	// make sure the stack is empty
@@ -950,7 +952,7 @@ func TestPipeStdinStackLenCopesWithNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var unit *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -968,7 +970,7 @@ func TestPipeStdinStackLenReturnsLengthOfInternalStdinStack(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 
 	testData1 := "this is the second stdin; it replaces the one created by NewPipe()"
 	secondStdin := ioextra.NewTextBuffer()
@@ -987,9 +989,6 @@ func TestPipeStdinStackLenReturnsLengthOfInternalStdinStack(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	// we can cheat, and look at the unexported slice
-	internalResult := len(unit.stdinStack)
-
 	// this is how package users will get the stack length
 	actualResult := unit.StdinStackLen()
 
@@ -997,7 +996,6 @@ func TestPipeStdinStackLenReturnsLengthOfInternalStdinStack(t *testing.T) {
 	// test the results
 
 	assert.Equal(t, expectedResult, actualResult)
-	assert.Equal(t, internalResult, actualResult)
 }
 
 func TestPipeSetNewStdoutCopesWithNilPipePointer(t *testing.T) {
@@ -1006,12 +1004,12 @@ func TestPipeSetNewStdoutCopesWithNilPipePointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.SetNewStdout()
+	unit.SetNewStdout()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -1025,12 +1023,12 @@ func TestPipeSetNewStdoutCopesWithEmptyPipe(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe Pipe
+	var unit pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.SetNewStdout()
+	unit.SetNewStdout()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -1044,12 +1042,12 @@ func TestPipePushStdoutCopesWithNilPipePointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.PushStdout(ioextra.NewTextBuffer())
+	unit.PushStdout(ioextra.NewTextBuffer())
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -1068,7 +1066,7 @@ func TestPipePushStdoutReplacesThePipeStdout(t *testing.T) {
 	oldStdout := ioextra.NewTextBuffer()
 	oldStdout.WriteString(testData1)
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stdout = oldStdout
 
 	// ----------------------------------------------------------------
@@ -1095,7 +1093,7 @@ func TestPipePushStdoutReplacesThePipeStderrIfNeeded(t *testing.T) {
 
 	oldStdout := ioextra.NewTextBuffer()
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stdout = oldStdout
 	unit.Stderr = oldStdout
 
@@ -1125,7 +1123,7 @@ func TestPipePushStdoutAddsTheOldStdoutToAnInternalStack(t *testing.T) {
 	oldStdout := ioextra.NewTextBuffer()
 	oldStdout.WriteString(testData1)
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stdout = oldStdout
 
 	// ----------------------------------------------------------------
@@ -1150,7 +1148,7 @@ func TestPipePopStdoutCopesWithNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var unit *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -1174,7 +1172,7 @@ func TestPipePopStdoutRestoresThePreviousPipeStdout(t *testing.T) {
 	oldStdout := ioextra.NewTextBuffer()
 	oldStdout.WriteString(testData1)
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stdout = oldStdout
 
 	// before we can test popping the stack, we need to push something
@@ -1206,7 +1204,7 @@ func TestPipePopStdoutRestoresThePreviousPipeStderrIfNecessary(t *testing.T) {
 
 	oldStdout := ioextra.NewTextBuffer()
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stderr = oldStdout
 	unit.Stdout = oldStdout
 
@@ -1236,7 +1234,7 @@ func TestPipePopStdoutDoesNothingWhenTheInternalStackIsEmpty(t *testing.T) {
 	oldStdout := ioextra.NewTextBuffer()
 	oldStdout.WriteString(testData1)
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stdout = oldStdout
 
 	// make sure the stack is empty
@@ -1260,7 +1258,7 @@ func TestPipePopStdoutOnlyCopesWithNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var unit *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -1284,7 +1282,7 @@ func TestPipePopStdoutOnlyRestoresThePreviousPipeStdout(t *testing.T) {
 	oldStdout := ioextra.NewTextBuffer()
 	oldStdout.WriteString(testData1)
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stdout = oldStdout
 
 	// before we can test popping the stack, we need to push something
@@ -1316,7 +1314,7 @@ func TestPipePopStdoutOnlyDoesNotRestoreThePreviousPipeStderr(t *testing.T) {
 
 	oldStdout := ioextra.NewTextBuffer()
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stderr = oldStdout
 	unit.Stdout = oldStdout
 
@@ -1346,7 +1344,7 @@ func TestPipePopStdoutOnlyDoesNothingWhenTheInternalStackIsEmpty(t *testing.T) {
 	oldStdout := ioextra.NewTextBuffer()
 	oldStdout.WriteString(testData1)
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stdout = oldStdout
 
 	// make sure the stack is empty
@@ -1370,7 +1368,7 @@ func TestPipeStdoutStackLenCopesWithNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var unit *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -1388,7 +1386,7 @@ func TestPipeStdoutStackLenReturnsLengthOfInternalStdinStack(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 
 	testData1 := "this is the second stdout; it replaces the one created by NewPipe()"
 	secondStdout := ioextra.NewTextBuffer()
@@ -1407,9 +1405,6 @@ func TestPipeStdoutStackLenReturnsLengthOfInternalStdinStack(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	// we can cheat, and look at the unexported slice
-	internalResult := len(unit.stdoutStack)
-
 	// this is how package users will get the stack length
 	actualResult := unit.StdoutStackLen()
 
@@ -1417,7 +1412,6 @@ func TestPipeStdoutStackLenReturnsLengthOfInternalStdinStack(t *testing.T) {
 	// test the results
 
 	assert.Equal(t, expectedResult, actualResult)
-	assert.Equal(t, internalResult, actualResult)
 }
 
 func TestPipeSetNewStderrCopesWithNilPipePointer(t *testing.T) {
@@ -1426,12 +1420,12 @@ func TestPipeSetNewStderrCopesWithNilPipePointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.SetNewStderr()
+	unit.SetNewStderr()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -1445,12 +1439,12 @@ func TestPipeSetNewStderrCopesWithEmptyPipe(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe Pipe
+	var unit pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.SetNewStderr()
+	unit.SetNewStderr()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -1464,12 +1458,12 @@ func TestPipePushStderrCopesWithNilPipePointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.PushStderr(ioextra.NewTextBuffer())
+	unit.PushStderr(ioextra.NewTextBuffer())
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -1488,7 +1482,7 @@ func TestPipePushStderrReplacesThePipeStderr(t *testing.T) {
 	oldStderr := ioextra.NewTextBuffer()
 	oldStderr.WriteString(testData1)
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stderr = oldStderr
 
 	// ----------------------------------------------------------------
@@ -1515,7 +1509,7 @@ func TestPipePushStderrReplacesThePipeStdoutIfNeeded(t *testing.T) {
 
 	oldStderr := ioextra.NewTextBuffer()
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stdout = oldStderr
 	unit.Stderr = oldStderr
 
@@ -1545,7 +1539,7 @@ func TestPipePushStderrAddsTheOldStderrToAnInternalStack(t *testing.T) {
 	oldStderr := ioextra.NewTextBuffer()
 	oldStderr.WriteString(testData1)
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stderr = oldStderr
 
 	// ----------------------------------------------------------------
@@ -1570,7 +1564,7 @@ func TestPipePopStderrCopesWithNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var unit *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -1594,7 +1588,7 @@ func TestPipePopStderrRestoresThePreviousPipeStderr(t *testing.T) {
 	oldStderr := ioextra.NewTextBuffer()
 	oldStderr.WriteString(testData1)
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stderr = oldStderr
 
 	// before we can test popping the stack, we need to push something
@@ -1626,7 +1620,7 @@ func TestPipePopStderrRestoresThePreviousPipeStdoutIfNecessary(t *testing.T) {
 
 	oldStderr := ioextra.NewTextBuffer()
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stderr = oldStderr
 	unit.Stdout = oldStderr
 
@@ -1656,7 +1650,7 @@ func TestPipePopStderrDoesNothingWhenTheInternalStackIsEmpty(t *testing.T) {
 	oldStderr := ioextra.NewTextBuffer()
 	oldStderr.WriteString(testData1)
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stderr = oldStderr
 
 	// make sure the stack is empty
@@ -1680,7 +1674,7 @@ func TestPipePopStderrOnlyCopesWithNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var unit *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -1704,7 +1698,7 @@ func TestPipePopStderrOnlyRestoresThePreviousPipeStderr(t *testing.T) {
 	oldStderr := ioextra.NewTextBuffer()
 	oldStderr.WriteString(testData1)
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stderr = oldStderr
 
 	// before we can test popping the stack, we need to push something
@@ -1736,7 +1730,7 @@ func TestPipePopStderrOnlyNeverRestoresThePreviousPipeStdout(t *testing.T) {
 
 	oldStderr := ioextra.NewTextBuffer()
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stderr = oldStderr
 	unit.Stdout = oldStderr
 
@@ -1766,7 +1760,7 @@ func TestPipePopStderrOnlyDoesNothingWhenTheInternalStackIsEmpty(t *testing.T) {
 	oldStderr := ioextra.NewTextBuffer()
 	oldStderr.WriteString(testData1)
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 	unit.Stderr = oldStderr
 
 	// make sure the stack is empty
@@ -1789,7 +1783,7 @@ func TestPipeStderrStackLenCopesWithNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var unit *Pipe
+	var unit *pipe.Pipe
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -1807,7 +1801,7 @@ func TestPipeStderrStackLenReturnsLengthOfInternalStderrStack(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	unit := NewPipe()
+	unit := pipe.NewPipe()
 
 	testData1 := "this is the second stderr; it replaces the one created by NewPipe()"
 	secondStderr := ioextra.NewTextBuffer()
@@ -1826,9 +1820,6 @@ func TestPipeStderrStackLenReturnsLengthOfInternalStderrStack(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	// we can cheat, and look at the unexported slice
-	internalResult := len(unit.stderrStack)
-
 	// this is how package users will get the stack length
 	actualResult := unit.StderrStackLen()
 
@@ -1836,7 +1827,6 @@ func TestPipeStderrStackLenReturnsLengthOfInternalStderrStack(t *testing.T) {
 	// test the results
 
 	assert.Equal(t, expectedResult, actualResult)
-	assert.Equal(t, internalResult, actualResult)
 }
 
 func TestPipeStatusCodeCopesWithNilPipePointer(t *testing.T) {
@@ -1845,13 +1835,13 @@ func TestPipeStatusCodeCopesWithNilPipePointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe *Pipe
-	expectedResult := StatusOkay
+	var unit *pipe.Pipe
+	expectedResult := pipe.StatusOkay
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult := pipe.StatusCode()
+	actualResult := unit.StatusCode()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -1865,13 +1855,13 @@ func TestPipeStatusCodeCopesWithEmptyPipe(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe Pipe
-	expectedResult := StatusOkay
+	var unit pipe.Pipe
+	expectedResult := pipe.StatusOkay
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult := pipe.StatusCode()
+	actualResult := unit.StatusCode()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -1885,22 +1875,22 @@ func TestPipeStatusCodeReturnsTheLastCommandsStatusCode(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	pipe := NewPipe()
+	unit := pipe.NewPipe()
 	expectedResult := 100
 
-	op1 := func(p *Pipe) (int, error) {
-		return StatusOkay, nil
+	op1 := func(p *pipe.Pipe) (int, error) {
+		return pipe.StatusOkay, nil
 	}
-	op2 := func(p *Pipe) (int, error) {
+	op2 := func(p *pipe.Pipe) (int, error) {
 		return expectedResult, nil
 	}
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.RunCommand(op1)
-	pipe.RunCommand(op2)
-	actualResult := pipe.StatusCode()
+	unit.RunCommand(op1)
+	unit.RunCommand(op2)
+	actualResult := unit.StatusCode()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -1914,14 +1904,14 @@ func TestPipeStatusErrorCopesWithNilPipePointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe *Pipe
-	expectedResult := StatusOkay
+	var unit *pipe.Pipe
+	expectedResult := pipe.StatusOkay
 	var expectedErr error = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, actualErr := pipe.StatusError()
+	actualResult, actualErr := unit.StatusError()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -1936,14 +1926,14 @@ func TestPipeStatusErrorCopesWithEmptyPipe(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var pipe Pipe
-	expectedResult := StatusOkay
+	var unit pipe.Pipe
+	expectedResult := pipe.StatusOkay
 	var expectedErr error = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, actualErr := pipe.StatusError()
+	actualResult, actualErr := unit.StatusError()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -1958,23 +1948,23 @@ func TestPipeStatusErrorReturnsTheLastCommandsStatusCodeAndError(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	pipe := NewPipe()
+	unit := pipe.NewPipe()
 	expectedResult := 100
 	expectedErr := errors.New("this is an error")
 
-	op1 := func(p *Pipe) (int, error) {
-		return StatusOkay, nil
+	op1 := func(p *pipe.Pipe) (int, error) {
+		return pipe.StatusOkay, nil
 	}
-	op2 := func(p *Pipe) (int, error) {
+	op2 := func(p *pipe.Pipe) (int, error) {
 		return expectedResult, expectedErr
 	}
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	pipe.RunCommand(op1)
-	pipe.RunCommand(op2)
-	actualResult, actualErr := pipe.StatusError()
+	unit.RunCommand(op1)
+	unit.RunCommand(op2)
+	actualResult, actualErr := unit.StatusError()
 
 	// ----------------------------------------------------------------
 	// test the results

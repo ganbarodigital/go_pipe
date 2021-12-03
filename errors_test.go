@@ -37,11 +37,12 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-package pipe
+package pipe_test
 
 import (
 	"testing"
 
+	pipe "github.com/ganbarodigital/go_pipe/v6"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -49,7 +50,7 @@ func TestErrNonZeroStatusCode(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	testData := ErrNonZeroStatusCode{
+	testData := pipe.ErrNonZeroStatusCode{
 		"sequence",
 		127,
 	}
