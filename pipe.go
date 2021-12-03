@@ -43,7 +43,7 @@ import (
 	"io"
 
 	ioextra "github.com/ganbarodigital/go-ioextra/v2"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish/v4"
 )
 
 // Pipe is our data structure. All PipeCommands read from, and/or write to
@@ -69,7 +69,7 @@ type Pipe struct {
 	statusCode int
 
 	// PipeCommands can have their own environment, if they want one
-	Env envish.Expander
+	Env *envish.OverlayEnv
 
 	// You can pass bitmask flags into PipeCommands. Their meaning
 	// is entirely yours to interpret.
@@ -86,7 +86,11 @@ type Pipe struct {
 func NewPipe(options ...func(*Pipe)) *Pipe {
 	// create a pipe that's ready to go
 	retval := Pipe{
-		Env: envish.NewProgramEnv(),
+		Env: envish.NewOverlayEnv(
+			[]envish.Expander{
+				envish.NewProgramEnv(),
+			},
+		),
 	}
 	retval.ResetBuffers()
 	retval.ResetError()

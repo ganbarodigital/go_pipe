@@ -268,7 +268,7 @@ AttachOsStdin sets the pipe to read from your program's Stdin.
 
 AttachOsStdout sets the pipe to write to your program's Stdout.
 
-### func [SetStatusCode](/pipe.go#L568)
+### func [SetStatusCode](/pipe.go#L572)
 
 `func SetStatusCode(p *Pipe, newStatusCode int)`
 
@@ -338,28 +338,28 @@ statusCode is: 0
 err is: <nil>
 ```
 
-#### func (*Pipe) [DrainStdinToStdout](/pipe.go#L105)
+#### func (*Pipe) [DrainStdinToStdout](/pipe.go#L109)
 
 `func (p *Pipe) DrainStdinToStdout()`
 
 DrainStdinToStdout will copy everything that's left in the pipe's Stdin
 over to the pipe's Stdout.
 
-#### func (*Pipe) [Error](/pipe.go#L127)
+#### func (*Pipe) [Error](/pipe.go#L131)
 
 `func (p *Pipe) Error() error`
 
 Error returns the error returned from the last PipeCommand
 that ran against this pipe.
 
-#### func (*Pipe) [Okay](/pipe.go#L139)
+#### func (*Pipe) [Okay](/pipe.go#L143)
 
 `func (p *Pipe) Okay() bool`
 
 Okay confirms that the last PipeCommand run against the pipe completed
 without reporting an error.
 
-#### func (*Pipe) [PopStderr](/pipe.go#L468)
+#### func (*Pipe) [PopStderr](/pipe.go#L472)
 
 `func (p *Pipe) PopStderr()`
 
@@ -376,7 +376,7 @@ intention.
 
 Use PopStderrOnly when you don't want to touch the pipe's Stdout at all.
 
-#### func (*Pipe) [PopStderrOnly](/pipe.go#L505)
+#### func (*Pipe) [PopStderrOnly](/pipe.go#L509)
 
 `func (p *Pipe) PopStderrOnly()`
 
@@ -390,7 +390,7 @@ Stderr (for example, to redirect to /dev/null).
 NOTE: even if p.Stdout == p.Stderr, PopStderrOnly leaves p.Stdout
 untouched.
 
-#### func (*Pipe) [PopStdin](/pipe.go#L254)
+#### func (*Pipe) [PopStdin](/pipe.go#L258)
 
 `func (p *Pipe) PopStdin()`
 
@@ -401,7 +401,7 @@ It reverses your last call to PushStdin.
 This is useful for callers who need to temporarily replace the pipe's
 Stdin.
 
-#### func (*Pipe) [PopStdout](/pipe.go#L342)
+#### func (*Pipe) [PopStdout](/pipe.go#L346)
 
 `func (p *Pipe) PopStdout()`
 
@@ -418,7 +418,7 @@ intention.
 
 Use PopStdoutOnly when you don't want to touch the pipe's Stderr at all.
 
-#### func (*Pipe) [PopStdoutOnly](/pipe.go#L379)
+#### func (*Pipe) [PopStdoutOnly](/pipe.go#L383)
 
 `func (p *Pipe) PopStdoutOnly()`
 
@@ -432,7 +432,7 @@ Stdout (for example, to redirect to /dev/null).
 NOTE: even if p.Stdout == p.Stderr, PopStdoutOnly leaves p.Stderr
 untouched.
 
-#### func (*Pipe) [PushStderr](/pipe.go#L437)
+#### func (*Pipe) [PushStderr](/pipe.go#L441)
 
 `func (p *Pipe) PushStderr(newStderr ioextra.TextReaderWriter)`
 
@@ -447,7 +447,7 @@ Stderr (for example, to redirect to /dev/null).
 NOTE: if p.Stdout == p.Stderr, PushStderr sets *both* p.Stdout and
 p.Stderr to the newStderr.
 
-#### func (*Pipe) [PushStdin](/pipe.go#L237)
+#### func (*Pipe) [PushStdin](/pipe.go#L241)
 
 `func (p *Pipe) PushStdin(newStdin ioextra.TextReader)`
 
@@ -459,7 +459,7 @@ You can call PopStdin to reverse this operation.
 This is useful for callers who need to temporarily replace the pipe's
 Stdin.
 
-#### func (*Pipe) [PushStdout](/pipe.go#L312)
+#### func (*Pipe) [PushStdout](/pipe.go#L316)
 
 `func (p *Pipe) PushStdout(newStdout ioextra.TextReaderWriter)`
 
@@ -474,7 +474,7 @@ Stdout (for example, to redirect to /dev/null).
 NOTE: if p.Stdout == p.Stderr, PushStdout sets *both* p.Stdout and
 p.Stderr to the newStdout.
 
-#### func (*Pipe) [ResetBuffers](/pipe.go#L154)
+#### func (*Pipe) [ResetBuffers](/pipe.go#L158)
 
 `func (p *Pipe) ResetBuffers()`
 
@@ -484,59 +484,59 @@ pipe.
 It also empties the internal stacks used by PushStdin / PopStdin,
 PushStdout / PopStdout, and PushStderr / PopStderr.
 
-#### func (*Pipe) [ResetError](/pipe.go#L173)
+#### func (*Pipe) [ResetError](/pipe.go#L177)
 
 `func (p *Pipe) ResetError()`
 
 ResetError sets the pipe's status code and error to their zero values
 of (StatusOkay, nil).
 
-#### func (*Pipe) [RunCommand](/pipe.go#L186)
+#### func (*Pipe) [RunCommand](/pipe.go#L190)
 
 `func (p *Pipe) RunCommand(c PipeCommand)`
 
 RunCommand will run a function using this pipe. The function's return
 values are stored in the pipe's StatusCode and Err fields.
 
-#### func (*Pipe) [SetNewStderr](/pipe.go#L415)
+#### func (*Pipe) [SetNewStderr](/pipe.go#L419)
 
 `func (p *Pipe) SetNewStderr()`
 
 SetNewStderr creates a new, empty Stderr buffer on this pipe.
 
-#### func (*Pipe) [SetNewStdin](/pipe.go#L202)
+#### func (*Pipe) [SetNewStdin](/pipe.go#L206)
 
 `func (p *Pipe) SetNewStdin()`
 
 SetNewStdin creates a new, empty Stdin buffer on this pipe.
 
-#### func (*Pipe) [SetNewStdout](/pipe.go#L290)
+#### func (*Pipe) [SetNewStdout](/pipe.go#L294)
 
 `func (p *Pipe) SetNewStdout()`
 
 SetNewStdout creates a new, empty Stdout buffer on this pipe.
 
-#### func (*Pipe) [SetStdinFromString](/pipe.go#L215)
+#### func (*Pipe) [SetStdinFromString](/pipe.go#L219)
 
 `func (p *Pipe) SetStdinFromString(input string)`
 
 SetStdinFromString sets the pipe's Stdin to be the given input string.
 
-#### func (*Pipe) [StatusCode](/pipe.go#L542)
+#### func (*Pipe) [StatusCode](/pipe.go#L546)
 
 `func (p *Pipe) StatusCode() int`
 
 StatusCode returns the UNIX-like status code from the last PipeCommand
 that ran against this pipe.
 
-#### func (*Pipe) [StatusError](/pipe.go#L554)
+#### func (*Pipe) [StatusError](/pipe.go#L558)
 
 `func (p *Pipe) StatusError() (int, error)`
 
 StatusError is a shorthand for calling p.StatusCode() and p.Error()
 to get the UNIX-like status code and the last reported Golang error.
 
-#### func (*Pipe) [StderrStackLen](/pipe.go#L529)
+#### func (*Pipe) [StderrStackLen](/pipe.go#L533)
 
 `func (p *Pipe) StderrStackLen() int`
 
@@ -546,7 +546,7 @@ Stderr entries.
 You can call PushStderr and PopStderr to add entries to & from the
 internal stack.
 
-#### func (*Pipe) [StdinStackLen](/pipe.go#L278)
+#### func (*Pipe) [StdinStackLen](/pipe.go#L282)
 
 `func (p *Pipe) StdinStackLen() int`
 
@@ -556,7 +556,7 @@ Stdin entries.
 You can call PushStdin and PopStdin to add entries to & from the
 internal stack.
 
-#### func (*Pipe) [StdoutStackLen](/pipe.go#L403)
+#### func (*Pipe) [StdoutStackLen](/pipe.go#L407)
 
 `func (p *Pipe) StdoutStackLen() int`
 

@@ -2,6 +2,15 @@
 
 ## develop
 
+### Dependencies
+
+* Switched to go_envish/v4.
+
+### B/C Breaks
+
+* `Pipe.Env` is now always an `envish.OverlayEnv`
+  - makes life a lot easier for Scriptish
+
 ## v6.3.0
 
 Released Friday, 26th November 2021.

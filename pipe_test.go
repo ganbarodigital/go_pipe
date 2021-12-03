@@ -44,7 +44,7 @@ import (
 	"testing"
 
 	"github.com/ganbarodigital/go-ioextra/v2"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish/v4"
 	pipe "github.com/ganbarodigital/go_pipe/v6"
 	"github.com/stretchr/testify/assert"
 )
@@ -212,7 +212,11 @@ func TestNewPipeAppliesAnyOptionsWePassIn(t *testing.T) {
 		pipe.SetStatusCode(p, expectedStatusCode)
 	}
 	op2 := func(p *pipe.Pipe) {
-		p.Env = envish.NewLocalEnv()
+		p.Env = envish.NewOverlayEnv(
+			[]envish.Expander{
+				envish.NewLocalEnv(),
+			},
+		)
 	}
 
 	// ----------------------------------------------------------------
