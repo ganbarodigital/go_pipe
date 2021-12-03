@@ -2,13 +2,39 @@
 
 ## develop
 
+## v6.3.0
+
+Released Friday, 26th November 2021.
+
+### New
+
+* Added `Pipe.PopStdoutOnly()`
+* Added `Pipe.PopStderrOnly()`
+* `Pipe.PushStdout()`, `Pipe.PushStderr()`, `Pipe.PopStdout()` and `Pipe.PopStderr()` will change *both* the Stdout and the Stderr, if they are the same when the function is called.
+
+## v6.2.0
+
+Released Friday, 26th November 2021.
+
+### New
+
+* Added `Pipe.PushStdin()`
+* Added `Pipe.PopStdin()`
+* Added `Pipe.StdinStackLen()`
+* Added `Pipe.PushStdout()`
+* Added `Pipe.PopStdout()`
+* Added `Pipe.StdoutStackLen()`
+* Added `Pipe.PushStderr()`
+* Added `Pipe.PopStderr()`
+* Added `Pipe.StderrStackLen()`
+
 ## v6.1.1
 
 Released Thursday, 25th November 2021.
 
 ### Fixes
 
-* `ErrNonZeroStatusCode` now exports its fields.
+* `ErrNonZeroErrorCode` now exports its fields.
 
 ## v6.1.0
 
@@ -24,33 +50,22 @@ Released Wednesday, 24th November 2021.
 
 Released Wednesday, 24th November 2021.
 
-### Deprecations
-
-* `ReadBuffer.NewReader()` is now deprecated
-  - there's no way to implement it without creating unwanted side-effects
+The main focus for v6.0.0 has been to extract reusable I/O concepts out into a separate `ioextra` package.
 
 ### Refactoring
 
-According to pkg.go.dev, nothing is using pipe/v5, so it's safe to make these changes.
-
-* `ReadBuffer` is now `Input`
-  - `ReadBuffer` was not an accurate name, as the input could have been backed by an underlying file (e.g. os.Stdin)
-* `WriteBuffer` is now `Output`
-  - `WriteBuffer` was not an accurate name, as the output could have been backed by an underlying file (e.g. os.Stdout)
-
-### New
-
-* Added `InputOutput`
-* Added `FileDest` and `NewFileDest`
-* `Dest` now implements `ReadWriteBuffer`
-* Added `NewSourceFromDest()`
+* `ReadBuffer` has been replaced by `ioextra.TextReader`
+* `WriteBuffer` has been replaced by `ioextra.TextWriter`
+* `Source` has been replaced by `ioextra.TextBuffer`
+* `Dest` has been replaced by `ioextra.TextBuffer`
+* `NewScanReader` has been replaced by `ioextra.NewTextScanner`
+* `Command` is now `PipeCommand`
 
 ### Fixes
 
-* `Pipe.Stdin` is now an `Input`
-* `Pipe.Stdout` is now an `Output`
-* `Pipe.Stderr` is now an `Output`
-* `Input` now extends `io.Reader` and `io.Closer`
+* `Pipe.Stdin` is now an `ioextra.TextReader`
+* `Pipe.Stdout` is now an `ioextra.TextWriter`
+* `Pipe.Stderr` is now an `ioextra.TextWriter`
 
 ## v5.2.0
 
